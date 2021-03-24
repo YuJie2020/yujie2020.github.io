@@ -104,4 +104,4 @@ theme: 3-hexo
 deploy:
   type: git
   repo: git@github.com:YuJie2020/yujie2020.github.io.git
-  branch: public
+  branch: master
