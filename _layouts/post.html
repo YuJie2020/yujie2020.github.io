@@ -1,0 +1,26 @@
+---
+layout: default
+---
+
+<article id="post__content">
+    <h1 id="post__title" data-identifier="{{ page.date | date: "%Y%m%d" }}">{{ page.title }}</h1>
+    <div id="post__date">{{ page.date | date: "%Y-%m-%d" }}</div>
+    <declare id="declare" class="declare">
+      <hr/> 本博客所有文章采用的授权方式为
+        <a href="http://creativecommons.org/licenses/by-nc-nd/3.0/deed.zh">
+          <b>自由转载-非商用-非衍生-保持署名</b>
+        </a>
+      ，转载请务必注明出处，谢谢。<br /><br />
+      声明：<br />本博客欢迎转发，但请保留原作者信息!<br />新浪微博：<a href="http://weibo.com/lingxiankong">@Lingxian_kong</a>;<br />博客地址：<a href="https://lingxiankong.github.io">孔令贤的博客</a>;<br />微信公众号：飞翔的尘埃;<br />内容系本人学习、研究和总结，如有雷同，实属荣幸！
+      <hr/>
+    </declare>
+    {{ content }}
+</article>
+<!-- end #post__content -->
+
+<h2 id="post__discuss">文章赞赏</h2>
+<img src="/images/like.jpeg" alt="赞赏码" class="image-center">
+
+<h2 id="post__discuss">文章评论</h2>
+{% include disqus.html %}
+{% include share.html %}

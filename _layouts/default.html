@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {% include header.html %}
+  </head>
+  <body>
+    <button id="js-fullscreen"><span id="icon-arrow" class="fontello"></span></button>
+    <button id="scroll-top"><span id="icon-arrow-up" class="fontello"></span></button>
+
+    {% include nav.html %}
+    <div id="post">
+      <div id="pjax">
+        {{ content }}
+        </br>
+        <hr align="center" width="100%" color="#F1F1F1" size="3"></hr>
+        {% include copyright.html %}
+      </div> <!-- end #pjax -->
+
+      <div id="post__toc-trigger">
+        <div id="post__toc">
+          <span id="post__toc-title">章节列表</span>
+          <ul id="post__toc-ul"></ul>
+        </div>
+      </div>
+    </div> <!-- end #post -->
+    {% include scripts.html %}
+
+   </body>
+ </html>
