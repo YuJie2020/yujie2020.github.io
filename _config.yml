@@ -8,7 +8,7 @@ subtitle: 'Blog'
 description: 'java'
 keywords:
 author: YuJie
-language: en
+language: zh-CN
 timezone: ''
 
 # URL
@@ -44,7 +44,7 @@ post_asset_folder: false
 relative_link: false
 future: true
 highlight:
-  enable: true
+  enable: false
   line_number: true
   auto_detect: false
   tab_replace: ''
