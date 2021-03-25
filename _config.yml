@@ -1,9 +1,9 @@
 # Site settings
-title: 孔令贤的个人博客
-email: larrykong2016@gmail.com
-description: > #孔令贤的个人博客
+title: Vega Lau的个人博客
+email: VegaLau@qq.com
+description: > #Vega Lau的个人博客
 baseurl: "" # the subpath of your site, e.g. /blog/
-url: "https://lingxiankong.github.io" # the base hostname & protocol for your site
+url: "https://yujie2020.github.io" # the base hostname & protocol for your site
 
 # Paginate（分页）
 #gems: [jekyll-paginate]
@@ -29,13 +29,13 @@ favicon: /assets/image/favicon.ico
 
 # 博客作者相关
 author:
-  name: Lingxian Kong
-  email: lingxian.kong.nz@gmail.com
-  link: http://lingxiankong.github.io/
-  weibo: http://www.weibo.com/lingxiankong
-  weibo_username: Lingxian_Kong
-  github: https://github.com/lingxiankong
-  github_username: lingxiankong
+  name: Vega Lau
+  email: VegaLau@qq.com
+  link: https://yujie2020.github.io
+  weibo: http://www.weibo.com
+  weibo_username: null
+  github: https://github.com/YuJie2020
+  github_username: YuJie
 
 
 locals:
@@ -59,4 +59,4 @@ image: /assets/image/
 
 # disqus 设置
 disqus:
-  shortname: lingxiankong
+  shortname: VegaLau
