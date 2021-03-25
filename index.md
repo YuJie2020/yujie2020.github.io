@@ -1,6 +1,6 @@
 ---
 layout: page
-title: You only live once. - Vega Lau的个人博客
+title: You only live once - Vega Lau的个人博客
 ---
 ---
 
