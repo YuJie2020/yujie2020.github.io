@@ -1,6 +1,6 @@
 ---
 layout: page
-title: You only live once - Vega Lau的个人博客
+title: You only live once. - Vega Lau的个人博客
 ---
 ---
 
@@ -18,6 +18,4 @@ Vega Lau，2019年6月份毕业于合肥工业大学机械工程学院机械设�
 - 微信公众号二维码：
 
   ![微信公众号二维码](/images/1997-05-18-about-me/my_wechat.jpg)
-
----
 
