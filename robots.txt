@@ -2,4 +2,4 @@
 User-agent: *
 Disallow:
 Disallow: /bin/
-Sitemap: http://jieyu2020.github.io/sitemap.xml
+Sitemap: http://yujie2020.github.io/sitemap.xml
