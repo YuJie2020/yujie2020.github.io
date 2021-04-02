@@ -14,10 +14,10 @@ category: 技术
 空间复杂度：O(h)	h - 层数
 
 对于递归用函数：  
-		root must be used  
-		update ans, can use both children  
-		return value with only one child  
-		后序遍历
+        root must be used  
+        update ans, can use both children  
+        return value with only one child  
+        后序遍历
 
 ### 124. [Binary Tree Maximum Path Sum](https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/) 二叉树中的最大路径和
 
@@ -25,7 +25,7 @@ category: 技术
 路径和 是路径中各节点值的总和。  
 给你一个二叉树的根节点 root ，返回其 最大路径和 。  
 示例：  
-![](/images/2021-04-02-tree-algorithm/124.jpg)
+![](/images/2021-04-02-tree-algorithm/124.jpg)  
 输入：root = [-10,9,20,null,null,15,7]  
 输出：42  
 解释：最优路径是 15 -> 20 -> 7 ，路径和为 15 + 20 + 7 = 42
@@ -55,9 +55,9 @@ class Solution {
 
 tips：  
 对于负数值的说明：  
-调用maxPathSum函数传入的参数为叶子节点时，且叶子节点为负数，返回值就为当前叶子节点的负数值；  
-当回溯到原来的调用位置时，就会与0进行比较，从而舍弃此条左/右边路（代表不选左/右节点）；  
-更新max值时就不一定是历史最大值与左+当前节点+右的值比较了，会舍弃负数值，变为历史最大值与当前节点或者左+当前节点或当前节点+右比较。
+        调用maxPathSum函数传入的参数为叶子节点时，且叶子节点为负数，返回值就为当前叶子节点的负数值；  
+        当回溯到原来的调用位置时，就会与0进行比较，从而舍弃此条左/右边路（代表不选左/右节点）；  
+        更新max值时就不一定是历史最大值与左+当前节点+右的值比较了，会舍弃负数值，变为历史最大值与当前节点或者左+当前节点或当前节点+右比较。
 
 ### 687. [Longest Univalue Path](https://leetcode-cn.com/problems/longest-univalue-path/) 最长同值路径
 
@@ -65,10 +65,10 @@ tips：
 注意：两个节点之间的路径长度由它们之间的边数表示。  
 示例：  
 输入：  
-              1
-             / \
-            4   5
-           / \   \
+              1  
+             / \  
+            4   5  
+           / \   \  
           4   4   5  
 输出：42
 
@@ -105,9 +105,9 @@ class Solution {
 注意：两结点之间的路径长度是以它们之间边的数目表示。  
 示例：  
 输入：  
-              1
-             / \
-            2   3
+              1  
+             / \  
+            2   3  
            / \   
           4   5   
 输出：3  
