@@ -9,15 +9,16 @@ category: 技术
 抽出LeetCode题库中树结构相关的算法题目，再以相似类型的题目进行分类归纳总结题解。  
 并非每道题目的解法都是它的最优写法，只是在尽量保证代码执行高效性的前提下，为了归纳总结便于记忆而给定的解法，故这里每道题的题解也都只列出了一种写法。
 
-## Ⅰ Binary Tree Maximum Path
+## Ⅰ Binary Tree Maximum Path Sum
 时间复杂度：O(n)	n - 节点数  
 空间复杂度：O(h)	h - 层数
 
 对于递归用函数：  
-        root must be used  
-        update ans, can use both children  
-        return value with only one child  
-        后序遍历
+
+- root must be used
+- update ans, can use both children
+- return value with only one child
+- 后序遍历
 
 ### 124. [Binary Tree Maximum Path Sum](https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/) 二叉树中的最大路径和
 
@@ -54,10 +55,11 @@ class Solution {
 ```
 
 tips：  
-对于负数值的说明：  
-        调用maxPathSum函数传入的参数为叶子节点时，且叶子节点为负数，返回值就为当前叶子节点的负数值；  
-        当回溯到原来的调用位置时，就会与0进行比较，从而舍弃此条左/右边路（代表不选左/右节点）；  
-        更新max值时就不一定是历史最大值与左+当前节点+右的值比较了，会舍弃负数值，变为历史最大值与当前节点或者左+当前节点或当前节点+右比较。
+对于负数值的说明：
+
+- 调用maxPathSum函数传入的参数为叶子节点时，且叶子节点为负数，返回值就为当前叶子节点的负数值；
+- 当回溯到原来的调用位置时，就会与0进行比较，从而舍弃此条左/右边路（代表不选左/右节点）；
+- 更新max值时就不一定是历史最大值与左+当前节点+右的值比较了，会舍弃负数值，变为历史最大值与当前节点或者左+当前节点或当前节点+右比较。
 
 ### 687. [Longest Univalue Path](https://leetcode-cn.com/problems/longest-univalue-path/) 最长同值路径
 
