@@ -296,7 +296,6 @@ class Solution {
 ### 1008. [Construct Binary Search Tree from Preorder Traversal](https://leetcode-cn.com/problems/construct-binary-search-tree-from-preorder-traversal/) 前序遍历构造二叉搜索树
 
 返回与给定前序遍历 preorder 相匹配的二叉搜索树的根结点。  
-给你一个二叉树的根节点 root ，返回其 最大路径和 。  
 示例：  
 输入：[8,5,1,7,10,12]  
 输出：  
@@ -334,17 +333,3 @@ tips：
 
 - 时间复杂度：O(n^2)，因为递归用函数中有迭代的while循环。
 - 空间复杂度：O(n)
-
-## Ⅲ Binary Tree Maximum Path Sum
-
-## Ⅳ Binary Tree Maximum Path Sum
-
-## Ⅴ Binary Tree Maximum Path Sum
-
-## Ⅵ Binary Tree Maximum Path Sum
-
-## Ⅶ Binary Tree Maximum Path Sum
-
-## Ⅷ Binary Tree Maximum Path Sum
-
-## Ⅸ Binary Tree Maximum Path Sum
