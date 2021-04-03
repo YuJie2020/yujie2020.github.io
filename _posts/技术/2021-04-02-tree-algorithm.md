@@ -11,7 +11,7 @@ category: 技术
 
 ## Ⅰ Binary Tree Maximum Path Sum
 时间复杂度：O(n)	n - 节点数  
-空间复杂度：O(h)	h - 层数
+空间复杂度：O(h)	h - 层数（递归调用栈可以达到 h 层的深度；最坏情况下，二叉树的高度等于二叉树中的节点个数）
 
 对于递归用函数：  
 
@@ -146,7 +146,194 @@ class Solution {
 }
 ```
 
-## Ⅱ Binary Tree Maximum Path Sum
+## Ⅱ Construct Binary Tree from Preorder and Inorder Traversal
+
+使用分治法的思想：将原问题拆解成若干个与原问题结构相同但规模更小的子问题，待子问题解决以后，原问题就得以解决。  
+时间复杂度：O(n)，其中 n 是树中的节点个数。  
+空间复杂度：O(n)，需要使用 O(n) 的空间存储哈希表，以及 O(h)（其中 h 是树的高度）的空间表示递归时栈空间。这里 h < n，所以总空间复杂度为 O(n)。
+
+### 105. [Construct Binary Tree from Preorder and Inorder Traversal](https://leetcode-cn.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/) 从前序与中序遍历序列构造二叉树
+
+根据一棵树的前序遍历与中序遍历构造二叉树，可以假设树中没有重复的元素。  
+示例：  
+输入：preorder = [3,9,20,15,7]；inorder = [9,3,15,20,7]  
+输出：
+
+```
+    3
+   / \
+  9  20
+    /  \
+   15   7
+```
+
+思路：  
+前序遍历数组的第 1 个数一定是当前递归子二叉树的根结点，于是可以在中序遍历中找这个根结点的索引，然后将“前序遍历数组”和“中序遍历数组”分为两个部分，就分别对应当前递归子二叉树的左子树和右子树，再分别递归便可实现要求。  
+![](/images/2021-04-02-tree-algorithm/105.png)
+
+题解：
+
+```java
+class Solution {
+
+    private int[] preorder; // 前序遍历的数组
+    private Map<Integer,Integer> hashMap; // 用于获取中序遍历数组中某值对应的索引
+
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        this.preorder = preorder;
+        this.hashMap = new HashMap<>();
+        for (int i = 0; i < inorder.length; i++) {
+            hashMap.put(inorder[i], i);
+        }
+        return buildTree(0, preorder.length - 1, 0, hashMap.size() - 1);
+    }
+
+    private TreeNode buildTree(int preLeft, int preRight, int inLeft, int inRight) {
+        if (preLeft > preRight || inLeft > inRight) return null; // 递归结束的条件
+        int pivot = preorder[preLeft]; // 每次递归得到的此次根节点的值
+        int pivotIndex = hashMap.get(pivot);
+        TreeNode root = new TreeNode(pivot);
+        root.left = buildTree(preLeft + 1, preLeft + pivotIndex - inLeft, inLeft, pivotIndex - 1);
+        root.right = buildTree(preLeft + pivotIndex - inLeft + 1, preRight, pivotIndex + 1, inRight);
+        return root;
+    }
+}
+```
+
+### 106. [Construct Binary Tree from Inorder and Postorder Traversal](https://leetcode-cn.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/) 从中序与后序遍历序列构造二叉树
+
+根据一棵树的中序遍历与后序遍历构造二叉树，可以假设树中没有重复的元素。  
+示例：  
+输入：输入：inorder = [9,3,15,20,7]；postorder = [9,15,7,20,3]    
+输出：
+
+```
+    3
+   / \
+  9  20
+    /  \
+   15   7
+```
+
+思路：  
+后序遍历数组的最后一个数一定是当前递归子二叉树的根结点，于是可以在中序遍历中找这个根结点的索引，然后将“前序遍历数组”和“中序遍历数组”分为两个部分，就分别对应当前递归子二叉树的左子树和右子树，再分别递归便可实现要求。  
+![](/images/2021-04-02-tree-algorithm/106.jpg)
+
+题解：
+
+```java
+class Solution {
+
+    private int postorder[]; // 后续遍历的数组
+    private Map<Integer, Integer> hashMap; // 用于获取中序遍历数组中某值对应的索引
+
+    public TreeNode buildTree(int[] inorder, int[] postorder) {
+        this.postorder = postorder;
+        this.hashMap = new HashMap<>();
+        for(int i = 0; i < inorder.length; i++) {
+            hashMap.put(inorder[i], i);
+        }
+        return buildTree(0, postorder.length - 1, 0, hashMap.size() - 1);
+    }
+
+    public TreeNode buildTree(int postLeft, int postRight, int inLeft, int inRight) {
+        if (postLeft > postRight || inLeft > inRight) return null; // 递归结束的条件
+        int pivot = postorder[postRight]; // 每次递归得到的此次根节点的值
+        int pivotIndex = hashMap.get(pivot);
+        TreeNode root = new TreeNode(pivot);
+        root.left = buildTree(postLeft, postLeft + pivotIndex - inLeft - 1, inLeft, pivotIndex - 1);
+        root.right = buildTree(postLeft + pivotIndex - inLeft, postRight -1, pivotIndex + 1, inRight);
+        return root;
+    }
+}
+```
+
+### 889. [Construct Binary Tree from Preorder and Postorder Traversal](https://leetcode-cn.com/problems/construct-binary-tree-from-preorder-and-postorder-traversal/) 根据前序和后序遍历构造二叉树
+
+返回与给定的前序和后序遍历匹配的任何二叉树，可以假设树中没有重复的元素。  
+示例：  
+输入：pre = [1,2,4,5,3,6,7]；post = [4,5,2,6,7,3,1]  
+输出：[1,2,3,4,5,6,7]
+
+思路：  
+前序遍历数组的第 1 个数和后序遍历数组的最后一个数一定是当前递归子二叉树的根结点，前序遍历数组的第 2 个数一定是当前递归子树根节点的左子节点，于是可以在后序遍历中找这个左子节点的索引，然后将“前序遍历数组”和“后序遍历数组”分为两个部分，就分别对应当前递归子二叉树的左子树和右子树，再分别递归便可实现要求。  
+![](/images/2021-04-02-tree-algorithm/889.png)
+
+题解：
+
+```java
+class Solution {
+
+    private int preorder[]; // 前序遍历的数组
+    private Map<Integer, Integer> hashMap; // 用于获取后序遍历数组中某值对应的索引
+
+    public TreeNode constructFromPrePost(int[] pre, int[] post) {
+        this.preorder = pre;
+        this.hashMap = new HashMap<>();
+        for (int i = 0; i < post.length; i++) {
+            hashMap.put(post[i], i);
+        }
+        return constructFromPrePost(0, preorder.length - 1, 0, hashMap.size() - 1);
+    }
+
+    private TreeNode constructFromPrePost(int preLeft, int preRight, int postLeft, int postRight) {
+        if (preLeft > preRight || postLeft > postRight) return null; // 左子节点或右子节点为空
+        TreeNode root = new TreeNode(preorder[preLeft]); // 以每次递归得到的此次根节点的值创建当前子树的根节点
+        if (preLeft == preRight || postLeft == postRight) { // 递归结束的条件
+            root.left = null;
+            root.right = null;
+            return root;
+        }
+        int left = preorder[preLeft + 1]; // 每次递归得到的此次根节点的左子节点的值
+        int leftIndex = hashMap.get(left); // 此次根节点的左子节点的值在后序遍历数组中的索引
+        root.left = constructFromPrePost(preLeft + 1, preLeft + leftIndex - postLeft + 1, postLeft, leftIndex);
+        root.right = constructFromPrePost(preLeft + leftIndex - postLeft + 2, preRight, leftIndex + 1, postRight - 1);
+        return root;
+    }
+}
+```
+
+### 1008. [Construct Binary Search Tree from Preorder Traversal](https://leetcode-cn.com/problems/construct-binary-search-tree-from-preorder-traversal/) 前序遍历构造二叉搜索树
+
+返回与给定前序遍历 preorder 相匹配的二叉搜索树的根结点。  
+给你一个二叉树的根节点 root ，返回其 最大路径和 。  
+示例：  
+输入：[8,5,1,7,10,12]  
+输出：  
+![](/images/2021-04-02-tree-algorithm/1008-title.png)
+
+思路：  
+前序遍历数组的第 1 个数一定是当前递归子二叉树的根结点，又因为对于二叉搜索树，其左子树的所有节点一定比根节点小，其右子树的所有节点一定比根节点大，于是可以迭代找第一个比当前根节点的值大的节点的索引，然后将“前序遍历数组分为两个部分，就分别对应当前递归子二叉树的左子树和右子树，再分别递归便可实现要求。  
+![](/images/2021-04-02-tree-algorithm/1008-answer.jpg)
+
+题解：
+
+```java
+class Solution {
+
+    private int[] preorder; // 前序遍历的数组
+
+    public TreeNode bstFromPreorder(int[] preorder) {
+        this.preorder = preorder;
+        return bstFromPreorder(0, preorder.length - 1);
+    }
+
+    private TreeNode bstFromPreorder(int start, int end) {
+        if (start > end) return null; // 递归结束的条件
+        TreeNode root = new TreeNode(preorder[start]);
+        int div = start + 1; // 记录用于分隔当前递归子二叉树的左右子树的索引
+        while (div <= end && preorder[div] < root.val) div++; // 用于分隔当前递归子二叉树的左右子树的索引不能超过当前递归子二叉树的范围end
+        root.left = bstFromPreorder(start + 1, div - 1);
+        root.right = bstFromPreorder(div, end);
+        return root;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n^2)，因为递归用函数中有迭代的while循环。
+- 空间复杂度：O(n)
 
 ## Ⅲ Binary Tree Maximum Path Sum
 
