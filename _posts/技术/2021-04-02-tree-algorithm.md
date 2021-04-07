@@ -10,15 +10,15 @@ category: 技术
 并非每道题目的解法都是它的最优写法，只是在尽量保证代码执行高效性的前提下，为了归纳总结便于记忆而给定的解法，故这里每道题的题解也都只列出了一种写法。
 
 ## Ⅰ Binary Tree Maximum Path Sum
-时间复杂度：O(n)	n - 节点数  
-空间复杂度：O(h)	h - 层数（递归调用栈可以达到 h 层的深度；最坏情况下，二叉树的高度等于二叉树中的节点个数）
-
 对于递归用函数：  
 
-- root must be used
-- update ans, can use both children
-- return value with only one child
-- 后序遍历
+- **root must be used**
+- **update ans, can use both children**
+- **return value with only one child**
+- **后序遍历**
+
+时间复杂度：O(n)	n - 节点数  
+空间复杂度：O(h)	h - 层数（递归调用栈可以达到 h 层的深度；最坏情况下，二叉树的高度等于二叉树中的节点个数）
 
 ### 124. [Binary Tree Maximum Path Sum](https://leetcode-cn.com/problems/binary-tree-maximum-path-sum/) 二叉树中的最大路径和
 
@@ -148,7 +148,7 @@ class Solution {
 
 ## Ⅱ Construct Binary Tree from Preorder and Inorder Traversal
 
-使用分治法的思想：将原问题拆解成若干个与原问题结构相同但规模更小的子问题，待子问题解决以后，原问题就得以解决。  
+使用**分治法**的思想：将原问题拆解成若干个与原问题结构相同但规模更小的子问题，待子问题解决以后，原问题就得以解决。  
 时间复杂度：O(n)，其中 n 是树中的节点个数。  
 空间复杂度：O(n)，需要使用 O(n) 的空间存储哈希表，以及 O(h)（其中 h 是树的高度）的空间表示递归时栈空间。这里 h < n，所以总空间复杂度为 O(n)。
 
