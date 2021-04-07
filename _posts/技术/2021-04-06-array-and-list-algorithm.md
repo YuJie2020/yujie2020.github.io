@@ -137,6 +137,37 @@ tips：
 - 这里思路需要转换一下，快慢指针都从索引2开始；
 - 数组的前两个数必然可以被保留，因此对于长度不超过 2 的数组无需进行任何处理。
 
+### 88. [Merge Sorted Array](https://leetcode-cn.com/problems/merge-sorted-array/) 合并两个有序数组
+
+给你两个有序整数数组 `nums1` 和 `nums2`，请你将 `nums2` 合并到 `nums1` 中*，*使 `nums1` 成为一个有序数组。初始化 nums1 和 nums2 的元素数量分别为 m 和 n 。你可以假设 nums1 的空间大小等于 m + n，这样它就有足够的空间保存来自 nums2 的元素。  
+示例：  
+输入：nums1 = [1,2,3,0,0,0], m = 3, nums2 = [2,5,6], n = 3  
+输出：[1,2,2,3,5,6]
+
+思路：  
+逆向双指针。nums1 的后半部分是空的，可以直接覆盖而不会影响结果。因此可以指针设置为从后向前遍历，每次取两者之中的较大者放进 nums1 的最后面。
+
+题解：
+
+```java
+class Solution {
+    public void merge(int[] nums1, int m, int[] nums2, int n) {
+        int i = m - 1; // 指向nums1数组的最后一个元素
+        int j = n - 1; // 指向nums2数组的最后一个元素
+        int tail = m + n - 1; // 指向合并后数组的最后一个元素
+        while (j >= 0) nums1[tail--] = i >=0 && nums1[i] > nums2[j] ? nums1[i--] : nums2[j--];
+    }
+}
+```
+
+tips：
+
+- 这里思路需要转换一下，指针都从末尾开始；
+- i是否大于0判断要位于两指针元素大小比较的前面，防止空指针异常；
+- i和j指针指向的位置即为nums1和nums2数组中下一个该“放置”的元素。
+- 时间复杂度：O(m + n)
+- 空间复杂度：O(1)
+
 ## Ⅱ Sort Colors
 
 使用**三路快排**的思路。
