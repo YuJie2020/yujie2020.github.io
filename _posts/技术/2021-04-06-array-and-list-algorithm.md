@@ -136,3 +136,43 @@ tips：
 
 - 这里思路需要转换一下，快慢指针都从索引2开始；
 - 数组的前两个数必然可以被保留，因此对于长度不超过 2 的数组无需进行任何处理。
+
+## Ⅱ Sort Colors
+
+使用**三路快排**的思路。
+
+时间复杂度：O(n)	n - 序列长度  
+空间复杂度：O(1)	没有创建新的序列，只需要常数空间存放若干变量
+
+### 75. [Sort Colors](https://leetcode-cn.com/problems/sort-colors/) 颜色分类
+
+给定一个包含红色、白色和蓝色，一共 `n` 个元素的数组，**[原地](https://baike.baidu.com/item/原地算法)**对它们进行排序，使得相同颜色的元素相邻，并按照红色、白色、蓝色顺序排列。使用整数 `0`、 `1` 和 `2` 分别表示红色、白色和蓝色。  
+示例：  
+输入：nums = [2,0,1]  
+输出：[0,1,2]
+
+思路：  
+![](/images/2021-04-06-array-and-list-algorithm/75.png)
+
+题解：
+
+```java
+class Solution {
+    public void sortColors(int[] nums) {
+        int zero = -1; // [0, ..., zero]的元素都为0
+        int two = nums.length; // [two, ..., nums.length - 1]的元素都为2
+        for (int i = 0; i < two; ) { // 索引i用于遍历
+            if (nums[i] == 0) {
+                nums[i++] = nums[++zero];
+                nums[zero] = 0;
+            } else if (nums[i] == 2) { // 这里i不能递增，因为和--two处元素交换，--two处的元素为一不确定的值（未检查的值）
+                nums[i] = nums[--two];
+                nums[two] = 2;
+            } else { // nums[i] == 1
+                i++;
+            }
+        }
+    }
+}
+```
+
