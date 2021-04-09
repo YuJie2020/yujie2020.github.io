@@ -35,7 +35,7 @@ $('#tags__ul li').each(function(index){
 $('.pl__all').on('click', function() {
   $(this).addClass('active').siblings().removeClass('active');
   if (sidebar.hasClass('mobile')) {
-    $('#sidebar, #pjax').addClass('fullscreen');
+    $('#sidebar, #pjax, #icon-arrow').addClass('fullscreen');
   }
 });
 
@@ -65,7 +65,7 @@ $('#scroll-top').on('click', function() {
 });
 
 $('#mobile-avatar').on('click', function(){
-  $('#sidebar, #pjax').addClass('fullscreen');
+  $('#sidebar, #pjax, #icon-arrow').addClass('fullscreen');
 });
 
 // Pjax
@@ -160,7 +160,7 @@ function afterPjax() {
   // container.scroll(check);
 
   if (sidebar.hasClass('mobile')) {
-    $('#sidebar, #pjax').addClass('fullscreen');
+    $('#sidebar, #pjax, #icon-arrow').addClass('fullscreen');
   }
 
 }afterPjax();
