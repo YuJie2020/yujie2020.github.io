@@ -3,9 +3,6 @@
    3-Jekyll Theme
    @author Peiwen Lu (P233)
    https://github.com/P233/3-Jekyll
-   
-   update by Vega Lau
-   https://github.com/YuJie2020
 \*---------------------------------*/
 
 // Variables
@@ -162,9 +159,8 @@ function afterPjax() {
   // check();
   // container.scroll(check);
 
-  // Cancel the automatic full screen feature when loading web pages on mobile devices
-  // if (sidebar.hasClass('mobile')) {
-  //   $('#sidebar, #pjax, #icon-arrow').addClass('fullscreen');
-  // }
+  if (sidebar.hasClass('mobile')) {
+    $('#sidebar, #pjax, #icon-arrow').addClass('fullscreen');
+  }
 
 }afterPjax();
