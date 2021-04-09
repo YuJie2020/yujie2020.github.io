@@ -170,7 +170,7 @@ tips：
 
 ## Ⅱ Sort Colors
 
-使用**三路快排**的思路。
+使用**快速排序**、**三路快排**的思路。
 
 时间复杂度：O(n)	n - 序列长度  
 空间复杂度：O(1)	没有创建新的序列，只需要常数空间存放若干变量
@@ -207,3 +207,62 @@ class Solution {
 }
 ```
 
+### 215. [Kth Largest Element in an Array](https://leetcode-cn.com/problems/kth-largest-element-in-an-array/) 数组中的第K个最大元素
+
+在未排序的数组中找到第 k 个最大的元素。  
+示例：  
+输入：[3,2,3,1,2,4,5,5,6] 和 k = 4  
+输出：4
+
+思路：  
+用快速排序来解决这个问题，先对原数组排序，再返回倒数第 k 个位置，这样平均时间复杂度是 O(nlogn)。每次经过「划分」操作后，一定可以确定一个元素的最终位置，即 x 的最终位置为 q，并且保证 a[l⋯q−1] 中的每个元素小于等于 a[q]，且 a[q] 小于等于 a[q+1⋯r] 中的每个元素。所以只要某次划分的 q 为倒数第 k 个下标的时候，就已经找到了答案。 只需关心这一点，至于 a[l⋯q−1] 和 a[q+1⋯r] 是否是有序的，不需要关心。改进快速排序算法：在分解的过程当中，对子数组进行划分，如果划分得到的 q 正好就是需要的下标，就直接返回 a[q]；否则，如果 q 比目标下标小，就递归右子区间，否则递归左子区间。这样就可以把原来递归两个区间变成只递归一个区间，提高了时间效率。  
+![](/images/2021-04-06-array-and-list-algorithm/215.png)
+
+题解：
+
+```java
+class Solution {
+
+    Random random = new Random();
+
+    public int findKthLargest(int[] nums, int k) {
+        int index = nums.length - k; // 第k大元素的索引
+        return randomPartition(nums, 0, nums.length - 1, index);
+    }
+
+    // 用于判别继续向左半部分还是右半部分划分（迭代），pivot中轴值在下一迭代部分中随机选取
+    private int randomPartition(int[] nums, int left, int right, int index) {
+        int pivotIndex = random.nextInt(right - left + 1) + left;
+        swap(nums, pivotIndex, right); // 将pivot中值交换到数组末尾
+        int result = partition(nums, left, right);
+        if (result == index) return nums[result];
+        return result > index ? randomPartition(nums, left, result - 1, index) : randomPartition(nums, result + 1, right, index);
+    }
+
+    // 划分的方法
+    private int partition(int[] nums, int left, int right) {
+        int pivot = nums[right]; // 中轴值（位于数组末尾）
+        int i = left - 1; // [left, ..., i]的元素都小于pivot，[i + 1, ..., right]的元素都大于等于pivot
+        for (int j = left; j < right; j++) {
+            if (nums[j] < pivot) {
+                swap(nums, ++i, j);
+            }
+        }
+        swap(nums, i + 1, right); // 将中轴值归于正确的位置
+        return i + 1; // 中轴值的索引
+    }
+
+    // 数组中索引i及索引j处的元素对调位置
+    private void swap(int[] array, int i, int j) {
+        int temp = array[j];
+        array[j] = array[i];
+        array[i] = temp;
+    }
+}
+```
+
+tips：
+
+- 这里也用到了双指针的思想，指针i用于替换元素（慢指针），指针j用于遍历数组（快指针）。
+- 时间复杂度：O(n)，快速排序的性能和「划分」出的子数组的长度密切相关。直观地理解如果每次规模为 n 的问题都划分成 1 和 n - 1，每次递归的时候又向 n−1 的集合中递归，这种情况是最坏的，时间代价是 O(n^2)。这里引入随机化来加速这个过程，它的时间代价的期望是 O(n)。（证明过程：《算法导论》9.2）
+- 空间复杂度：O(logn)，递归使用栈空间的空间代价的期望为O(logn)。
