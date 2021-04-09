@@ -266,3 +266,82 @@ tips：
 - 这里也用到了双指针的思想，指针i用于替换元素（慢指针），指针j用于遍历数组（快指针）。
 - 时间复杂度：O(n)，快速排序的性能和「划分」出的子数组的长度密切相关。直观地理解如果每次规模为 n 的问题都划分成 1 和 n - 1，每次递归的时候又向 n−1 的集合中递归，这种情况是最坏的，时间代价是 O(n^2)。这里引入随机化来加速这个过程，它的时间代价的期望是 O(n)。（证明过程：《算法导论》9.2）
 - 空间复杂度：O(logn)，递归使用栈空间的空间代价的期望为O(logn)。
+
+### 324. [Wiggle Sort II](https://leetcode-cn.com/problems/wiggle-sort-ii/) 摆动排序 II
+
+给你一个整数数组 nums，将它重新排列成 nums[0] < nums[1] > nums[2] < nums[3]... 的顺序。你可以假设所有输入数组都可以得到满足题目要求的结果。  
+示例：  
+输入：nums = [1,3,2,2,3,1]  
+输出：[2,3,1,3,1,2]
+
+思路：  
+将数组从中间位置进行等分（如果数组长度为奇数则将中间的元素分到前子数组），然后将两个子数组进行穿插（第一部分子数组所有元素小于等于第二部分子数组元素）。定义较小的子数组为A，较大的子数组为B，如果nums中存在重复元素，正序穿插可能会造成nums[i] <= nums[i+1] >= nums[i+2] <= nums[i+3]...的情况。由于穿插之后，相邻元素必来自不同子数组，当A或B内部出现重复元素是不会出现上述穿插后相邻元素可能相等的情况。所以上述情况是因为数组A和数组B出现了相同元素，使用r来表示这一元素，如果A和B都存在r，那么r一定是A的最大值，B的最小值，这意味着r一定出现在A的尾部，B的头部。如果这一重复数字的个数较少则不会出现上述情况，只有当这一数字个数达到原数组元素总数的一半，才会在穿插后的出现在相邻位置。要解决这一情况需要使A的r和B的r在穿插后尽可能分开。于是将A和B子数组反序穿插。对于此问题，实际上并不需关心A和B内部的元素顺序，只需要满足A和B长度相同（或相差1），且A中的元素小于等于B中的元素，且r出现在A的头部和B的尾部（反序插入）即可。所以不需要进行排序，而只需要找到数组的中位数，且与中位数相等的值都位于其附近。而寻找中位数可以用快速选择算法（三路快排的思路）实现。  
+![](/images/2021-04-06-array-and-list-algorithm/324.png)
+
+题解：
+
+```java
+class Solution {
+
+    Random random = new Random();
+
+    public void wiggleSort(int[] nums) {
+        int index = (nums.length - 1) / 2; // 数组中位数的的索引
+        randomPartition(nums, 0, nums.length -1, index);
+        int[] nums2 = new int[nums.length];
+        for (int i = 0; i < nums.length; i++) {
+            nums2[i] = nums[i];
+        }
+        for(int i = index, j = nums.length -1, t = 0; j > index; i--, j--) { // 将较小及较大的子数组进行反序穿插
+            nums[t++] = nums2[i];
+            nums[t++] = nums2[j];
+        }
+        if (nums.length % 2 == 1) nums[nums.length - 1] = nums2[0]; // 数组的长度为奇数时，将较小子数组的第一个元素补到nums数组末尾
+    }
+
+    // 用于判别继续向左半部分还是右半部分划分（迭代），pivot中轴值在下一迭代部分中随机选取
+    private void randomPartition(int[] nums, int left, int right, int index) {
+        int pivotIndex = random.nextInt(right - left + 1) + left;
+        swap(nums, pivotIndex, right); // 将pivot中值交换到数组末尾
+        int result = partition(nums, left, right);
+        if (result == index) return;
+        if (index < result) {
+            randomPartition(nums, left, result - 1, index);
+        } else {
+            randomPartition(nums, result + 1, right, index);
+        }
+    }
+
+    // 划分的方法
+    private int partition(int[] nums, int left, int right) {
+        int pivot = nums[right]; // 中轴值（位于数组末尾）
+        int i = left - 1; // [left, ..., i]的元素都小于pivot
+        int j = right; // [j, ..., right]的元素大于pivot，(i, ..., j)的元素都等于pivot
+        for (int t = left; t < j;) { // 这里遍历的边界条件判断应为小于j
+            if (nums[t] < pivot) {
+                swap(nums, ++i, t++);
+            } else if (nums[t] > pivot) {
+                swap(nums, --j, t); // 这里t不能递增，因为和--j处元素交换，--j处的元素为一不确定的值（未检查的值）
+            } else { // nums[t] == pivot
+                t++;
+            }
+        }
+        if (j <= right) swap(nums, j++, right); // 将中轴值归于正确的位置，和大于pivot部分的第一个元素交换，故这里j索引就需要后移
+        return (i + j) / 2; // 中轴值的索引，取(i, ..., j)的中位索引
+    }
+
+    // 数组中索引i及索引j处的元素对调位置
+    private void swap(int[] array, int i, int j) {
+        int temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+}
+```
+
+tips：
+
+- 这道题结合了75题及215题的思路；
+- 将nums1拷贝到nums2时不能使用地址引用的方式，如果nums2指向的是nums的地址，nums2则会随着nums的变化而动态变化。
+- 时间复杂度：O(n)，快速排序的性能和「划分」出的子数组的长度密切相关。直观地理解如果每次规模为 n 的问题都划分成 1 和 n - 1，每次递归的时候又向 n−1 的集合中递归，这种情况是最坏的，时间代价是 O(n^2)。这里引入随机化来加速这个过程，它的时间代价的期望是 O(n)。（证明过程：《算法导论》9.2）
+- 空间复杂度：O(n)，需要存储两个子数组，所以空间复杂度为O(n)。
