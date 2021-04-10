@@ -1227,3 +1227,10 @@ td{
   margin-right: auto;
   width: 25%;
 }
+
+.image-center-mobile {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 61.8%;
+}
