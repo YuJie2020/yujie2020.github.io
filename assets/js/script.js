@@ -41,6 +41,7 @@ $('.pl__all').on('click', function() {
   $(this).addClass('active').siblings().removeClass('active');
   if (sidebar.hasClass('mobile')) {
     $('#sidebar, #pjax, #icon-arrow').addClass('fullscreen');
+	like.toggleClass("image-center-mobile");
   }
 });
 
@@ -71,6 +72,7 @@ $('#scroll-top').on('click', function() {
 
 $('#mobile-avatar').on('click', function(){
   $('#sidebar, #pjax, #icon-arrow').addClass('fullscreen');
+  like.toggleClass("image-center-mobile");
 });
 
 // Pjax
@@ -166,6 +168,7 @@ function afterPjax() {
 
   if (sidebar.hasClass('mobile')) {
     $('#sidebar, #pjax, #icon-arrow').addClass('fullscreen');
+	like.toggleClass("image-center-mobile");
   }
 
 }afterPjax();
