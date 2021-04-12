@@ -168,6 +168,45 @@ tips：
 - 时间复杂度：O(m + n)
 - 空间复杂度：O(1)
 
+### 977. [Squares of a Sorted Array](https://leetcode-cn.com/problems/squares-of-a-sorted-array/) 有序数组的平方
+
+给你一个按非递减顺序排序的整数数组 `nums`，返回每个数字的平方组成的新数组，要求也按非递减顺序排序。  
+示例：  
+输入：nums = [-7,-3,2,3,11]  
+输出：[4,9,9,49,121]
+
+题解：
+
+```java
+class Solution {
+    public int[] sortedSquares(int[] nums) {
+        int i = 0;
+        int j = nums.length - 1;
+        int[] nums2 = new int[nums.length];
+        int tail = nums.length -1;
+        while(tail >= 0) {
+            int iVal = nums[i] * nums[i];
+            int jVal = nums[j] * nums[j];
+            if (iVal > jVal) {
+                nums2[tail--] = iVal;
+                i++;
+            } else {
+                nums2[tail--] = jVal;
+                j--;
+            }
+        }
+        return nums2;
+    }
+}
+```
+
+tips：
+
+- 这道题使用了88题合并两个有序数组的思路；
+- 数组的题目首先考虑尽量低的时间复杂度，然后考虑空间复杂度，不一定所有题目都要时间复杂度O(n)，空间复杂度O(1)。
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)，需要存储答案数组，所以空间复杂度为O(n)。
+
 ## Ⅱ Sort Colors
 
 使用**快速排序**、**三路快排**的思路。
