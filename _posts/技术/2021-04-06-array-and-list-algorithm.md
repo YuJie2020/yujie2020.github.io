@@ -384,3 +384,53 @@ tips：
 - 将nums1拷贝到nums2时不能使用地址引用的方式，如果nums2指向的是nums的地址，nums2则会随着nums的变化而动态变化。
 - 时间复杂度：O(n)，快速排序的性能和「划分」出的子数组的长度密切相关。直观地理解如果每次规模为 n 的问题都划分成 1 和 n - 1，每次递归的时候又向 n−1 的集合中递归，这种情况是最坏的，时间代价是 O(n^2)。这里引入随机化来加速这个过程，它的时间代价的期望是 O(n)。（证明过程：《算法导论》9.2）
 - 空间复杂度：O(n)，需要存储两个子数组，所以空间复杂度为O(n)。
+
+## Ⅲ Third Maximum Number
+
+常规数组题目，遍历，条件判断，... 。
+
+时间复杂度：O(n)	n - 序列长度  
+空间复杂度：O(1)	没有创建新的序列，只需要常数空间存放若干变量
+
+### 75. [Third Maximum Number](https://leetcode-cn.com/problems/third-maximum-number/) 第三大的数
+
+给你一个非空数组，返回此数组中 **第三大的数** 。如果不存在，则返回数组中最大的数。  
+示例：  
+输入：[2, 2, 3, 1]  
+输出：1
+
+思路：  
+条件判断的顺序，跳出循环。
+
+题解：
+
+```java
+class Solution {
+
+    public int thirdMax(int[] nums) {
+        long m1 = Long.MIN_VALUE; // 第一大的数
+        long m2 = Long.MIN_VALUE; // 第二大的数
+        long m3 = Long.MIN_VALUE; // 第三大的数
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] == m1 || nums[i] == m2 || nums[i] == m3) continue; // 每次循环开始不能少了这句判断，continue表示结束本次循环，继续下一次的循环
+            if (nums[i] > m1) {
+                m3 = m2;
+                m2 = m1;
+                m1 = nums[i];
+            } else if (nums[i] > m2) {
+                m3 = m2;
+                m2 = nums[i];
+            } else if (nums[i] > m3) {
+                m3 = nums[i];
+            }
+        }
+        return m3 == Long.MIN_VALUE ? (int) m1 : (int) m3; // 这里使用强制类型转换，nums[i]的范围为int类型的范围，故不会溢出报错
+    }
+}
+```
+
+tips：
+
+- 题目要求-2^31 <= nums[i] <= 2^31 - 1（int类型的取值范围），故第一二三大的数初始值应取long类型的最小取值；
+- 当数据类型不一样时，将会发生数据类型转换，此题比较运算及赋值运算发生了自动类型转换；
+- 为防止第一二三大的数中出现重复值，每次循环的开始都需要先判断nums[i]是否等于这三个数中的任意一个。
