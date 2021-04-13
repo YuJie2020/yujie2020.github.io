@@ -238,6 +238,76 @@ class Solution {
 }
 ```
 
+### 11. [Container With Most Water](https://leetcode-cn.com/problems/container-with-most-water/) 盛最多水的容器
+
+给你 n 个非负整数 a1，a2，...，an，每个数代表坐标中的一个点 (i, ai) 。在坐标内画 n 条垂直线，垂直线 i 的两个端点分别为 (i, ai) 和 (i, 0) 。找出其中的两条线，使得它们与 x 轴共同构成的容器可以容纳最多的水。  
+示例：  
+输入：[1,8,6,2,5,4,8,3,7]  
+![](/images/2021-04-06-array-and-list-algorithm/11.jpg)  
+输出：49  
+解释：图中垂直线代表输入数组 [1,8,6,2,5,4,8,3,7]。在此情况下，容器能够容纳水（表示为蓝色部分）的最大值为 49。
+
+思路：  
+设每一状态下水槽面积为 S(i,j),(0 <= i < j < n)，由于水槽的实际高度由两板中的短板决定，则可得面积公式 S(i, j) = min(h[i], h[j]) × (j - i)。在每一个状态下，无论长板或短板收窄 1 格，都会导致水槽底边宽度 -1：若向内移动短板，水槽的短板 min(h[i], h[j]) 可能变大，因此水槽面积 S(i, j) 可能增大；若向内移动长板，水槽的短板 min(h[i], h[j]) 不变或变小，下个水槽的面积一定小于当前水槽面积。
+
+题解：
+
+```java
+class Solution {
+    public int maxArea(int[] height) {
+        int ans = 0;
+        for (int i = 0, j = height.length - 1; i < j;) {
+            ans = Math.max(Math.min(height[i], height[j]) * (j - i), ans);
+            if (height[i] < height[j]) {
+                i++;
+            } else {
+                j--;
+            }
+        }
+        return ans;
+    }
+}
+```
+
+tips：
+
+- 此题与167题思路相同。
+
+### 240. [Search a 2D Matrix II](https://leetcode-cn.com/problems/search-a-2d-matrix-ii/) 搜索二维矩阵 II
+
+编写一个高效的算法来搜索 m x n 矩阵 matrix 中的一个目标值 target 。该矩阵具有以下特性：每行的元素从左到右升序排列。每列的元素从上到下升序排列。  
+示例：  
+输入：matrix = [[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]], target = 5  
+![](/images/2021-04-06-array-and-list-algorithm/240.jpg)  
+输出：true
+
+题解：
+
+```java
+class Solution {
+    public boolean searchMatrix(int[][] matrix, int target) {
+        int m = matrix.length;
+        int n = matrix[0].length;
+        for (int i = 0, j = n - 1; i < m && j >= 0;) {
+            if (matrix[i][j] == target) {
+                return true;
+            } else if (matrix[i][j] < target) {
+                i++;
+            } else {
+                j--;
+            }
+        }
+        return false;
+    }
+}
+```
+
+tips：
+
+- 此题与167题思路相同。
+- 时间复杂度：O(m + n)
+- 空间复杂度：O(1)
+
 ## Ⅱ Sort Colors
 
 使用**快速排序**、**三路快排**的思路。
@@ -423,7 +493,7 @@ tips：
 时间复杂度：O(n)	n - 序列长度  
 空间复杂度：O(1)	没有创建新的序列，只需要常数空间存放若干变量
 
-### 75. [Third Maximum Number](https://leetcode-cn.com/problems/third-maximum-number/) 第三大的数
+### 414. [Third Maximum Number](https://leetcode-cn.com/problems/third-maximum-number/) 第三大的数
 
 给你一个非空数组，返回此数组中 **第三大的数** 。如果不存在，则返回数组中最大的数。  
 示例：  
