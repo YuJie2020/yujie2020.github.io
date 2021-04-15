@@ -536,3 +536,225 @@ tips：
 - 题目要求-2^31 <= nums[i] <= 2^31 - 1（int类型的取值范围），故第一二三大的数初始值应取long类型的最小取值；
 - 当数据类型不一样时，将会发生数据类型转换，此题比较运算及赋值运算发生了自动类型转换；
 - 为防止第一二三大的数中出现重复值，每次循环的开始都需要先判断nums[i]是否等于这三个数中的任意一个。
+
+## Ⅳ Valid Palindrome
+
+使用**双指针**思路的字符串的相关题目。
+
+时间复杂度：O(n)	n - 字符串 s 的长度  
+空间复杂度：O(1)或者O(n)	需要新建长度为n的数组存储字符串转换成的字符数组时空间复杂度为O(n)。
+
+### 125. [Valid Palindrome](https://leetcode-cn.com/problems/valid-palindrome/) 验证回文串
+
+给定一个字符串，验证它是否是回文串，只考虑字母和数字字符，可以忽略字母的大小写。空字符串为有效的回文串。  
+示例：  
+输入："A man, a plan, a canal: Panama"  
+输出：true
+
+题解：
+
+```java
+class Solution {
+    public boolean isPalindrome(String s) {
+        int left = 0, right = s.length() - 1;
+        while (left < right) {
+            while (left < right && !Character.isLetterOrDigit(s.charAt(left))) left++;
+            while (left < right && !Character.isLetterOrDigit(s.charAt(right))) right--;
+            if (left < right) {
+                if (Character.toLowerCase(s.charAt(left)) != Character.toLowerCase(s.charAt(right))) return false;
+                left++;
+                right--;
+            }
+        }
+        return true;
+    }
+}
+```
+
+tips：
+
+- 对JDK API中java.lang.Character类及java.lang.String类的熟悉。
+
+### 344. [Reverse String](https://leetcode-cn.com/problems/reverse-string/) 反转字符串
+
+编写一个函数，其作用是将输入的字符串反转过来。输入字符串以字符数组 `char[]` 的形式给出。你必须[原地](https://baike.baidu.com/item/原地算法)修改输入数组。你可以假设数组中的所有字符都是 [ASCII](https://baike.baidu.com/item/ASCII) 码表中的可打印字符。  
+示例：  
+输入：["h","e","l","l","o"]  
+输出：["o","l","l","e","h"]
+
+题解：
+
+```java
+class Solution {
+    public void reverseString(char[] s) {
+        int left = 0, right = s.length - 1;
+        while (left < right) swap(s, left++, right--);
+    }
+
+    private void swap(char[] array, int i, int j) {
+        char temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+}
+```
+
+### 345. [Reverse Vowels of a String](https://leetcode-cn.com/problems/reverse-vowels-of-a-string/) 反转字符串中的元音字母
+
+编写一个函数，以字符串作为输入，反转该字符串中的元音字母。  
+示例：  
+输入："leetcode"  
+输出："leotcede"
+
+题解：
+
+```java
+class Solution {
+    public String reverseVowels(String s) {
+        char[] sArray = s.toCharArray();
+        int left = 0, right = sArray.length - 1;
+        while (left < right) {
+            while (left < right && !isVowel(sArray, left)) left++;
+            while (left < right && !isVowel(sArray, right)) right--;
+            if (left < right) swap(sArray, left++, right--);
+        }
+        return String.valueOf(sArray);
+    }
+
+    private void swap(char[] array, int i, int j) {
+        char temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+
+    private boolean isVowel(char[] array, int index) {
+        if (array[index] == 'a' || array[index] == 'e' || array[index] == 'i' || array[index] == 'o' || array[index] == 'u' || array[index] == 'A' || array[index] == 'E' || array[index] == 'I' || array[index] == 'O' || array[index] == 'U') return true;
+        return false;
+    }
+}
+```
+
+tips：
+
+- 使用方法封装一部分功能(比如条件判断)很重要；
+- char类型在运算的时候会被首先提升为int类型然后再计算；
+- 对JDK API中java.lang.String类的熟悉。
+
+### 680. [Valid Palindrome II](https://leetcode-cn.com/problems/valid-palindrome-ii/) 验证回文字符串 Ⅱ
+
+给定一个非空字符串 `s`，最多删除一个字符。判断是否能成为回文字符串。字符串只包含从 a-z 的小写字母。  
+示例：  
+输入："abca"  
+输出：true
+
+题解：
+
+```java
+class Solution {
+    public boolean validPalindrome(String s) {
+        int left = 0, right = s.length() - 1;
+        left = isValidPalindrome(s, left, right);
+        if (left == -1) {
+            return true;
+        } else {
+            right = s.length() - 1 - left;
+            if (isValidPalindrome(s, left + 1, right) == -1 || isValidPalindrome(s, left, right - 1) == -1) return true;
+        }
+        return false;
+    }
+
+    // 判断子字符串是否为回文串的方法
+    private int isValidPalindrome(String s, int left, int right) {
+        while (left < right) {
+            if (s.charAt(left) == s.charAt(right)) {
+                left++;
+                right--;
+            } else {
+                return left; // 当前子串不是回文字符串时返回第一个不符合回文条件的left索引
+            }
+        }
+        return -1; // 当前子串是回文字符串时返回-1
+    }
+}
+```
+
+tips：
+
+- 使用方法封装一部分功能（比如条件判断）很重要，在此题中如果不将判断一个子串是否为回文串封装为一个方法，将其判断写在方法内部则会使代码逻辑冗赘。
+
+### 541. [Reverse String II](https://leetcode-cn.com/problems/reverse-string-ii/) 反转字符串 II
+
+给定一个字符串 `s` 和一个整数 `k`，你需要对从字符串开头算起的每隔 `2k` 个字符的前 `k` 个字符进行反转。如果剩余字符少于 k 个，则将剩余字符全部反转。如果剩余字符小于 2k 但大于或等于 k 个，则反转前 k 个字符，其余字符保持原样。  
+示例：  
+输入：s = "abcdefg", k = 2  
+输出："bacdfeg"
+
+题解：
+
+```java
+class Solution {
+    public String reverseStr(String s, int k) {
+        char[] sArray = s.toCharArray();
+        int left = 0;
+        int right = 0; // 初始化，防止写在循环内部导致重复定义
+        while (left < sArray.length) {
+            // 剩余字符少于k个将剩余字符全部反转，剩余字符大于或等于k个反转前k个字符
+            right = sArray.length - left < k ? sArray.length - 1 : left + k - 1;
+            swap(sArray, left, right);
+            left += 2 * k;
+        }
+        return String.valueOf(sArray);
+    }
+
+    private void swap(char[] array, int left, int right) {
+        while (left < right) {
+            char temp = array[left];
+            array[left++] = array[right];
+            array[right--] = temp;
+        }
+    }
+}
+```
+
+tips：
+
+- 当然并非所有题目都要优先考虑将一部分功能（比如条件判断、数组元素交换等）用方法封装起来，相比680题，在此题中可以将条件判断、数组元素交换各封装为一个方法，但必要性不大，完全可以清晰地写在原方法中；
+- 判断时只需要使用子串起始索引left就可以，不需要再附加终止索引right的判断。
+
+### 557. [Reverse Words in a String III](https://leetcode-cn.com/problems/reverse-words-in-a-string-iii/) 反转字符串中的单词 III
+
+给定一个字符串，你需要反转字符串中每个单词的字符顺序，同时仍保留空格和单词的初始顺序。在字符串中，每个单词由单个空格分隔，并且字符串中不会有任何额外的空格。  
+示例：  
+输入："Let's take LeetCode contest"  
+输出："s'teL ekat edoCteeL tsetnoc"
+
+题解：
+
+```java
+class Solution {
+    public String reverseWords(String s) {
+        char[] sArray = s.toCharArray();
+        int left = 0;
+        int right = 0; // 初始化，防止写在循环内部导致重复定义
+        while (left < sArray.length) {
+            right = left + 1;
+            while (right < sArray.length && sArray[right] != ' ') right++;
+            swap(sArray, left, right - 1);
+            left = right + 1;
+        }
+        return new String(sArray); // 使用构造方法的方式
+    }
+
+    private void swap(char[] array, int left, int right) {
+        while (left < right) {
+            char temp = array[left];
+            array[left++] = array[right];
+            array[right--] = temp;
+        }
+    }
+}
+```
+
+tips：
+
+- 与541题思路相同。
