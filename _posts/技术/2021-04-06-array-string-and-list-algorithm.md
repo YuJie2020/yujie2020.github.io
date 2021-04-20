@@ -9,7 +9,7 @@ category: 技术
 抽出LeetCode题库中数组和链表结构以及字符串相关的算法题目，再以相似类型的题目进行分类归纳总结题解。  
 并非每道题目的解法都是它的最优写法，只是在尽量保证代码执行高效性的前提下，为了归纳总结便于记忆而给定的解法，故这里每道题的题解也都只列出了一种写法。
 
-## Ⅰ Move Zeroes
+## Ⅰ Two Pointers 双指针
 使用**双指针**的思路，指针k（慢指针）用于替换元素，指针i（快指针）用于遍历序列。定义两个指针 slow 和 fast 分别为慢指针和快指针，其中慢指针表示处理出的数组的长度，快指针表示已经检查过的数组的长度，即 nums[fast] 表示待检查的第一个元素，nums[slow−1] 或 nums[slow] 为上一个应该被保留的元素所移动到的指定位置。
 
 时间复杂度：O(n)	n - 序列长度  
@@ -308,236 +308,7 @@ tips：
 - 时间复杂度：O(m + n)
 - 空间复杂度：O(1)
 
-## Ⅱ Sort Colors
-
-使用**快速排序**、**三路快排**的思路。
-
-时间复杂度：O(n)	n - 序列长度  
-空间复杂度：O(1)	没有创建新的序列，只需要常数空间存放若干变量
-
-### 75. [Sort Colors](https://leetcode-cn.com/problems/sort-colors/) 颜色分类
-
-给定一个包含红色、白色和蓝色，一共 `n` 个元素的数组，**[原地](https://baike.baidu.com/item/原地算法)**对它们进行排序，使得相同颜色的元素相邻，并按照红色、白色、蓝色顺序排列。使用整数 `0`、 `1` 和 `2` 分别表示红色、白色和蓝色。  
-示例：  
-输入：nums = [2,0,1]  
-输出：[0,1,2]
-
-思路：  
-![](/images/2021-04-06-array-string-and-list-algorithm/75.png)
-
-题解：
-
-```java
-class Solution {
-    public void sortColors(int[] nums) {
-        int zero = -1; // [0, ..., zero]的元素都为0
-        int two = nums.length; // [two, ..., nums.length - 1]的元素都为2
-        for (int i = 0; i < two; ) { // 索引i用于遍历
-            if (nums[i] == 0) {
-                nums[i++] = nums[++zero];
-                nums[zero] = 0;
-            } else if (nums[i] == 2) { // 这里i不能递增，因为和--two处元素交换，--two处的元素为一不确定的值（未检查的值）
-                nums[i] = nums[--two];
-                nums[two] = 2;
-            } else { // nums[i] == 1
-                i++;
-            }
-        }
-    }
-}
-```
-
-### 215. [Kth Largest Element in an Array](https://leetcode-cn.com/problems/kth-largest-element-in-an-array/) 数组中的第K个最大元素
-
-在未排序的数组中找到第 k 个最大的元素。  
-示例：  
-输入：[3,2,3,1,2,4,5,5,6] 和 k = 4  
-输出：4
-
-思路：  
-用快速排序来解决这个问题，先对原数组排序，再返回倒数第 k 个位置，这样平均时间复杂度是 O(nlogn)。每次经过「划分」操作后，一定可以确定一个元素的最终位置，即 x 的最终位置为 q，并且保证 a[l⋯q−1] 中的每个元素小于等于 a[q]，且 a[q] 小于等于 a[q+1⋯r] 中的每个元素。所以只要某次划分的 q 为倒数第 k 个下标的时候，就已经找到了答案。 只需关心这一点，至于 a[l⋯q−1] 和 a[q+1⋯r] 是否是有序的，不需要关心。改进快速排序算法：在分解的过程当中，对子数组进行划分，如果划分得到的 q 正好就是需要的下标，就直接返回 a[q]；否则，如果 q 比目标下标小，就递归右子区间，否则递归左子区间。这样就可以把原来递归两个区间变成只递归一个区间，提高了时间效率。  
-![](/images/2021-04-06-array-string-and-list-algorithm/215.png)
-
-题解：
-
-```java
-class Solution {
-
-    Random random = new Random();
-
-    public int findKthLargest(int[] nums, int k) {
-        int index = nums.length - k; // 第k大元素的索引
-        return randomPartition(nums, 0, nums.length - 1, index);
-    }
-
-    // 用于判别继续向左半部分还是右半部分划分（迭代），pivot中轴值在下一迭代部分中随机选取
-    private int randomPartition(int[] nums, int left, int right, int index) {
-        int pivotIndex = random.nextInt(right - left + 1) + left;
-        swap(nums, pivotIndex, right); // 将pivot中值交换到数组末尾
-        int result = partition(nums, left, right);
-        if (result == index) return nums[result];
-        return result > index ? randomPartition(nums, left, result - 1, index) : randomPartition(nums, result + 1, right, index);
-    }
-
-    // 划分的方法
-    private int partition(int[] nums, int left, int right) {
-        int pivot = nums[right]; // 中轴值（位于数组末尾）
-        int i = left - 1; // [left, ..., i]的元素都小于pivot，[i + 1, ..., right]的元素都大于等于pivot
-        for (int j = left; j < right; j++) {
-            if (nums[j] < pivot) {
-                swap(nums, ++i, j);
-            }
-        }
-        swap(nums, i + 1, right); // 将中轴值归于正确的位置
-        return i + 1; // 中轴值的索引
-    }
-
-    // 数组中索引i及索引j处的元素对调位置
-    private void swap(int[] array, int i, int j) {
-        int temp = array[j];
-        array[j] = array[i];
-        array[i] = temp;
-    }
-}
-```
-
-tips：
-
-- 这里也用到了双指针的思想，指针i用于替换元素（慢指针），指针j用于遍历数组（快指针）。
-- 时间复杂度：O(n)，快速排序的性能和「划分」出的子数组的长度密切相关。直观地理解如果每次规模为 n 的问题都划分成 1 和 n - 1，每次递归的时候又向 n−1 的集合中递归，这种情况是最坏的，时间代价是 O(n^2)。这里引入随机化来加速这个过程，它的时间代价的期望是 O(n)。（证明过程：《算法导论》9.2）
-- 空间复杂度：O(logn)，递归使用栈空间的空间代价的期望为O(logn)。
-
-### 324. [Wiggle Sort II](https://leetcode-cn.com/problems/wiggle-sort-ii/) 摆动排序 II
-
-给你一个整数数组 nums，将它重新排列成 nums[0] < nums[1] > nums[2] < nums[3]... 的顺序。你可以假设所有输入数组都可以得到满足题目要求的结果。  
-示例：  
-输入：nums = [1,3,2,2,3,1]  
-输出：[2,3,1,3,1,2]
-
-思路：  
-将数组从中间位置进行等分（如果数组长度为奇数则将中间的元素分到前子数组），然后将两个子数组进行穿插（第一部分子数组所有元素小于等于第二部分子数组元素）。定义较小的子数组为A，较大的子数组为B，如果nums中存在重复元素，正序穿插可能会造成nums[i] <= nums[i+1] >= nums[i+2] <= nums[i+3]...的情况。由于穿插之后，相邻元素必来自不同子数组，当A或B内部出现重复元素是不会出现上述穿插后相邻元素可能相等的情况。所以上述情况是因为数组A和数组B出现了相同元素，使用r来表示这一元素，如果A和B都存在r，那么r一定是A的最大值，B的最小值，这意味着r一定出现在A的尾部，B的头部。如果这一重复数字的个数较少则不会出现上述情况，只有当这一数字个数达到原数组元素总数的一半，才会在穿插后的出现在相邻位置。要解决这一情况需要使A的r和B的r在穿插后尽可能分开。于是将A和B子数组反序穿插。对于此问题，实际上并不需关心A和B内部的元素顺序，只需要满足A和B长度相同（或相差1），且A中的元素小于等于B中的元素，且r出现在A的头部和B的尾部（反序插入）即可。所以不需要进行排序，而只需要找到数组的中位数，且与中位数相等的值都位于其附近。而寻找中位数可以用快速选择算法（三路快排的思路）实现。  
-![](/images/2021-04-06-array-string-and-list-algorithm/324.png)
-
-题解：
-
-```java
-class Solution {
-
-    Random random = new Random();
-
-    public void wiggleSort(int[] nums) {
-        int index = (nums.length - 1) / 2; // 数组中位数的的索引
-        randomPartition(nums, 0, nums.length -1, index);
-        int[] nums2 = new int[nums.length];
-        for (int i = 0; i < nums.length; i++) {
-            nums2[i] = nums[i];
-        }
-        for(int i = index, j = nums.length -1, t = 0; j > index; i--, j--) { // 将较小及较大的子数组进行反序穿插
-            nums[t++] = nums2[i];
-            nums[t++] = nums2[j];
-        }
-        if (nums.length % 2 == 1) nums[nums.length - 1] = nums2[0]; // 数组的长度为奇数时，将较小子数组的第一个元素补到nums数组末尾
-    }
-
-    // 用于判别继续向左半部分还是右半部分划分（迭代），pivot中轴值在下一迭代部分中随机选取
-    private void randomPartition(int[] nums, int left, int right, int index) {
-        int pivotIndex = random.nextInt(right - left + 1) + left;
-        swap(nums, pivotIndex, right); // 将pivot中值交换到数组末尾
-        int result = partition(nums, left, right);
-        if (result == index) return;
-        if (index < result) {
-            randomPartition(nums, left, result - 1, index);
-        } else {
-            randomPartition(nums, result + 1, right, index);
-        }
-    }
-
-    // 划分的方法
-    private int partition(int[] nums, int left, int right) {
-        int pivot = nums[right]; // 中轴值（位于数组末尾）
-        int i = left - 1; // [left, ..., i]的元素都小于pivot
-        int j = right; // [j, ..., right]的元素大于pivot，(i, ..., j)的元素都等于pivot
-        for (int t = left; t < j;) { // 这里遍历的边界条件判断应为小于j
-            if (nums[t] < pivot) {
-                swap(nums, ++i, t++);
-            } else if (nums[t] > pivot) {
-                swap(nums, --j, t); // 这里t不能递增，因为和--j处元素交换，--j处的元素为一不确定的值（未检查的值）
-            } else { // nums[t] == pivot
-                t++;
-            }
-        }
-        if (j <= right) swap(nums, j++, right); // 将中轴值归于正确的位置，和大于pivot部分的第一个元素交换，故这里j索引就需要后移
-        return (i + j) / 2; // 中轴值的索引，取(i, ..., j)的中位索引
-    }
-
-    // 数组中索引i及索引j处的元素对调位置
-    private void swap(int[] array, int i, int j) {
-        int temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
-    }
-}
-```
-
-tips：
-
-- 这道题结合了75题及215题的思路；
-- 将nums1拷贝到nums2时不能使用地址引用的方式，如果nums2指向的是nums的地址，nums2则会随着nums的变化而动态变化。
-- 时间复杂度：O(n)，快速排序的性能和「划分」出的子数组的长度密切相关。直观地理解如果每次规模为 n 的问题都划分成 1 和 n - 1，每次递归的时候又向 n−1 的集合中递归，这种情况是最坏的，时间代价是 O(n^2)。这里引入随机化来加速这个过程，它的时间代价的期望是 O(n)。（证明过程：《算法导论》9.2）
-- 空间复杂度：O(n)，需要存储两个子数组，所以空间复杂度为O(n)。
-
-## Ⅲ Third Maximum Number
-
-常规数组题目，遍历，条件判断，... 。
-
-时间复杂度：O(n)	n - 序列长度  
-空间复杂度：O(1)	没有创建新的序列，只需要常数空间存放若干变量
-
-### 414. [Third Maximum Number](https://leetcode-cn.com/problems/third-maximum-number/) 第三大的数
-
-给你一个非空数组，返回此数组中 **第三大的数** 。如果不存在，则返回数组中最大的数。  
-示例：  
-输入：[2, 2, 3, 1]  
-输出：1
-
-思路：  
-条件判断的顺序，跳出循环。
-
-题解：
-
-```java
-class Solution {
-
-    public int thirdMax(int[] nums) {
-        long m1 = Long.MIN_VALUE; // 第一大的数
-        long m2 = Long.MIN_VALUE; // 第二大的数
-        long m3 = Long.MIN_VALUE; // 第三大的数
-        for (int i = 0; i < nums.length; i++) {
-            if (nums[i] == m1 || nums[i] == m2 || nums[i] == m3) continue; // 每次循环开始不能少了这句判断，continue表示结束本次循环，继续下一次的循环
-            if (nums[i] > m1) {
-                m3 = m2;
-                m2 = m1;
-                m1 = nums[i];
-            } else if (nums[i] > m2) {
-                m3 = m2;
-                m2 = nums[i];
-            } else if (nums[i] > m3) {
-                m3 = nums[i];
-            }
-        }
-        return m3 == Long.MIN_VALUE ? (int) m1 : (int) m3; // 这里使用强制类型转换，nums[i]的范围为int类型的范围，故不会溢出报错
-    }
-}
-```
-
-tips：
-
-- 不能使用快速排序算法的思路，要求返回的是数组中第三大的数，不是第三大的元素；
-- 题目要求-2^31 <= nums[i] <= 2^31 - 1（int类型的取值范围），故第一二三大的数初始值应取long类型的最小取值；
-- 当数据类型不一样时，将会发生数据类型转换，此题比较运算及赋值运算发生了自动类型转换；
-- 为防止第一二三大的数中出现重复值，每次循环的开始都需要先判断nums[i]是否等于这三个数中的任意一个。
-
-## Ⅳ Valid Palindrome
+## Ⅱ Two Pointers - String 双指针 - 字符串
 
 使用**双指针**思路的字符串的相关题目。
 
@@ -759,3 +530,737 @@ tips：
 
 - 与541题思路相同；
 - 对于数组来说，使用[]索引取值，就需要注意是否越界问题。
+
+## Ⅲ Sliding Window 滑动窗口
+
+使用双指针，**滑动窗口**的思路，定义两个指针left和right分别表示子数组（滑动窗口）的开始位置和结束位置，实现不同的功能。
+
+时间复杂度：O(n)	n - 序列长度，最坏情况左指针和右指针分别会遍历整个序列一次。  
+空间复杂度：O(1) 或者 O(∣Σ∣)（使用频度数组时，其中 Σ 表示字符集，即字符串中可以出现的字符，∣Σ∣ 表示字符集的大小。）
+
+### 209. [Minimum Size Subarray Sum](https://leetcode-cn.com/problems/minimum-size-subarray-sum/) 长度最小的子数组
+
+给定一个含有 `n` 个正整数的数组和一个正整数 `target` 。找出该数组中满足其和 ≥ target 的长度最小的 连续子数组 [numsl, numsl+1, ..., numsr-1, numsr] ，并返回其长度。如果不存在符合条件的子数组，返回 0 。  
+示例：  
+输入：target = 7, nums = [2,3,1,2,4,3]  
+输出：2  
+解释：子数组 [4,3] 是该条件下的长度最小的子数组。
+
+思路：  
+定义两个指针left和right分别表示子数组（滑动窗口）的开始位置和结束位置，维护变量sum存储子数组中的元素和，左右指针包含的子数组窗口区间一直在向右滑动。此题是满足要求移动左指针寻找新的满足要求的子数组。
+
+题解：
+
+```java
+class Solution {
+    public int minSubArrayLen(int target, int[] nums) {
+        int left = 0, right = -1; // nums[left, right]为滑动窗口
+        int sum = 0; // 滑动窗口子数组元素的和
+        int minLen = nums.length + 1; // 存在符合条件的子数组时minLen的值一定会被替换
+        while (left < nums.length) {
+            if (right + 1 < nums.length && sum < target) {
+                sum += nums[++right];
+            } else {
+                sum -= nums[left++];
+            }
+            if (sum >= target) minLen = Math.min(minLen, right - left + 1);
+        }
+        return minLen == nums.length + 1 ? 0 : minLen;
+    }
+}
+```
+
+tips：
+
+- 对于数组来说，使用[]索引取值，就需要注意是否越界问题；
+- 判断时只需要使用子串起始索引left就可以，不需要再附加终止索引right的判断。
+
+### 3. [Longest Substring Without Repeating Characters](https://leetcode-cn.com/problems/longest-substring-without-repeating-characters/) 无重复字符的最长子串
+
+给定一个字符串，请你找出其中不含有重复字符的 最长子串 的长度。  
+示例：  
+输入：s = "pwwkew"  
+输出：3  
+解释：因为无重复字符的最长子串是 "wke"，所以其长度为 3。
+
+思路：  
+定义两个指针left和right分别表示子数组（滑动窗口）的开始位置和结束位置。判断子串是否含有重复字符还需要使用额外的数据结构比如数组存储ASCII为数组索引值的字符在子串（滑动窗口）中出现的频率。此题是不满足要求移动左指针寻找新的满足要求的子数组。  
+![](/images/2021-04-06-array-string-and-list-algorithm/3.png)
+
+题解：
+
+```java
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        int[] charFreq = new int[128]; // 存储ASCII为数组索引值的字符在子串（滑动窗口）中出现的频率
+        int left = 0, right = -1; // nums[left, right]为滑动窗口
+        int maxLen = 0;
+        while (left < s.length()) {
+            if (right + 1 < s.length() && charFreq[s.charAt(right + 1)] == 0) {
+                charFreq[s.charAt(++right)]++;
+            } else {
+                charFreq[s.charAt(left++)]--;
+            }
+            maxLen = Math.max(maxLen, right - left + 1); // 当前子串（滑动窗口）一定不含有重复字符
+        }
+        return maxLen;
+    }
+}
+```
+
+tips：
+
+- 对于数组来说需要注意是否越界问题，同理对于字符串来说，使用charAt()方法取值也需要注意是否越界的问题；
+- char类型在运算的时候会被首先提升为int类型然后再计算，适用于算术运算、比较运算、赋值运算和数组的索引赋值，此题运用了数组的索引赋值；
+- 判断时只需要使用子串起始索引left就可以，不需要再附加终止索引right的判断；
+- 当字符串中出现较长的相同连续字符时left与right会交替的向前移动（滑动窗口）；
+- 时间复杂度：O(n)；
+- 空间复杂度：O(∣Σ∣)，此题字符集为所有 ASCII 码在 [0,128) 内的字符，即∣Σ∣=128。
+
+### 424. [Longest Repeating Character Replacement](https://leetcode-cn.com/problems/longest-repeating-character-replacement/) 替换后的最长重复字符
+
+给你一个仅由大写英文字母组成的字符串，你可以将任意位置上的字符替换成另外的字符，总共可最多替换 *k* 次。在执行上述操作后，找到包含重复字母的最长子串的长度。  
+示例：  
+输入：s = "AABABBA", k = 1  
+输出：4  
+解释：将中间的一个'A'替换为'B',字符串变为 "AABBBBA"。子串 "BBBB" 有最长重复字母, 答案为 4。
+
+思路：  
+维护一个滑动窗口，保证窗口大小减去出现次数最多字符的次数之差小于等于k即符合题意，窗口可继续扩张（left不变，right++），否则就不符合题意就滑动窗口（left++，right++）。记录子串（滑动窗口）中出现最多字符的次数还需要使用额外的数据结构比如数组存储子串每个字符出现的次数。如果找到了一个长度为 L 且替换 k 个字符以后全部相等的子串，就没有必要考虑长度小于等于 L 的子串，故在上次符合题目条件后下一个right索引右移不符合条件后，left索引右移right索引也需要右移（右移后可能不满足题目条件，但目的是找到长度大于 L 的子串，也可能一直到左右索引交替移动到数组末尾还是没有符合题意且比 L 更长的子串，但是返回值为right - left，因为是左右索引交替移动，其长度还是等于上一次符合题意的 L 长度）。子串出现次数最多字符的次数maxCount不需要维护，只需要保证频数数组符合当前子串（滑动窗口）的正确性即可（频数数组的正确性保证了下一次更新子串出现次数最多字符的次数maxCount的正确性），因为题目要求找到最长的子串，当出现更优解时自然会更新子串出现次数最多字符的次数maxCount，此时也是符合当前子串的正确性的。此题是不满足要求移动左指针寻找新的满足要求的子数组（与其他滑动窗口题目不同，左指针移动后右指针也移动）。
+
+题解：
+
+```java
+class Solution {
+    public int characterReplacement(String s, int k) {
+        int left = 0, right = 0;
+        int maxCount = 0; // 子串出现次数最多字符的次数
+        int[] charFreq = new int[26];
+        while (right < s.length()) {
+            maxCount = Math.max(maxCount, ++charFreq[s.charAt(right++) - 'A']);
+            if (right - left > maxCount + k) charFreq[s.charAt(left++) - 'A']--;
+        }
+        return right - left;
+    }
+}
+```
+
+tips：
+
+- 此题思路与3题相近，3题中当字符串中出现较长的相同连续字符时left与right会交替的向前移动（滑动窗口），此题中无更优解就会滑动窗口；
+- 记录频次时减去'A'，char类型在运算的时候会被首先提升为int类型然后再计算，不需要查A对应的ASCII值；
+- 判断时只需要使用子串终止索引right即可；
+- 时间复杂度：O(n)；
+- 空间复杂度：O(∣Σ∣)，此题字符集（所有大写字母 ）为所有 ASCII 码在 [65, 90] 内的字符，即∣Σ∣=26。
+
+### 438. [Find All Anagrams in a String](https://leetcode-cn.com/problems/find-all-anagrams-in-a-string/) 找到字符串中所有字母异位词
+
+给定一个字符串 s 和一个非空字符串 p，找到 s 中所有是 p 的字母异位词的子串，返回这些子串的起始索引。字符串只包含小写英文字母。字母异位词指字母相同，但排列不同的字符串。不考虑答案输出的顺序。  
+示例：  
+输入：s: "cbaebabacd" p: "abc"  
+输出：[0, 6]  
+解释：起始索引等于 0 的子串是 "cba", 它是 "abc" 的字母异位词。起始索引等于 6 的子串是 "bac", 它是 "abc" 的字母异位词。
+
+思路：  
+窗口长度固定，每次向右移动一位，判断当前滑动窗口是否符合题意。
+
+题解：
+
+```java
+class Solution {
+    public List<Integer> findAnagrams(String s, String p) {
+        int len = p.length();
+        List<Integer> list = new ArrayList<>();
+        if (len > s.length()) return list;
+        int[] pFreq = new int[26];
+        int[] sFreq = new int[26];
+        int left = 0, right = len - 1;
+        boolean flag = true;
+        for (int i = 0; i < len; i++) {
+            pFreq[p.charAt(i) - 'a']++;
+            sFreq[s.charAt(i) - 'a']++;
+        }
+        while (right < s.length()) {
+            for (int i = 0; i < 26; i++) {
+                if (pFreq[i] != sFreq[i]) {
+                    flag = false;
+                    break;
+                }
+            }
+            if (flag) list.add(left);
+            sFreq[s.charAt(left++) - 'a']--;
+            if (right + 1 < s.length()) {
+                sFreq[s.charAt(++right) - 'a']++;
+            } else {
+                right++;
+            }
+            flag = true;
+        }
+        return list;
+    }
+}
+```
+
+tips：
+
+- 此题中判断s字符串滑动窗口中字母与p字符串中字母出现的频率是否相等，即sFreq数组与pFreq元素是否相等，还可以使用java.util.Arrays类中的static boolean equals(int[] a, int[] a2)方法，如果两个指定的 int 型数组彼此相等，则返回 true；
+- 时间复杂度：O(n)；
+- 空间复杂度：O(∣Σ∣)，除去返回答案所用集合的空间。此题字符集（所有小写字母 ）为所有 ASCII 码在 [97, 122] 内的字符，即∣Σ∣=26*2=52。
+
+### 567. [Permutation in String](https://leetcode-cn.com/problems/permutation-in-string/) 字符串的排列
+
+给定两个字符串 `s1` 和 `s2`，写一个函数来判断 `s2` 是否包含 `s1` 的排列。即第一个字符串的排列之一是第二个字符串的 子串 。  
+示例：  
+输入：s1 = "ab" s2 = "eidbaooo"  
+输出：true  
+解释：s2 包含 s1 的排列之一 ("ba")。
+
+题解：
+
+```java
+class Solution {
+    public boolean checkInclusion(String s1, String s2) {
+        if (s1.length() > s2.length()) return false;
+        int[] s1Freq = new int[26];
+        int[] s2Freq = new int[26];
+        for (int i = 0; i < s1.length(); i++) {
+            s1Freq[s1.charAt(i) - 'a']++;
+            s2Freq[s2.charAt(i) - 'a']++;
+        }
+        int left = 0, right = s1.length() - 1; 
+        while (right < s2.length()) {
+            if (Arrays.equals(s1Freq, s2Freq)) return true;
+            s2Freq[s2.charAt(left++) - 'a']--;
+            if (right + 1 < s2.length()) {
+                s2Freq[s2.charAt(++right) - 'a']++;
+            } else {
+                right++;
+            }
+        }
+        return false;
+    }
+}
+```
+
+tips：
+
+- 此题思路与438题相同；
+- 使用java.util.Arrays类中的static boolean equals(int[] a, int[] a2)方法来判断滑动窗口中字母与s1字符串中字母出现的频率是否相等，如果两个指定的 int 型数组彼此相等，则返回 true；
+- 时间复杂度：O(n)；
+- 空间复杂度：O(∣Σ∣)，此题字符集（所有小写字母 ）为所有 ASCII 码在 [97, 122] 内的字符，即∣Σ∣=26*2=52。
+
+### 76. [Minimum Window Substring](https://leetcode-cn.com/problems/minimum-window-substring/) 最小覆盖子串
+
+给你一个字符串 `s` 、一个字符串 `t` 。返回 `s` 中涵盖 `t` 所有字符的最小子串。如果 `s` 中不存在涵盖 `t` 所有字符的子串，则返回空字符串 `""` 。  
+示例：  
+输入：s = "ADOBECODEBANC", t = "ABC"  
+输出："BANC"
+
+思路：  
+不断增加right使滑动窗口增大，直到窗口包含了字符串t的所有元素，不断增加left使滑动窗口缩小，直到碰到一个必须包含的元素，这个时候不能再left++了，记录此时滑动窗口对应的字符串和上次保存的字符串取长度更小的进行保存，故初始定义结果字符串时其长度需要大于s字符串。使left再增加一个位置，此时滑动窗口肯定不满足条件了，那么继续使得right++寻找新的满足条件的滑动窗口。此题是满足要求移动左指针寻找新的不满足要求的子数组（与其他滑动窗口题目不同，左指针移动后右指针也移动）。
+
+题解：
+
+```java
+class Solution {
+    public String minWindow(String s, String t) {
+        if (t.length() > s.length()) return "";
+        int left = 0, right = t.length() - 1;
+        int len = t.length();
+        int[] tFreq = new int[58];
+        int[] sFreq = new int[58];
+        boolean flag = true;
+        String result = s + "a";
+        for (int i = 0; i < len; i++) {
+            tFreq[t.charAt(i) - 'A']++;
+            sFreq[s.charAt(i) - 'A']++;
+        }
+        while (right < s.length()) {
+            for (int i = 0; i < 58; i++) {
+                if (tFreq[i] != 0 && tFreq[i] > sFreq[i]) {
+                    flag = false;
+                    break;
+                }
+            }
+            if (flag) {
+                while (sFreq[s.charAt(left) - 'A'] > tFreq[s.charAt(left) - 'A']) sFreq[s.charAt(left++) - 'A']--;
+                result = result.length() > right - left + 1 ? s.substring(left, right + 1) : result;
+                sFreq[s.charAt(left++) - 'A']--;
+            }
+            flag = true;
+            if (right + 1 < s.length()) {
+                sFreq[s.charAt(++right) - 'A']++;
+            } else {
+                right++;
+            }
+        }
+        return result.length() > s.length() ? "" : result;
+    }
+}
+```
+
+tips：
+
+- 此题思路与438题相近，不同的是438题中需要两个频数数组相等，此题中sFreq >= tFreq时滑动窗口满足要求，否则sFreq < tFreq时不满足要求；
+- 记录频次时减去'A'，char类型在运算的时候会被首先提升为int类型然后再计算，不需要查A对应的ASCII值；
+- 判断时只需要使用子串终止索引right即可；
+- 时间复杂度：O(n)；
+- 空间复杂度：O(∣Σ∣)，除去返回答案所用集合的空间。此题字符集（所有大小写字母 ）为所有 ASCII 码在 [65, 122] 内的字符（不包括大小写字母之间的91～96 ASCII值的字符），即∣Σ∣=58*2=116。
+
+### 992. [Subarrays with K Different Integers](https://leetcode-cn.com/problems/subarrays-with-k-different-integers/) K 个不同整数的子数组
+
+给定一个正整数数组 `A`，如果 `A` 的某个子数组中不同整数的个数恰好为 `K`，则称 `A` 的这个连续、不一定不同的子数组为好子数组。1 <= A[i] <= A.length 。  
+示例：  
+输入：A = [1,2,1,2,3], K = 2  
+输出：7  
+解释：恰好由 2 个不同整数组成的子数组：[1,2], [2,1], [1,2], [2,3], [1,2,1], [2,1,2], [1,2,1,2]。
+
+思路：  
+滑动窗口对应的子区间满足不同整数的个数不超过K个，一次调用方法所有不同滑动窗口新增的不同子数组的个数和即为最多存在 K 个不同整数的子区间的个数。不同滑动窗口新增的不同子数组的个数为当前不同滑动窗口的长度，即终止索引-起始索引（终止索引为开区间），也即左边界固定前提下，根据右边界最右的下标，计算出来的子区间的个数，eg：最多包含 3 种不同整数的子区间（滑动窗口） [1, 3, 2, 3] ，新增的子区间为 [3]、[2, 3]、[3, 2, 3]、[1, 3, 2, 3]。最多存在 K 个不同整数的子区间的个数与恰好存在 K 个不同整数的子区间的个数的差恰好等于最多存在 K−1 个不同整数的子区间的个数，故调用两次方法就可求解。判断子数组含有重复数字的个数还需要使用额外的数据结构比如数组存储值为数组索引值的元素在子数组（滑动窗口）中出现的频率，终止索引处的元素出现频率为0表示子数组中多了一个不同的整数，起始索引处的元素出现频率为0表示子数组中少了一个不同的整数。此题是不满足要求移动左指针寻找新的满足要求的子数组。
+
+题解：
+
+```java
+class Solution {
+    public int subarraysWithKDistinct(int[] A, int K) {
+        return subarraysWithMostKDistinct(A, K) - subarraysWithMostKDistinct(A, K -1);
+    }
+
+    // 数组中不同整数个数最多为K个的连续子数组的个数
+    private int subarraysWithMostKDistinct(int[] array, int k) {
+        int left = 0;
+        int right = 0; // A[left, right)为滑动窗口
+        int count = 0; // 滑动窗口（子数组）中不同整数的个数
+        int result = 0;
+        int[] intFreq = new int[array.length + 1]; // 存储值为数组索引值的元素在子串（滑动窗口）中出现的频率 1 <= A[i] <= A.length
+        while (right < array.length) {
+            if (intFreq[array[right]] == 0) count++;
+            intFreq[array[right]]++;
+            right++;
+            while (count > k) {
+                if (--intFreq[array[left++]] == 0) count--;
+            }
+            result += right - left; // 当前子串（滑动窗口）不同整数个数一定不超过K个
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 优先级：算术运算 > 比较运算 > 逻辑运算 > 赋值运算；
+- 判断时只需要使用子数组终止索引right就可以；
+- 时间复杂度：O(n)，此题调用两次方法，最多遍历4次数组。
+- 空间复杂度：O(∣Σ∣)，此题正整数集为1 <= A[i] <= A.length，即∣Σ∣=A.length = n。 
+
+### 718. [Maximum Length of Repeated Subarray](https://leetcode-cn.com/problems/maximum-length-of-repeated-subarray/) 最长重复子数组
+
+给两个整数数组 `A` 和 `B` ，返回两个数组中公共的、长度最长的子数组的长度。  
+示例：  
+输入：A: [1,2,3,2,1]，B: [3,2,1,4,7]  
+输出：3  
+解释：长度最长的公共子数组是 [3, 2, 1] 。
+
+思路：  
+枚举 nums1 和 nums2数组 所有的对齐方式。对齐的方式有两种，一种为 nums1数组 固定，nums2数组 的首元素与 nums1数组 中的某个元素对齐；另一种为 nums2数组 不变，nums1数组 的首元素与 nums2数组 中的某个元素对齐。对于每一种对齐方式计算它们相对位置（滑动窗口）相同的重复子数组即可。此题滑动窗口是两个数组的重叠部分。  
+![](/images/2021-04-06-array-string-and-list-algorithm/718.png)
+
+题解：
+
+```java
+class Solution {
+    public int findLength(int[] nums1, int[] nums2) {
+        int nums1Len = nums1.length, nums2Len= nums2.length;
+        int result = 0;
+        // nums1数组固定，向右移动nums2数组
+        for (int i = 0; i < nums1Len; i++) {
+            int traverseLen = Math.min(nums1Len - i, nums2Len);
+            result = Math.max(result, findWindowLength(nums1, nums2, i, 0, traverseLen));
+        }
+        // nums2数组固定，向右移动nums1数组
+        for (int i = 0; i < nums2Len; i++) {
+            int traverseLen = Math.min(nums2Len - i, nums1Len);
+            result = Math.max(result, findWindowLength(nums1, nums2, 0, i, traverseLen));
+        }
+        return result;
+    }
+
+    // 求解当前滑动窗口中最长公共子串的长度
+    private int findWindowLength(int[] nums1, int[] nums2, int nums1Start, int nums2Start, int traverseLen) {
+        int nowResult = 0,  maxLen = 0;
+        for (int i = 0; i < traverseLen; i++) {
+            if (nums1[nums1Start + i] == nums2[nums2Start + i]) {
+                maxLen++;
+            } else {
+                maxLen = 0; // 下一个不等的元素出现时置零
+            }
+            nowResult = Math.max(nowResult, maxLen);
+        }
+        return nowResult;
+    }
+}
+```
+
+tips：
+
+- 注意最大遍历长度traverseLen的取值；
+- 时间复杂度：O((N+M) * min(N,M))；
+- 空间复杂度：O(1)。
+
+### 239. [Sliding Window Maximum](https://leetcode-cn.com/problems/sliding-window-maximum/) 滑动窗口最大值
+
+给你一个整数数组 `nums`，有一个大小为 `k` 的滑动窗口从数组的最左侧移动到数组的最右侧。你只可以看到在滑动窗口内的 `k` 个数字。滑动窗口每次只向右移动一位。返回滑动窗口中的最大值。  
+示例：  
+输入：nums = [1,3,-1,-3,5,3,6,7], k = 3  
+输出：[3,3,5,5,6,7]  
+解释：  
+滑动窗口的位置                		最大值  
+[1  3  -1] -3  5  3  6  7       		3
+ 1 [3  -1  -3] 5  3  6  7       		3
+ 1  3 [-1  -3  5] 3  6  7       		5
+ 1  3  -1 [-3  5  3] 6  7       		5
+ 1  3  -1  -3 [5  3  6] 7       		6
+ 1  3  -1  -3  5 [3  6  7]      		7
+
+思路：  
+有序双端队列的思路。遍历数组，使用一个队列存储所有还没有被移除的下标。在队列中，这些下标按照从小到大的顺序被存储，并且它们在数组 nums 中对应的值是严格单调递减的。当滑动窗口向右移动时，需要把一个新的元素放入队列中。如果当前遍历的数（窗口移动时的新增元素）比队尾的值大，则需要不断弹出队尾值，直到队列重新满足从大到小的要求，再添加当前遍历的数（因为**之前**比当前遍历的数小的元素的值之后滑动窗口选取元素最大值的时候一定用不上）。刚开始遍历时，有一个形成窗口的过程，当窗口大小形成（遍历到第一个窗口的最后一个索引）后，每次移动时，判断队首的值的数组下标是否在滑动窗口中，如果不在则需要弹出队首的值，当前窗口的最大值即为队首的数。（双端队列中索引对应数组中的元素从另一个角度来看也是滑动窗口）  
+![](/images/2021-04-06-array-string-and-list-algorithm/239.png)
+
+题解：
+
+```java
+class Solution {
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        int[] result = new int[nums.length - k + 1];
+        Deque<Integer> deque = new LinkedList<Integer>(); // 双端队列
+        for (int i = 0; i < nums.length; i++) {
+            while (deque.size() > 0 && nums[i] > nums[deque.getLast()]) deque.removeLast();
+            deque.addLast(i); // 如果当前遍历的数比队尾的值大，则需要不断弹出队尾值，直到队列重新满足从大到小的要求，再添加当前遍历的数
+            if (i - k + 1 >= 0) result[i - k + 1] = nums[deque.getFirst()]; // 当前窗口的最大值即为队首的数
+            if (i - k + 1 >= deque.getFirst()) deque.removeFirst(); // 判断队首的值的数组下标是否在滑动窗口中，如果不在则需要弹出队首的值
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 对java.util.Queue< E > 接口类的熟悉；
+- 时间复杂度：O(n)；
+- 空间复杂度：O(k)，新增最大长度为k的双端队列。
+
+## Ⅳ Quick Sort - Partition (Divide and Conquer) 快速排序 - 三路快排（分治算法）
+
+使用**快速排序**、**三路快排**的思路。
+
+时间复杂度：O(n)	n - 序列长度  
+空间复杂度：O(1)	没有创建新的序列，只需要常数空间存放若干变量
+
+### 75. [Sort Colors](https://leetcode-cn.com/problems/sort-colors/) 颜色分类
+
+给定一个包含红色、白色和蓝色，一共 `n` 个元素的数组，**[原地](https://baike.baidu.com/item/原地算法)**对它们进行排序，使得相同颜色的元素相邻，并按照红色、白色、蓝色顺序排列。使用整数 `0`、 `1` 和 `2` 分别表示红色、白色和蓝色。  
+示例：  
+输入：nums = [2,0,1]  
+输出：[0,1,2]
+
+思路：  
+![](/images/2021-04-06-array-string-and-list-algorithm/75.png)
+
+题解：
+
+```java
+class Solution {
+    public void sortColors(int[] nums) {
+        int zero = -1; // [0, ..., zero]的元素都为0
+        int two = nums.length; // [two, ..., nums.length - 1]的元素都为2
+        for (int i = 0; i < two; ) { // 索引i用于遍历
+            if (nums[i] == 0) {
+                nums[i++] = nums[++zero];
+                nums[zero] = 0;
+            } else if (nums[i] == 2) { // 这里i不能递增，因为和--two处元素交换，--two处的元素为一不确定的值（未检查的值）
+                nums[i] = nums[--two];
+                nums[two] = 2;
+            } else { // nums[i] == 1
+                i++;
+            }
+        }
+    }
+}
+```
+
+### 215. [Kth Largest Element in an Array](https://leetcode-cn.com/problems/kth-largest-element-in-an-array/) 数组中的第K个最大元素
+
+在未排序的数组中找到第 k 个最大的元素。  
+示例：  
+输入：[3,2,3,1,2,4,5,5,6] 和 k = 4  
+输出：4
+
+思路：  
+用快速排序来解决这个问题，先对原数组排序，再返回倒数第 k 个位置，这样平均时间复杂度是 O(nlogn)。每次经过「划分」操作后，一定可以确定一个元素的最终位置，即 x 的最终位置为 q，并且保证 a[l⋯q−1] 中的每个元素小于等于 a[q]，且 a[q] 小于等于 a[q+1⋯r] 中的每个元素。所以只要某次划分的 q 为倒数第 k 个下标的时候，就已经找到了答案。 只需关心这一点，至于 a[l⋯q−1] 和 a[q+1⋯r] 是否是有序的，不需要关心。改进快速排序算法：在分解的过程当中，对子数组进行划分，如果划分得到的 q 正好就是需要的下标，就直接返回 a[q]；否则，如果 q 比目标下标小，就递归右子区间，否则递归左子区间。这样就可以把原来递归两个区间变成只递归一个区间，提高了时间效率。  
+![](/images/2021-04-06-array-string-and-list-algorithm/215.png)
+
+题解：
+
+```java
+class Solution {
+
+    Random random = new Random();
+
+    public int findKthLargest(int[] nums, int k) {
+        int index = nums.length - k; // 第k大元素的索引
+        return randomPartition(nums, 0, nums.length - 1, index);
+    }
+
+    // 用于判别继续向左半部分还是右半部分划分（迭代），pivot中轴值在下一迭代部分中随机选取
+    private int randomPartition(int[] nums, int left, int right, int index) {
+        int pivotIndex = random.nextInt(right - left + 1) + left;
+        swap(nums, pivotIndex, right); // 将pivot中值交换到数组末尾
+        int result = partition(nums, left, right);
+        if (result == index) return nums[result];
+        return result > index ? randomPartition(nums, left, result - 1, index) : randomPartition(nums, result + 1, right, index);
+    }
+
+    // 划分的方法
+    private int partition(int[] nums, int left, int right) {
+        int pivot = nums[right]; // 中轴值（位于数组末尾）
+        int i = left - 1; // [left, ..., i]的元素都小于pivot，[i + 1, ..., right]的元素都大于等于pivot
+        for (int j = left; j < right; j++) {
+            if (nums[j] < pivot) {
+                swap(nums, ++i, j);
+            }
+        }
+        swap(nums, i + 1, right); // 将中轴值归于正确的位置
+        return i + 1; // 中轴值的索引
+    }
+
+    // 数组中索引i及索引j处的元素对调位置
+    private void swap(int[] array, int i, int j) {
+        int temp = array[j];
+        array[j] = array[i];
+        array[i] = temp;
+    }
+}
+```
+
+tips：
+
+- 这里也用到了双指针的思想，指针i用于替换元素（慢指针），指针j用于遍历数组（快指针）。
+- 时间复杂度：O(n)，快速排序的性能和「划分」出的子数组的长度密切相关。直观地理解如果每次规模为 n 的问题都划分成 1 和 n - 1，每次递归的时候又向 n−1 的集合中递归，这种情况是最坏的，时间代价是 O(n^2)。这里引入随机化来加速这个过程，它的时间代价的期望是 O(n)。（证明过程：《算法导论》9.2）
+- 空间复杂度：O(logn)，递归使用栈空间的空间代价的期望为O(logn)。
+
+### 324. [Wiggle Sort II](https://leetcode-cn.com/problems/wiggle-sort-ii/) 摆动排序 II
+
+给你一个整数数组 nums，将它重新排列成 nums[0] < nums[1] > nums[2] < nums[3]... 的顺序。你可以假设所有输入数组都可以得到满足题目要求的结果。  
+示例：  
+输入：nums = [1,3,2,2,3,1]  
+输出：[2,3,1,3,1,2]
+
+思路：  
+将数组从中间位置进行等分（如果数组长度为奇数则将中间的元素分到前子数组），然后将两个子数组进行穿插（第一部分子数组所有元素小于等于第二部分子数组元素）。定义较小的子数组为A，较大的子数组为B，如果nums中存在重复元素，正序穿插可能会造成nums[i] <= nums[i+1] >= nums[i+2] <= nums[i+3]...的情况。由于穿插之后，相邻元素必来自不同子数组，当A或B内部出现重复元素是不会出现上述穿插后相邻元素可能相等的情况。所以上述情况是因为数组A和数组B出现了相同元素，使用r来表示这一元素，如果A和B都存在r，那么r一定是A的最大值，B的最小值，这意味着r一定出现在A的尾部，B的头部。如果这一重复数字的个数较少则不会出现上述情况，只有当这一数字个数达到原数组元素总数的一半，才会在穿插后的出现在相邻位置。要解决这一情况需要使A的r和B的r在穿插后尽可能分开。于是将A和B子数组反序穿插。对于此问题，实际上并不需关心A和B内部的元素顺序，只需要满足A和B长度相同（或相差1），且A中的元素小于等于B中的元素，且r出现在A的头部和B的尾部（反序插入）即可。所以不需要进行排序，而只需要找到数组的中位数，且与中位数相等的值都位于其附近。而寻找中位数可以用快速选择算法（三路快排的思路）实现。  
+![](/images/2021-04-06-array-string-and-list-algorithm/324.png)
+
+题解：
+
+```java
+class Solution {
+
+    Random random = new Random();
+
+    public void wiggleSort(int[] nums) {
+        int index = (nums.length - 1) / 2; // 数组中位数的的索引
+        randomPartition(nums, 0, nums.length -1, index);
+        int[] nums2 = new int[nums.length];
+        for (int i = 0; i < nums.length; i++) {
+            nums2[i] = nums[i];
+        }
+        for(int i = index, j = nums.length -1, t = 0; j > index; i--, j--) { // 将较小及较大的子数组进行反序穿插
+            nums[t++] = nums2[i];
+            nums[t++] = nums2[j];
+        }
+        if (nums.length % 2 == 1) nums[nums.length - 1] = nums2[0]; // 数组的长度为奇数时，将较小子数组的第一个元素补到nums数组末尾
+    }
+
+    // 用于判别继续向左半部分还是右半部分划分（迭代），pivot中轴值在下一迭代部分中随机选取
+    private void randomPartition(int[] nums, int left, int right, int index) {
+        int pivotIndex = random.nextInt(right - left + 1) + left;
+        swap(nums, pivotIndex, right); // 将pivot中值交换到数组末尾
+        int result = partition(nums, left, right);
+        if (result == index) return;
+        if (index < result) {
+            randomPartition(nums, left, result - 1, index);
+        } else {
+            randomPartition(nums, result + 1, right, index);
+        }
+    }
+
+    // 划分的方法
+    private int partition(int[] nums, int left, int right) {
+        int pivot = nums[right]; // 中轴值（位于数组末尾）
+        int i = left - 1; // [left, ..., i]的元素都小于pivot
+        int j = right; // [j, ..., right]的元素大于pivot，(i, ..., j)的元素都等于pivot
+        for (int t = left; t < j;) { // 这里遍历的边界条件判断应为小于j
+            if (nums[t] < pivot) {
+                swap(nums, ++i, t++);
+            } else if (nums[t] > pivot) {
+                swap(nums, --j, t); // 这里t不能递增，因为和--j处元素交换，--j处的元素为一不确定的值（未检查的值）
+            } else { // nums[t] == pivot
+                t++;
+            }
+        }
+        if (j <= right) swap(nums, j++, right); // 将中轴值归于正确的位置，和大于pivot部分的第一个元素交换，故这里j索引就需要后移
+        return (i + j) / 2; // 中轴值的索引，取(i, ..., j)的中位索引
+    }
+
+    // 数组中索引i及索引j处的元素对调位置
+    private void swap(int[] array, int i, int j) {
+        int temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+}
+```
+
+tips：
+
+- 这道题结合了75题及215题的思路；
+- 将nums1拷贝到nums2时不能使用地址引用的方式，如果nums2指向的是nums的地址，nums2则会随着nums的变化而动态变化。
+- 时间复杂度：O(n)，快速排序的性能和「划分」出的子数组的长度密切相关。直观地理解如果每次规模为 n 的问题都划分成 1 和 n - 1，每次递归的时候又向 n−1 的集合中递归，这种情况是最坏的，时间代价是 O(n^2)。这里引入随机化来加速这个过程，它的时间代价的期望是 O(n)。（证明过程：《算法导论》9.2）
+- 空间复杂度：O(n)，需要存储两个子数组，所以空间复杂度为O(n)。
+
+## Ⅴ General - Array 常规 - 数组
+
+常规数组题目，遍历，条件判断，... 。
+
+时间复杂度：O(n)	n - 序列长度  
+空间复杂度：O(1)	没有创建新的序列，只需要常数空间存放若干变量
+
+### 414. [Third Maximum Number](https://leetcode-cn.com/problems/third-maximum-number/) 第三大的数
+
+给你一个非空数组，返回此数组中 **第三大的数** 。如果不存在，则返回数组中最大的数。  
+示例：  
+输入：[2, 2, 3, 1]  
+输出：1
+
+思路：  
+条件判断的顺序，跳出循环。
+
+题解：
+
+```java
+class Solution {
+
+    public int thirdMax(int[] nums) {
+        long m1 = Long.MIN_VALUE; // 第一大的数
+        long m2 = Long.MIN_VALUE; // 第二大的数
+        long m3 = Long.MIN_VALUE; // 第三大的数
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] == m1 || nums[i] == m2 || nums[i] == m3) continue; // 每次循环开始不能少了这句判断，continue表示结束本次循环，继续下一次的循环
+            if (nums[i] > m1) {
+                m3 = m2;
+                m2 = m1;
+                m1 = nums[i];
+            } else if (nums[i] > m2) {
+                m3 = m2;
+                m2 = nums[i];
+            } else if (nums[i] > m3) {
+                m3 = nums[i];
+            }
+        }
+        return m3 == Long.MIN_VALUE ? (int) m1 : (int) m3; // 这里使用强制类型转换，nums[i]的范围为int类型的范围，故不会溢出报错
+    }
+}
+```
+
+tips：
+
+- 不能使用快速排序算法的思路，要求返回的是数组中第三大的数，不是第三大的元素；
+- 题目要求-2^31 <= nums[i] <= 2^31 - 1（int类型的取值范围），故第一二三大的数初始值应取long类型的最小取值；
+- 当数据类型不一样时，将会发生数据类型转换，此题比较运算及赋值运算发生了自动类型转换；
+- 为防止第一二三大的数中出现重复值，每次循环的开始都需要先判断nums[i]是否等于这三个数中的任意一个。
+
+## Ⅵ General - List 常规 - 链表
+
+常规链表题目。
+
+### 155. [Min Stack](https://leetcode-cn.com/problems/min-stack/) 最小栈
+
+设计一个支持 `push` ，`pop` ，`top` 操作，并能在常数时间内检索到最小元素的栈。pop、top 和 getMin 操作总是在 非空栈 上调用。  
+push(x) —— 将元素 x 推入栈中。  
+pop() —— 删除栈顶的元素。  
+top() —— 获取栈顶元素。  
+getMin() —— 检索栈中的最小元素。  
+示例：  
+输入：["MinStack","push","push","push","getMin","pop","top","getMin"]  
+[[],[-2],[0],[-3],[],[],[],[]]  
+输出：[null,null,null,null,-3,null,0,-2]
+
+思路：  
+使用链表来实现，每一个节点都会存储当前栈（链表）中的最小元素，所以当pop删除栈顶元素时，如果当前删除元素为最小元素，下一个栈顶元素节点获取最小元素时也不会包括上一个被删除的元素。
+
+题解：
+
+```java
+class MinStack {
+
+    private Node head;
+
+    /** initialize your data structure here. */
+    public MinStack() {
+        
+    }
+    
+    public void push(int val) {
+        if (head == null) {
+            head = new Node(val, val);
+        } else {
+            head = new Node(val, Math.min(val, head.minVal), head);
+        }
+    }
+    
+    public void pop() {
+        head = head.next;
+    }
+    
+    public int top() {
+        return head.val;
+    }
+    
+    public int getMin() {
+        return head.minVal;
+    }
+
+    private class Node {
+
+        int val;
+        int minVal;
+        Node next;
+        
+        Node(int val, int minVal) {
+            this(val, minVal, null);
+        }
+
+        Node(int val, int minVal, Node next) {
+            this.val = val;
+            this.minVal = minVal;
+            this.next = next;
+        }
+    }
+}
+
+/**
+ * Your MinStack object will be instantiated and called as such:
+ * MinStack obj = new MinStack();
+ * obj.push(val);
+ * obj.pop();
+ * int param_3 = obj.top();
+ * int param_4 = obj.getMin();
+ */
+```
+
+tips：
+
+- this关键字用来访问本类内容，用法有三种：在本类的成员方法中访问本类的成员变量；在本类的成员方法中访问本类的另一个成员方法；在本类的构造方法中访问本类的另一个构造方法。此题创建对象使用到了第三种用法；
+- 时间复杂度：O(1)；
+- 空间复杂度：O(n)，其中 n 为总操作数。最坏情况下会连续插入 n 个元素，此时栈占用的空间为 O(n)。

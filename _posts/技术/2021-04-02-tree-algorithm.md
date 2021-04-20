@@ -9,7 +9,7 @@ category: 技术
 抽出LeetCode题库中树结构相关的算法题目，再以相似类型的题目进行分类归纳总结题解。  
 并非每道题目的解法都是它的最优写法，只是在尽量保证代码执行高效性的前提下，为了归纳总结便于记忆而给定的解法，故这里每道题的题解也都只列出了一种写法。
 
-## Ⅰ Binary Tree Maximum Path Sum
+## Ⅰ Use Both Children and Return One 子节点用二返一
 对于递归用函数：  
 
 - **root must be used**
@@ -146,7 +146,7 @@ class Solution {
 }
 ```
 
-## Ⅱ Construct Binary Tree from Preorder and Inorder Traversal
+## Ⅱ Construct Binary Tree from Preorder Inorder or Postorder Traversal 由前序中序或后序遍历构造二叉树
 
 使用**分治法**的思想：将原问题拆解成若干个与原问题结构相同但规模更小的子问题，待子问题解决以后，原问题就得以解决。  
 时间复杂度：O(n)，其中 n 是树中的节点个数。  
