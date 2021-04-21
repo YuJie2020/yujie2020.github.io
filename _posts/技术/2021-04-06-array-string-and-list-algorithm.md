@@ -1180,6 +1180,49 @@ tips：
 - 当数据类型不一样时，将会发生数据类型转换，此题比较运算及赋值运算发生了自动类型转换；
 - 为防止第一二三大的数中出现重复值，每次循环的开始都需要先判断nums[i]是否等于这三个数中的任意一个。
 
+### 1002. [Find Common Characters](https://leetcode-cn.com/problems/find-common-characters/) 查找常用字符
+
+给定仅有小写字母组成的字符串数组 A，返回列表中的每个字符串中都显示的全部字符（包括重复字符）组成的列表。例如，如果一个字符在每个字符串中出现 3 次，但不是 4 次，则需要在最终答案中包含该字符 3 次。你可以按任意顺序返回答案。A中只包括小写字母。  
+示例：  
+输入：["bella","label","roller"]  
+输出：["e","l","l"]
+
+思路：  
+使用频度数组记录每个字符串中字母出现的次数，每次遍历完一个字符串的所有元素将此字符串的频度数组与结果数组进行比较取最小值。
+
+题解：
+
+```java
+class Solution {
+    public List<String> commonChars(String[] A) {
+        int[] resArray = new int[26];
+        Arrays.fill(resArray, Integer.MAX_VALUE);
+        for (String str : A) {
+            int[] freq = new int[26];
+            for (int i = 0; i < str.length(); i++) {
+                freq[str.charAt(i) - 'a']++;
+            }
+            for (int i = 0; i < 26; i++) {
+                resArray[i] = Math.min(resArray[i], freq[i]);
+            }
+        }
+        List<String> resList = new ArrayList<>();
+        for (int i = 0; i < 26; i++) {
+            for (int j = 0; j < resArray[i]; j++) {
+                resList.add(String.valueOf((char) (i + 'a')));
+            }
+        }
+        return resList;
+    }
+}
+```
+
+tips：
+
+- 结果list集合添加元素使用java.lang.String类中的static String valueOf(char c) 方法，返回 char 参数的字符串表示形式；
+- 时间复杂度：(n*(m+∣Σ∣))，其中 n 是数组 A 的长度（即字符串的数目），m 是字符串的平均长度，Σ 为字符集，此题中字符集为所有小写字母，∣Σ∣=26。由于最终答案包含的字符个数不会超过最短的字符串长度，因此构造最终答案的时间复杂度为 O(m+∣Σ∣)。这一项在渐进意义上小于前者，可以忽略；
+- 空间复杂度：O(∣Σ∣)，除计算存储答案之外的空间。
+
 ## Ⅵ General - List 常规 - 链表
 
 常规链表题目。
