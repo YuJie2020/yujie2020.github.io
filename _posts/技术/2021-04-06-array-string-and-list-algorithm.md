@@ -1223,6 +1223,39 @@ tips：
 - 时间复杂度：(n*(m+∣Σ∣))，其中 n 是数组 A 的长度（即字符串的数目），m 是字符串的平均长度，Σ 为字符集，此题中字符集为所有小写字母，∣Σ∣=26。由于最终答案包含的字符个数不会超过最短的字符串长度，因此构造最终答案的时间复杂度为 O(m+∣Σ∣)。这一项在渐进意义上小于前者，可以忽略；
 - 空间复杂度：O(∣Σ∣)，除计算存储答案之外的空间。
 
+### 242. [Valid Anagram](https://leetcode-cn.com/problems/valid-anagram/) 有效的字母异位词
+
+给定两个字符串 s 和 t ，编写一个函数来判断 t 是否是 s 的字母异位词。你可以假设字符串只包含小写字母。  
+示例：  
+输入：s = "anagram", t = "nagaram"  
+输出：true
+
+题解：
+
+```java
+class Solution {
+    public boolean isAnagram(String s, String t) {
+        if (s.length() != t.length()) return false;
+        int[] sFreq = new int[26];
+        int[] tFreq = new int[26];
+        for (int i = 0; i < s.length(); i++) { // 字符串s与t长度相同
+            sFreq[s.charAt(i) - 'a']++;
+            tFreq[t.charAt(i) - 'a']++;
+        }
+        if (Arrays.equals(sFreq, tFreq)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(∣Σ∣)，其中 Σ 表示字符集（即字符串中可以出现的字符），∣Σ∣ 表示字符集的大小。此题字符集（所有大写字母 ）为所有 ASCII 码在 [65, 90] 内的字符，即∣Σ∣=26。
+
 ## Ⅵ General - List 常规 - 链表
 
 常规链表题目。
