@@ -1256,6 +1256,54 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(∣Σ∣)，其中 Σ 表示字符集（即字符串中可以出现的字符），∣Σ∣ 表示字符集的大小。此题字符集（所有大写字母 ）为所有 ASCII 码在 [65, 90] 内的字符，即∣Σ∣=26。
 
+### 202. [Happy Number](https://leetcode-cn.com/problems/happy-number/) 快乐数
+
+编写一个算法来判断一个数 `n` 是不是快乐数。快乐数定义为：对于一个正整数，每一次将该数替换为它每个位置上的数字的平方和；然后重复这个过程直到这个数变为 1，也可能是 无限循环 但始终变不到 1；如果 可以变为  1，那么这个数就是快乐数。如果 n 是快乐数就返回 true，不是则返回 false 。  
+示例：  
+输入：19  
+输出：true  
+解释：  
+12 + 92 = 82  
+82 + 22 = 68  
+62 + 82 = 100  
+12 + 02 + 02 = 1
+
+题解：
+
+```java
+class Solution {
+    public boolean isHappy(int n) {
+        List<Integer> historyRes = new ArrayList<>();
+        while (true) {
+            int onceRes = digitsSquaresSum(n);
+            if (onceRes == 1) {
+                return true;
+            } else if (historyRes.contains(onceRes)) { // 陷入循环一定不是快乐数
+                return false;
+            } else {
+                historyRes.add(n);
+            }
+            n = onceRes;
+        }
+    }
+
+    private int digitsSquaresSum(int n) {
+        int result = 0;
+        while (n >= 1) {
+            int digit = n % 10;
+            result += digit * digit;
+            n = n / 10;
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(logn)，查找给定数字的下一个值的成本为 O(logn)，因为需要处理数字中的每位数，而数字中的位数由 logn 决定；
+- 空间复杂度：O(1)
+
 ## Ⅵ General - List 常规 - 链表
 
 常规链表题目。
