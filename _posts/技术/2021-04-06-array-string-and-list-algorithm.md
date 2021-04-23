@@ -1315,6 +1315,8 @@ tips：
 思路：  
 当num的值大于10时，各个位上的数字相加到一位数时的结果为num对9取模（模为0时返回9）。举例来说，对于一个三位数'abc'，其值大小为s1 = 100 * a + 10 * b + 1 * c = 99 * a + 9 * b + a + b + c，经过一次各位相加后，变为s2 = a + b + c = 10 * x + 1 * y = 9 * x + x + y，再经过一次各位相加后，变为s3 = x + y = '一位数'（结果）。减小的差值为s1 - s2 = 99 * a + 9 * b 或者 s2 - s3 = 9 * x，差值可以被9整除，每一个循环都如此，故可以将原始数据num对9取模值即为结果（与此同时，当模值为0时即代表最后各个位上的数字相加结果为9）。
 
+题解：
+
 ```java
 class Solution {
     public int addDigits(int num) {
@@ -1328,6 +1330,44 @@ tips：
 
 - 时间复杂度：O(1)
 - 空间复杂度：O(1)
+
+### 204. [Count Primes](https://leetcode-cn.com/problems/count-primes/) 各位相加
+
+统计所有小于非负整数 *`n`* 的质数的数量。
+
+思路：  
+使用[埃拉托斯特尼筛法（埃氏筛）](https://zh.wikipedia.org/wiki/%E5%9F%83%E6%8B%89%E6%89%98%E6%96%AF%E7%89%B9%E5%B0%BC%E7%AD%9B%E6%B3%95)，也称素数筛，来找出一定范围内所有的素数。由要筛数值的范围n，找出sqrt(n)以内的素数p1, p2, ..., pk（序列中最大数小于等于最后一个标出的素数的平方，那么剩下的序列中所有的数都是质数），将每个素数的各个倍数，标记成合数。一个素数的各个倍数，是一个差为此素数本身的等差数列。先用2去筛，即把2留下，把2的倍数剔除掉；再用下一个素数，也就是3筛，把3留下，把3的倍数剔除掉；接下去用下一个素数5筛，把5留下，把5的倍数剔除掉；不断重复下去......。  
+![](/images/2021-04-06-array-string-and-list-algorithm/204.gif)
+
+题解：
+
+```java
+class Solution {
+    public int countPrimes(int n) {
+        if (n <= 2) return 0;
+        boolean[] isPrime = new boolean[n];
+        Arrays.fill(isPrime, true); // 先假设所有小于n的整数都为质数
+        isPrime[0] = isPrime[1] = false; // 质数定义 > 1
+        int count = n - 2;
+        for (int i = 2; i <= Math.sqrt(n - 1); i++) {
+            if (isPrime[i]) {
+                for (int j = i * i; j < n; j += i) { // 等差数列
+                    if (isPrime[j]) { // 防止重复标记
+                        isPrime[j] = false;
+                        count--;
+                    }
+                }
+            }
+        }
+        return count;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(nloglogn)
+- 空间复杂度：O(n)
 
 ## Ⅵ General - List 常规 - 链表
 
