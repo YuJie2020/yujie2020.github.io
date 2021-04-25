@@ -951,7 +951,324 @@ tips：
 - 时间复杂度：O(n)；
 - 空间复杂度：O(k)，新增最大长度为k的双端队列。
 
-## Ⅳ Quick Sort - Partition (Divide and Conquer) 快速排序 - 三路快排（分治算法）
+## Ⅳ Hash Table 哈希表
+
+使用底层实现为**哈希表**的Set及Map集合等的数组相关题目。哈希表（散列表）是根据关键码值（Key value）直接进行访问的数据结构。它通过把关键码值映射到表中一个位置来访问记录，以加快查找的速度。哈希表插入、查找及删除的时间复杂度均为O(1)。
+
+### 349. [Intersection of Two Arrays](https://leetcode-cn.com/problems/intersection-of-two-arrays/) 两个数组的交集
+
+给定两个数组，编写一个函数来计算它们的交集。出结果中的每个元素一定是唯一的。可以不考虑输出结果的顺序。  
+示例：  
+输入：nums1 = [4,9,5], nums2 = [9,4,9,8,4]  
+输出：[9,4]
+
+思路：  
+使用Set集合不包含重复元素的特性。
+
+题解：
+
+```java
+class Solution {
+    public int[] intersection(int[] nums1, int[] nums2) {
+        Set<Integer> nums1EleSet = new HashSet<>();
+        Set<Integer> intersection = new HashSet<>();
+        for (int i = 0; i < nums1.length; i++) {
+            nums1EleSet.add(nums1[i]);
+        }
+        for (int i = 0; i < nums2.length; i++) {
+            if (nums1EleSet.contains(nums2[i])) intersection.add(nums2[i]);
+        }
+        int[] result = new int[intersection.size()];
+        int i = 0;
+        for (Integer ele : intersection) {
+            result[i++] = ele;
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 对java.util.Set<E>接口类的熟悉；
+- 时间复杂度：O(m+n)，其中 m 和 n 分别是两个数组的长度。使用两个集合分别存储两个数组中的元素需要 O(m+n) 的时间，遍历较小的集合并判断元素是否在另一个集合中需要 O(min(m,n)) 的时间，因此总时间复杂度是 O(m+n)；
+- 空间复杂度：O(m+n)，其中 m 和 n 分别是两个数组的长度。空间复杂度主要取决于两个集合。
+
+### 350. [Intersection of Two Arrays II](https://leetcode-cn.com/problems/intersection-of-two-arrays-ii/) 两个数组的交集 II
+
+给定两个数组，编写一个函数来计算它们的交集。输出结果中每个元素出现的次数，应与元素在两个数组中出现次数的最小值一致。可以不考虑输出结果的顺序。  
+示例：  
+输入：nums1 = [1,2,2,1], nums2 = [2,2]  
+输出：[2,2]
+
+思路：  
+使用Map集合存储较短数组中每个数字出现的次数，然后遍历另一个数组，对于每个数字如果在map集合中存在这个数字，则将该数字添加到答案，并减少哈希表（map集合）中该数字出现的次数。
+
+题解：
+
+```java
+class Solution {
+    public int[] intersect(int[] nums1, int[] nums2) {
+        if (nums1.length > nums2.length) return intersect(nums2, nums1); // 使用最短的数组来建立Map集合
+        Map<Integer, Integer> nums1EleMap = new HashMap<>();
+        for (int i = 0; i < nums1.length; i++) {
+            if (!nums1EleMap.containsKey(nums1[i])) {
+                nums1EleMap.put(nums1[i], 1);
+            } else {
+                nums1EleMap.put(nums1[i], nums1EleMap.get(nums1[i]) + 1);
+            }
+        }
+        int[] result = new int[nums1.length]; // 结果数组的长度一定不会超过nums1数组元素频度map集合的大小
+        int len = 0; // 结果数组的有效长度
+        for (int i = 0; i < nums2.length; i++) {
+            if (nums1EleMap.containsKey(nums2[i])) {
+                result[len++] = nums2[i];
+                if (nums1EleMap.get(nums2[i]) == 1) {
+                    nums1EleMap.remove(nums2[i]);
+                } else {
+                    nums1EleMap.put(nums2[i], nums1EleMap.get(nums2[i]) - 1);
+                }
+            }
+        }
+        return Arrays.copyOf(result, len);
+    }
+}
+```
+
+tips：
+
+- 对java.util.Map<K,V>接口类的熟悉；
+- 选取最短的数组采用递归的方式（最多只自己调用自己一次）；
+- 使用java.util.Arrays类中的static int[] copyOf(int[] original, int newLength) 方法，复制指定的数组，截取或用 0 填充（如有必要），以使副本具有指定的长度；
+- 时间复杂度：O(m+n)，其中 m 和 n 分别是两个数组的长度。需要遍历两个数组并对哈希表进行操作，哈希表操作的时间复杂度是 O(1)，因此总时间复杂度与两个数组的长度和呈线性关系；
+- 空间复杂度：O(min(m,n))，其中 m 和 n 分别是两个数组的长度。对较短的数组进行哈希表的操作，哈希表的大小不会超过较短的数组的长度。为返回值创建一个数组 result，其长度为较短数组的长度。
+
+### 290. [Word Pattern](https://leetcode-cn.com/problems/word-pattern/) 单词规律
+
+给定一种规律 pattern 和一个字符串 str ，判断 str 是否遵循相同的规律。这里的 遵循 指完全匹配，即pattern 里的每个字母和字符串 str 中的每个非空单词之间存在着双向连接的对应规律。  
+示例：  
+输入：pattern = "abba", str = "dog dog dog dog"  
+输出：false
+
+思路：  
+使用Map集合存储模式串字符(key)和匹配字符串中的单词(value)，遍历模式串中的字符，当key存在value不相等或者key不存在map中包含值value（这个单词已经被存了，即模式串字符不同单词相同）时不符合单词规律匹配，返回false。
+
+题解：
+
+```java
+class Solution {
+    public boolean wordPattern(String pattern, String s) {
+        String[] strs = s.split(" ");
+        int ptnLen = pattern.length();
+        if (strs.length != ptnLen) return false;
+        Map<Character, String> mapping = new HashMap<>();
+        for (int i = 0; i < ptnLen; i++) {
+            char ch = pattern.charAt(i);
+            String str = mapping.get(ch);
+            if (str == null) {
+                if (mapping.containsValue(strs[i])) return false;
+                mapping.put(ch, strs[i]);
+            } else {
+                if (!str.equals(strs[i])) return false;
+            }
+        }
+        return true;
+    }
+}
+```
+
+tips：
+
+- 注意char类型的包装类为Character；
+- 需要多次使用的由方法返回值给定的变量尽量定义在单独语句，减少时间频度（避免多次调用方法）；
+- 使用java.util.Map<K,V>接口类中的方法boolean containsValue(Object value) ，如果此映射将一个或多个键映射到指定值，则返回 true。 判断map中是否包含值value；
+- 时间复杂度：O(n)，其中 n 为 pattern 的长度；
+- 空间复杂度：O(n)
+
+### 205. [Isomorphic Strings](https://leetcode-cn.com/problems/isomorphic-strings/) 同构字符串
+
+给定两个字符串 s 和 t，判断它们是否是同构的。如果 s 中的字符可以按某种映射关系替换得到 t ，那么这两个字符串是同构的。每个出现的字符都应当映射到另一个字符，同时不改变字符的顺序。不同字符不能映射到同一个字符上，相同字符只能映射到同一个字符上，字符可以映射到自己本身。  
+示例：  
+输入：s = "paper", t = "title"  
+输出：true
+
+题解：
+
+```java
+class Solution {
+    public boolean isIsomorphic(String s, String t) {
+        Map<Character, Character> mapping = new HashMap<>();
+        if (s.length() != t.length()) return false;
+        for (int i = 0; i < s.length(); i++) {
+            char sCh = s.charAt(i);
+            char tCh = t.charAt(i);
+            Character ch = mapping.get(sCh);
+            if (ch == null) {
+                if (mapping.containsValue(tCh)) return false;
+                mapping.put(sCh, tCh);
+            } else {
+                if (tCh != ch) return false;
+            }
+        }
+        return true;
+    }
+}
+```
+
+tips：
+
+- 与290题思路相同；
+- Character包装类在进行与字符char比较时也可以自动拆箱；
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+### 451. [Sort Characters By Frequency](https://leetcode-cn.com/problems/sort-characters-by-frequency/) 根据字符出现频率排序
+
+给定一个字符串，请将字符串里的字符按照出现的频率降序排列。'A'和'a'被认为是两种不同的字符。  
+示例：  
+输入："tree"  
+输出："eert" （"eetr"也是一个有效的答案）
+
+思路：  
+使用桶排序的思路，桶数组每个索引为i的值存储出现次数为i字符集合。
+
+题解：
+
+```java
+class Solution {
+    public String frequencySort(String s) {
+        Map<Character, Integer> freq = new HashMap<>();
+        int len = s.length();
+        for (int i = 0; i < len; i++) {
+            freq.put(s.charAt(i), freq.getOrDefault(s.charAt(i), 0) + 1);
+        }
+        List<Character>[] bucket = new List[len + 1]; // 桶数组的索引表示某个字符出现的次数，最大为n次
+        for (Character key : freq.keySet()) {
+            int value = freq.get(key);
+            if (bucket[value] == null) bucket[value] = new ArrayList();
+            bucket[value].add(key);
+        }
+        StringBuffer result = new StringBuffer(); 
+        for (int i = len; i > 0; i--) {
+            if (bucket[i] != null) {
+                for (char ch : bucket[i]) {
+                    for (int j = 0; j < i; j++) {
+                        result.append(ch);
+                    }
+                }
+            }
+        }
+        return result.toString();
+    }
+}
+```
+
+tips：
+
+- 任何数据类型都能作为数组当中元素的类型；
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+### 347. [Top K Frequent Elements](https://leetcode-cn.com/problems/top-k-frequent-elements/) 前 K 个高频元素
+
+给你一个整数数组 `nums` 和一个整数 `k` ，请你返回其中出现频率前 `k` 高的元素。你可以按任意顺序返回答案。  
+示例：  
+输入：nums = [1,1,1,2,2,3], k = 2  
+输出：[1,2]
+
+题解：
+
+```java
+class Solution {
+    public int[] topKFrequent(int[] nums, int k) {
+        Map<Integer, Integer> freq = new HashMap<>();
+        int len = nums.length;
+        for (int i = 0; i < len; i++) {
+            freq.put(nums[i], freq.getOrDefault(nums[i], 0) + 1);
+        }
+        List<Integer>[] bucket = new List[len + 1];
+        for (int key : freq.keySet()) {
+            int value = freq.get(key);
+            if (bucket[value] == null) bucket[value] = new ArrayList();
+            bucket[value].add(key);
+        }
+        int count = 0; // 计数当前为出现频率第k高的元素
+        int[] result = new int[k];
+        for (int i = len; count < k; i--) {
+            if (bucket[i] != null) {
+                for (int ele : bucket[i]) {
+                    if (count < k) {
+                        result[count++] = ele;
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 与451题思路相同；
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+### 692. [Top K Frequent Words](https://leetcode-cn.com/problems/top-k-frequent-words/) 前K个高频单词
+
+给一非空的单词列表，返回前 k 个出现次数最多的单词。返回的答案应该按单词出现频率由高到低排序。如果不同的单词有相同出现频率，按字母顺序排序。输入的单词均由小写字母组成。  
+示例：  
+输入：["i", "love", "leetcode", "i", "love", "coding"], k = 2  
+输出：["i", "love"]  
+解释："i" 和 "love" 为出现次数最多的两个单词，均为2次。按字母顺序 "i" 在 "love" 之前。
+
+思路：  
+使用Map集合存储字符串数组中每个单词的频率，然后将其添加到存储到大小为 k 的小顶堆中（使用java.util.PriorityQueue<E>实现）。将频率最小的候选项放在堆的顶部，从堆中弹出 k 次并反转结果，就可以得到前 k 个高频单词。
+
+题解：
+
+```java
+class Solution {
+    public List<String> topKFrequent(String[] words, int k) {
+        Map<String, Integer> freq = new HashMap<>();
+        for (String word : words) {
+            freq.put(word, freq.getOrDefault(word, 0) + 1);
+        }
+        PriorityQueue<String> heap = new PriorityQueue<>(new Comparator<String>() {
+            public int compare(String s1, String s2) {
+                return freq.get(s1) == freq.get(s2) ? s2.compareTo(s1) : freq.get(s1) - freq.get(s2);
+            }
+        });
+        for (String word : freq.keySet()) {
+            heap.offer(word);
+            if (heap.size() > k) heap.poll(); // 保证优先队列只有当前“最大的”k个单词
+        }
+        List<String> result = new ArrayList<>();
+        for (int i = 0; i < k; i++) {
+            result.add(heap.poll());
+        }
+        Collections.reverse(result);
+        return result;
+    }
+}
+```
+
+tips：
+
+- java.util.PriorityQueue<E>类是一个基于优先级堆的无界优先级队列。优先级队列的元素按照其自然顺序进行排序，或者根据构造队列时提供的 Comparator 进行排序，具体取决于所使用的构造方法。优先级队列不允许使用 null 元素。依靠自然顺序的优先级队列还不允许插入不可比较的对象（可能导致 ClassCastException）。 此队列的头是按指定排序方式确定的最小元素。如果多个元素都是最小值，则头是其中一个元素（选择方法是任意的）。队列获取操作 poll、remove、peek 和 element 访问处于队列头的元素。此实现不是同步的，此实现为排队和出队方法（offer、poll、remove() 和 add）提供 O(log(n)) 时间，为 remove(Object) 和 contains(Object) 方法提供线性时间；为获取方法（peek、element 和 size）提供固定时间。此题使用PriorityQueue<E>类来实现小顶堆的功能；
+- 使用 PriorityQueue (Comparator<? super E> comparator) 创建具有默认初始容量的 PriorityQueue ，并根据指定的比较器对其元素进行排序。来实例化此优先级队列（JDK 1.8新特性）；
+- 使用java.lang.String类的 int compareTo(String anotherString) 方法，按字典顺序比较两个字符串（如果参数字符串等于此字符串则返回值 0，如果此字符串按字典顺序小于字符串参数则返回一个小于 0 的值，如果此字符串按字典顺序大于字符串参数则返回一个大于 0 的值）。 所以当单词出现相同的频率按字母顺序排序，需要调用s2.compareTo(s1)，因为当s1字典序小于s2时返回值为负（应为正值）；
+- 对PriorityQueue实现使用的offer及poll方法，都为接口 Queue<E>中的方法，不使用add和remove方法是由于offer方法通常要优于 add(E)，后者可能无法插入元素而只是抛出一个异常，与此同时如果队列为空poll方法返回 null 而remove方法抛出异常；
+- 时间复杂度：O(nlogk)。其中 n 是 words 的长度，使用O(n) 的时间计算每个单词的频率，然后将 n 个单词添加到堆中，添加每个单词的时间为 O(logk) ；
+- 空间复杂度：O(n)
+
+## Ⅴ Hash Table (LUT) 哈希表（查找表）
+
+使用底层实现为**哈希表**的Set及Map集合等的数组相关题目。查找表（Look-Up Table）是由同一类型的数据元素（或记录）构成的集合。查找操作为根据给定的某个K值，在查找表中寻找一个其键值等于K的数据元素，利用查找表的key及value来解决问题。
+
+## Ⅵ Quick Sort - Partition (Divide and Conquer) 快速排序 - 三路快排（分治算法）
 
 使用**快速排序**、**三路快排**的思路。
 
@@ -1046,7 +1363,7 @@ class Solution {
 
 tips：
 
-- 这里也用到了双指针的思想，指针i用于替换元素（慢指针），指针j用于遍历数组（快指针）。
+- 这里也用到了双指针的思想，指针i用于替换元素（慢指针），指针j用于遍历数组（快指针）；
 - 时间复杂度：O(n)，快速排序的性能和「划分」出的子数组的长度密切相关。直观地理解如果每次规模为 n 的问题都划分成 1 和 n - 1，每次递归的时候又向 n−1 的集合中递归，这种情况是最坏的，时间代价是 O(n^2)。这里引入随机化来加速这个过程，它的时间代价的期望是 O(n)。（证明过程：《算法导论》9.2）
 - 空间复杂度：O(logn)，递归使用栈空间的空间代价的期望为O(logn)。
 
@@ -1129,7 +1446,7 @@ tips：
 - 时间复杂度：O(n)，快速排序的性能和「划分」出的子数组的长度密切相关。直观地理解如果每次规模为 n 的问题都划分成 1 和 n - 1，每次递归的时候又向 n−1 的集合中递归，这种情况是最坏的，时间代价是 O(n^2)。这里引入随机化来加速这个过程，它的时间代价的期望是 O(n)。（证明过程：《算法导论》9.2）
 - 空间复杂度：O(n)，需要存储两个子数组，所以空间复杂度为O(n)。
 
-## Ⅴ General - Array & Math 常规 - 数组和数学
+## Ⅶ General - Array & Math 常规 - 数组和数学
 
 常规数组题目，遍历，条件判断，... 。以及数学题。
 
@@ -1369,7 +1686,7 @@ tips：
 - 时间复杂度：O(nloglogn)
 - 空间复杂度：O(n)
 
-## Ⅵ General - List 常规 - 链表
+## Ⅷ General - List 常规 - 链表
 
 常规链表题目。
 
