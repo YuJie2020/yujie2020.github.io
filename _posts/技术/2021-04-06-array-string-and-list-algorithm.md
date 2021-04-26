@@ -1268,6 +1268,97 @@ tips：
 
 使用底层实现为**哈希表**的Set及Map集合等的数组相关题目。查找表（Look-Up Table）是由同一类型的数据元素（或记录）构成的集合。查找操作为根据给定的某个K值，在查找表中寻找一个其键值等于K的数据元素，利用查找表的key及value来解决问题。
 
+### 219. [Contains Duplicate II](https://leetcode-cn.com/problems/contains-duplicate-ii/) 存在重复元素 II
+
+给定一个整数数组和一个整数 k，判断数组中是否存在两个不同的索引 i 和 j，使得 nums [i] = nums [j]，并且 i 和 j 的差的 绝对值 至多为 k。  
+示例：  
+输入：nums = [1,2,3,1], k = 3  
+输出：true
+
+思路：  
+查找表+滑动窗口的思路。使用一个Set集合存储滑动窗口（先有一个形成窗口的过程，当窗口的长度为k+1时，窗口的长度不再变化，窗口不断右移直到遇到右边界）中的元素，每次遍历比较新添加进来的元素是否在查找表中已经存在。
+
+题解：
+
+```java
+class Solution {
+    public boolean containsNearbyDuplicate(int[] nums, int k) {
+        Set<Integer> eles = new HashSet<>();
+        for (int i = 0; i < nums.length; i++) {
+            if (eles.contains(nums[i])) return true;
+            eles.add(nums[i]);
+            if (eles.size() == k + 1) eles.remove(nums[i - k]);
+        }
+        return false;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n) ；
+- 空间复杂度：O(min(n,k))，开辟的额外空间取决于散列表中存储的元素的个数，即滑动窗口的大小 O(min(n,k+1))。
+
+### 220. [Contains Duplicate III](https://leetcode-cn.com/problems/contains-duplicate-iii/) 存在重复元素 III
+
+给你一个整数数组 nums 和两个整数 k 和 t 。请你判断是否存在 两个不同下标 i 和 j，使得 abs(nums[i] - nums[j]) <= t ，同时又满足 abs(i - j) <= k 。-2^31 <= nums[i] <= 2^31 - 1。  
+示例：  
+输入：nums = [1,0,1,1], k = 1, t = 2  
+输出：true
+
+题解：
+
+```java
+class Solution {
+    public boolean containsNearbyAlmostDuplicate(int[] nums, int k, int t) {
+        TreeSet<Long> eles = new TreeSet<>();
+        for (int i = 0; i < nums.length; i++) {
+            Long ceiling = eles.ceiling((long) nums[i] - (long) t);
+            if (ceiling != null && ceiling <= (long) nums[i] + (long) t) return true;
+            eles.add((long) nums[i]);
+            if (eles.size() == k + 1) eles.remove((long) nums[i - k]);
+        }
+        return false;
+    }
+}
+```
+
+tips：
+
+- 与219题思路相同，对于序列中每一个元素 x 左侧的至多 k 个元素，如果这 k 个元素中存在一个元素落在区间 [x−t,x+t] 中就找到了一对符合条件的元素；
+- 这里不能使用多态来定义TreeSet集合，编译看左边，左边为Set时，Set类当中没有子类TreeSet的ceiling方法，所以编译报错；
+- 使用有序集合java.util.TreeSet<E>类，使用元素的自然顺序对元素进行排序，或者根据创建 set 时提供的 Comparator 进行排序，具体取决于使用的构造方法。 此实现为基本操作（add、remove 和 contains）提供受保证的 log(n) 时间开销；
+- 使用TreeSet类中的E ceiling(E e) 方法，返回此 set 中大于等于给定元素的最小元素，如果不存在这样的元素，则返回 null。 来判断是否存在一个尽可能小的元素k大于等于当前元素减t，进一步判断其是否满足abs(nums[i] - nums[j]) <= t的要求。
+- 时间复杂度：O(n*log(min(n,k)))，其中 n 是给定数组的长度。每个元素至多被插入有序集合和从有序集合中删除一次，每次操作时间复杂度均为 O(log(min(n,k))；
+- 空间复杂度：O(min(n,k))，有序集合中至多包含 min(n,k+1) 个元素。
+
+### 217. [Contains Duplicate](https://leetcode-cn.com/problems/contains-duplicate/) 存在重复元素
+
+给定一个整数数组，判断是否存在重复元素。如果存在一值在数组中出现至少两次，函数返回 true 。如果数组中每个元素都不相同，则返回 false 。  
+示例：  
+输入：[1,2,3,1]  
+输出：true
+
+题解：
+
+```java
+class Solution {
+    public boolean containsDuplicate(int[] nums) {
+        Set<Integer> eles = new HashSet<>();
+        for (int i = 0; i < nums.length; i++) {
+            if (!eles.add(nums[i])) return true;
+        }
+        return false;
+    }
+}
+```
+
+tips：
+
+- 使用java.util.Set<E>接口类中的boolean add(E e) 方法，如果 set 中尚未存在指定的元素，则添加此元素。 如果此 set 没有包含满足 (e==null ? e2==null : e.equals(e2)) 的元素 e2，则向该 set 中添加指定的元素 e。如果此 set 已经包含该元素，则该调用不改变此 set 并返回 false。来简化两步contains及add方法的调用；
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
 ## Ⅵ Quick Sort - Partition (Divide and Conquer) 快速排序 - 三路快排（分治算法）
 
 使用**快速排序**、**三路快排**的思路。
