@@ -1712,6 +1712,33 @@ tips：
 - 时间复杂度：O(logn)，查找给定数字的下一个值的成本为 O(logn)，因为需要处理数字中的每位数，而数字中的位数由 logn 决定；
 - 空间复杂度：O(1)
 
+### 724. [Find Pivot Index](https://leetcode-cn.com/problems/find-pivot-index/) 寻找数组的中心下标
+
+给你一个整数数组 nums，请编写一个能够返回数组 “中心下标” 的方法。数组 中心下标 是数组的一个下标，其左侧所有元素相加的和等于右侧所有元素相加的和。如果数组不存在中心下标，返回 -1 。如果数组有多个中心下标，应该返回最靠近左边的那一个。中心下标可能出现在数组的两端。  
+示例：  
+输入：nums = [2, 1, -1]  
+输出：0  
+解释：下标 0 左侧不存在元素，视作和为 0，右侧数之和为 1 + (-1) = 0 ，二者相等。
+
+题解：
+
+```java
+class Solution {
+    public int pivotIndex(int[] nums) {
+        int post = 0, pre = 0;
+        for (int i = 0; i < nums.length; i++) {
+            post += nums[i];
+        }
+        for (int i = 0; i < nums.length; i++) {
+            post -= nums[i];
+            if (pre == post) return i;
+            pre += nums[i];
+        }
+        return -1;
+    }
+}
+```
+
 ### 258. [Add Digits](https://leetcode-cn.com/problems/add-digits/) 各位相加
 
 给定一个非负整数 `num`，反复将各个位上的数字相加，直到结果为一位数。  
@@ -1739,7 +1766,7 @@ tips：
 - 时间复杂度：O(1)
 - 空间复杂度：O(1)
 
-### 204. [Count Primes](https://leetcode-cn.com/problems/count-primes/) 各位相加
+### 204. [Count Primes](https://leetcode-cn.com/problems/count-primes/) 计数质数
 
 统计所有小于非负整数 *`n`* 的质数的数量。
 
