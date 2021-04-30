@@ -1264,6 +1264,54 @@ tips：
 - 时间复杂度：O(nlogk)。其中 n 是 words 的长度，使用O(n) 的时间计算每个单词的频率，然后将 n 个单词添加到堆中，添加每个单词的时间为 O(logk) ；
 - 空间复杂度：O(n)
 
+### 447. [Number of Boomerangs](https://leetcode-cn.com/problems/number-of-boomerangs/) 回旋镖的数量
+
+给定平面上 n 对 互不相同 的点 points ，其中 points[i] = [xi, yi] 。回旋镖 是由点 (i, j, k) 表示的元组 ，其中 i 和 j 之间的距离和 i 和 k 之间的距离相等（需要考虑元组的顺序）。返回平面上所有回旋镖的数量。points[i].length == 2。  
+示例：  
+输入：points = [[0,0],[1,0],[2,0]]  
+输出：2  
+解释：两个回旋镖为 [[1,0],[0,0],[2,0]] 和 [[1,0],[2,0],[0,0]]
+
+思路：  
+以每个点为枢纽点，遍历n次，以当前枢纽点建立map集合，再遍历n-1次，得到的map集合key为某一其他点到此枢纽点的距离，value为距离枢纽点距离为key的点的个数，对每一次外层循环取map集合的value，总的结果即为当前结果加value * (value - 1)种（eg：当前与枢纽点距离相同为某值的点有5个，从中选两个点作为回旋镖i, j, k的后两个点，共有5 * 4种不同的组合）。
+
+题解：
+
+```java
+class Solution {
+    public int numberOfBoomerangs(int[][] points) {
+        int result = 0;
+        for (int i = 0; i < points.length; i++) {
+            Map<Integer, Integer> disCount = new HashMap<>();
+            for (int j = 0; j < points.length; j++) {
+                if (i != j) {
+                    int dis = disQuare(points[i], points[j]);
+                    disCount.put(dis, disCount.getOrDefault(dis, 0) + 1);
+                }
+            }
+            for (int value : disCount.values()) {
+                result += value * (value - 1); // 当前距离下所有j和k点的不同组合总为value乘以value - 1种
+            }
+        }
+        return result;
+    }
+
+    private int disQuare(int[] a, int[] b) {
+        return (a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1]);
+    }
+}
+```
+
+tips：
+
+- 对于二维数组，数组.length表示的为二维数组的行数；
+- 为防止求两点距离时开方产生浮点值，使用距离的平方来衡量两点间的距离是否相等；
+- 当前指定距离下与i点距离相同的点只有一个时，value * (value - 1)为0，即对于值为1时此式也可行；
+- 定义在循环中的变量一次使用完毕后会被垃圾回收，不需要定义在循环体外面以防重复定义占用空间；
+- 使用java.util.Map<K,V>类中的Collection<V> values() 方法，返回此映射中包含的值的 Collection 视图。 来增强for循环取值。
+- 时间复杂度：O(n^2)；
+- 空间复杂度：O(n)，定义在循环中的哈希表每一次使用完毕后会被垃圾回收，所以整体只占用了O(n)复杂度的空间。
+
 ## Ⅴ Hash Table (LUT) 哈希表（查找表）
 
 使用底层实现为**哈希表**的Set及Map集合等的数组相关题目。查找表（Look-Up Table）是由同一类型的数据元素（或记录）构成的集合。查找操作为根据给定的某个K值，在查找表中寻找一个其键值等于K的数据元素，利用查找表的key及value来解决问题。
