@@ -1359,6 +1359,77 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(n)
 
+### 1. [Two Sum](https://leetcode-cn.com/problems/two-sum/) 两数之和
+
+给定一个整数数组 nums 和一个整数目标值 target，请你在该数组中找出 和为目标值 的那 两个 整数，并返回它们的数组下标。你可以假设每种输入只会对应一个答案。但是，数组中同一个元素在答案里不能重复出现。你可以按任意顺序返回答案。  
+示例：  
+输入：nums = [3,2,4], target = 6  
+输出：[1,2]
+
+思路：  
+使用Map集合存储数组的值及其索引，对于数组每一个元素 i，首先查询哈希表中是否存在 target - i 再将 i 插入到哈希表中，即能保证同一个元素在答案里不重复出现。
+
+题解：
+
+```java
+class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        Map<Integer, Integer> numsMap = new HashMap<>();
+        for (int i = 0; i < nums.length; i++) {
+            int complement = target - nums[i];
+            if (numsMap.containsKey(complement)) return new int[] {numsMap.get(complement), i};
+            numsMap.put(nums[i], i);
+        }
+        return null;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)，哈希表插入、查找及删除的时间复杂度均为O(1)；
+- 空间复杂度：O(n)
+
+### 454. [4Sum II](https://leetcode-cn.com/problems/4sum-ii/) 四数相加 II
+
+给定四个包含整数的数组列表 A , B , C , D ,计算有多少个元组 (i, j, k, l) ，使得 A[i] + B[j] + C[k] + D[l] = 0。为了使问题简单化，所有的 A, B, C, D 具有相同的长度 N，且 0 ≤ N ≤ 500 。所有整数的范围在 -228 到 228 - 1 之间，最终结果不会超过 231 - 1 。  
+示例：  
+输入：A = [ 1, 2]，B = [-2,-1]，C = [-1, 2]，D = [ 0, 2]  
+输出：2  
+解释：两个元组为 (0, 0, 0, 1) 和 (1, 1, 0, 0)
+
+题解：
+
+```java
+class Solution {
+    public int fourSumCount(int[] nums1, int[] nums2, int[] nums3, int[] nums4) {
+        int length = nums1.length;
+        Map<Integer, Integer> combination = new HashMap<>();
+        int result = 0;
+        for (int i = 0; i < length; i++) {
+            for (int j = 0; j < length; j++) {
+                int key = nums1[i] + nums2[j];
+                combination.put(key, combination.getOrDefault(key, 0) + 1);
+            }
+        }
+        for (int i = 0; i < length; i++) {
+            for (int j = 0; j < length; j++) {
+                int key = nums3[i] + nums4[j];
+                if (combination.containsKey(-key)) result += combination.get(-key);
+            }
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 与1题思路相同；
+- 可以使用-int变量表示一个负数（大小为负的int变量）；
+- 时间复杂度：O(n^2)，哈希表插入、查找及删除的时间复杂度均为O(1)；
+- 空间复杂度：O(n^2)，哈希映射需要使用的空间。在最坏的情况下，A[i]+B[j]的值均不相同，因此值的个数为n^2，也就需要 O(n^2)的空间。
+
 ## Ⅵ Quick Sort - Partition (Divide and Conquer) 快速排序 - 三路快排（分治算法）
 
 使用**快速排序**、**三路快排**的思路。
@@ -1806,7 +1877,195 @@ tips：
 
 ## Ⅷ 前缀和
 
-前缀和
+通常涉及连续子数组的问题，使用前缀和来解决。通过前缀和数组可以轻松得到每个区间（子数组）的和。前缀和数组sum保存数组num前 n 位的和，sum[i] = num[0] + num[1] + ... + num[i]，则区间（子数组）num[i, ..., j]所有元素的和为sum[j] - sum [i - 1]。
+
+### 560. [Subarray Sum Equals K](https://leetcode-cn.com/problems/subarray-sum-equals-k/) 和为K的子数组
+
+给定一个整数数组和一个整数 k，你需要找到该数组中和为 k 的连续的子数组的个数。  
+示例：  
+输入：nums = [1,1,1], k = 2  
+输出：2 , [1,1] 与 [1,1] 为两种不同的情况。
+
+思路：  
+定义 pre[i] 为 nums[0..i] 里所有数的和，即以元素i为结尾的前缀和，使用前缀和及哈希表（查找表）的思路，建立哈希表 map，以前缀和为键，出现次数为对应的值，记录 pre[i] 出现的次数。每遍历一个元素i，考虑以 i 结尾的和为 k 的连续子数组个数，只需要统计有多少个前缀和为 pre[i]−k 的 pre[j]，即nums[j+1, ..., i]连续子数组的和为k，总的数组中和为k的连续子数组的不同种数就为以每遍历的元素i结尾情况的总和。
+
+题解：
+
+```java
+class Solution {
+    public int subarraySum(int[] nums, int k) {
+        Map<Integer, Integer> prefixSumCount = new HashMap<>();
+        prefixSumCount.put(0, 1); // 前缀和为0的次数为1
+        int sum = 0;
+        int result = 0;
+        for (int i = 0; i < nums.length; i++) {
+            sum += nums[i];
+            result += prefixSumCount.getOrDefault(sum - k, 0);
+            prefixSumCount.put(sum, prefixSumCount.getOrDefault(sum, 0) + 1);
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 满足要求的连续子数组可以为当前元素的前缀和（即为nums[0, ..., i]），故统计前缀和出现次数的map集合需要初始化为 key 为 0 value 为 1 的键值对；
+- 时间复杂度：O(n)；
+- 空间复杂度：O(n)，哈希表在最坏情况下可能有 n 个不同的键值。
+
+### 523. [Continuous Subarray Sum](https://leetcode-cn.com/problems/continuous-subarray-sum/) 连续的子数组和
+
+给定一个包含 非负数 的数组和一个目标 整数 k ，编写一个函数来判断该数组是否含有连续的子数组，其大小至少为 2，且总和为 k 的倍数，即总和为 n * k ，其中 n 也是一个整数。  
+示例：  
+输入：[23,2,6,4,7], k = 6  
+输出：true  
+解释：[23,2,6,4,7]是大小为 5 的子数组，并且和为 42。
+
+思路：  
+使用前缀和、模运算（[同余定理](https://baike.baidu.com/item/%E5%90%8C%E4%BD%99%E5%AE%9A%E7%90%86/1212360?fr=aladdin)）及哈希表（查找表）的思路，建立哈希表 map，以前缀和对k取模的值为键，当前索引为对应的值。假设第 i 个位置的前缀和的值为 sumRem，如果以 i 为右端点的任何子数组的和是 k 的倍数，假设该子数组左端点位置为 j+1 ，那么哈希表中第 j 个元素保存的值为 (sumRem-n∗k)%k ，其中 n > 0 整数。发现 (sumRem-n∗k)%k=sumRem ，也就是跟第 i 个元素保存到哈希表中的值相同（同理，遍历更新前缀和对k取模的值时，只需每次累加取模后的前缀和）。  
+令 P[i] = A[0] + A[1] + ... + A[i]。那么每个连续子数组的和 sum(i,j) 就可以写成 P[j] - P[i-1]（其中 0 < i < j）的形式。此时，判断子数组的和能否被 K 整除就等价于判断 (P[j] - P[i-1]) mod K == 0，根据 同余定理，只要 P[j] mod K == P[i-1] mod K，就可以保证上面的等式成立。  
+每遍历一个元素i，考虑以 i 结尾的和为 k 的倍数连续子数组是否存在，只需要判断第一个前缀和对k取模的值为当前前缀和对k取模的元素索引 j 与当前元素索引 i 差值是否大于1。与此同时map集合需要初始化，当不截取元素即从第一个元素到当前元素即为满足要求的子数组时，map集合的key为0，value为-1。遍历数组的过程中，为保证满足要求的子数组的长度尽量长，只有找到新的 前缀和%k 的值（即在哈希表中没有这个值），才会往哈希表中插入一条记录 key：sum % k，value：i。
+
+题解：
+
+```java
+class Solution {
+    public boolean checkSubarraySum(int[] nums, int k) {
+        Map<Integer, Integer> prefixSumRem = new HashMap<>();
+        prefixSumRem.put(0, -1); // 初始化，前缀和k的余数为0时的索引为-1
+        int sumRem = 0;
+        for (int i = 0; i < nums.length; i++) {
+            sumRem = (sumRem +nums[i]) % k;
+            if (prefixSumRem.containsKey(sumRem)) {
+                if (i - prefixSumRem.get(sumRem) > 1) return true;
+            } else {
+                prefixSumRem.put(sumRem, i); // 当不包含前缀和k的余数时才加入到map集合
+            }
+        }
+        return false;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)；
+- 空间复杂度：O(min(n, k))，哈希表最多包含 min(n,k) 个不同的元素。
+
+### 974. [Subarray Sums Divisible by K](https://leetcode-cn.com/problems/subarray-sums-divisible-by-k/) 和可被 K 整除的子数组
+
+给定一个整数数组 `A`，返回其中元素之和可被 `K` 整除的（连续、非空）子数组的数目。1 <= A.length <= 30000。  
+示例：  
+输入：A = [4,5,0,-2,-3,1], K = 5  
+输出：7  
+解释：有 7 个子数组满足其元素之和可被 K = 5 整除，[4, 5, 0, -2, -3, 1], [5], [5, 0], [5, 0, -2, -3], [0], [0, -2, -3], [-2, -3]。
+
+思路：  
+此题整数数组的元素可能为负数，需要关注[模运算](https://zh.wikipedia.org/wiki/%E6%A8%A1%E9%99%A4)背后的机制。通常情况下，在数论中总是使用正余数（即使负数参与了取余运算）。而在计算系统中，a(被除数) 除 n(除数) 得到商 q 和余数 r 满足以下式子：a = a * q + r，q ∈ Z（整数集，..., -2, -1, 0, 1, 2, ...），|r| < |n|。在不同的编程语言中，余数的符号取决于编程语言的类型和被除数 a 或除数 n 的符号。对于Java语言，取模运算（余数）结果的符号（正负）与被除数相同；eg：3 % -5 = 3，5 % -3 = 2，-3 % 5 = -3，-5 % 3 = -2；正数对负数取模的运算规则与数论中的运算方法相同，而负数对正数取模的运算规则不同，商 q 与除数 n 的乘积为第一个大于被除数的整数（在数论中商 q 与除数 n 的乘积为第一个小于被除数的整数），由商则可得出模值（余数）；有记忆性结论：正数取模负数的结果和正数取模这个负数的绝对值的结果，负数取模正数的结果为这个负数的绝对值取模这个正数后加上一个负号。  
+此题前缀和对K取模可能得到负数，则可以使用将这个负数加上K再次对K取模的方式保证前缀和模值总为正，且此方式来判断连续子数组元素之和是否能被K整除也是正确的。
+
+题解：
+
+```java
+class Solution {
+    public int subarraysDivByK(int[] A, int K) {
+        Map<Integer, Integer> prefixSumRemCount = new HashMap<>();
+        prefixSumRemCount.put(0, 1);
+        int sumRem = 0;
+        int result = 0;
+        for (int i = 0; i < A.length; i++) {
+            sumRem = ((sumRem + A[i]) % K + K) % K;
+            int value = prefixSumRemCount.getOrDefault(sumRem, 0);
+            result += value;
+            prefixSumRemCount.put(sumRem, value + 1);
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 结合了560与523题的思路；
+- 时间复杂度：O(n)；
+- 空间复杂度：O(min(n, k))。
+
+### 930. [Binary Subarrays With Sum](https://leetcode-cn.com/problems/binary-subarrays-with-sum/) 和相同的二元子数组
+
+在由若干 `0` 和 `1` 组成的数组 `A` 中，有多少个和为 `S` 的非空子数组。  
+示例：  
+输入：A = [1,0,1,0,1], S = 2  
+输出：4  
+解释：[**1,0,1**,0,1]，[**1,0,1,0**,1]，[1,**0,1,0,1**]，[1,0,**1,0,1**] 为满足题目要求的子数组。
+
+题解：
+
+```java
+class Solution {
+    public int numSubarraysWithSum(int[] A, int S) {
+        Map<Integer, Integer> prefixSumCount = new HashMap<>();
+        prefixSumCount.put(0, 1);
+        int sum = 0;
+        int result = 0;
+        for (int i = 0; i < A.length; i++) {
+            sum += A[i];
+            result += prefixSumCount.getOrDefault(sum - S, 0);
+            prefixSumCount.put(sum, prefixSumCount.getOrDefault(sum, 0) + 1);
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 与560题思路相同；
+- 时间复杂度：O(n)；
+- 空间复杂度：O(n)
+
+### 525. [Contiguous Array](https://leetcode-cn.com/problems/contiguous-array/) 连续数组
+
+给定一个二进制数组, 找到含有相同数量的 0 和 1 的最长连续子数组（的长度）。  
+示例：  
+输入：[0,1,0]  
+输出：2  
+解释： [0, 1] (或 [1, 0]) 是具有相同数量0和1的最长连续子数组。
+
+思路：  
+使用前缀和及哈希表（查找表）的思路，建立哈希表 map，以前缀和为键，当前索引为对应的值。此题关键在于将数组中的所有0变为-1，则含有相同数量的 0 和 1 的连续子数组可以转换为sum of subarray == 0。When the same prefix sum appears at i, j. sum(i+1, ..., j) == 0, answer = max(answer, j - i). 遍历数组的过程中，为保证满足要求的子数组的长度尽量长，只有找到新的 前缀和的值（即在哈希表中没有这个值），才会往哈希表中插入一条记录 key：sum，value：i。(Use a hashtable to track the **first index** of each prefix sum appears)
+
+题解：
+
+```java
+class Solution {
+    public int findMaxLength(int[] nums) {
+        Map<Integer, Integer> prefixSumIndex = new HashMap<>();
+        prefixSumIndex.put(0, -1);
+        int sum = 0;
+        int maxLen = 0;
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] == 0) {
+                sum += -1; // 将数组中的元素0都转化为-1
+            } else {
+                sum += 1;
+            }
+            if (prefixSumIndex.containsKey(sum)) {
+                maxLen = Math.max(maxLen, i - prefixSumIndex.get(sum));
+            } else {
+                prefixSumIndex.put(sum, i);
+            }
+        }
+        return maxLen;
+    }
+}
+```
+
+tips：
+
+- 与523题思路相似；
+- 时间复杂度：O(n)；
+- 空间复杂度：O(n)，map 最大使用空间为 n ，当且仅当所有元素都是 1 或者 0 。
 
 ## Ⅸ General - List 常规 - 链表
 
