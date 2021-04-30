@@ -1804,7 +1804,11 @@ tips：
 - 时间复杂度：O(nloglogn)
 - 空间复杂度：O(n)
 
-## Ⅷ General - List 常规 - 链表
+## Ⅷ 前缀和
+
+前缀和
+
+## Ⅸ General - List 常规 - 链表
 
 常规链表题目。
 
