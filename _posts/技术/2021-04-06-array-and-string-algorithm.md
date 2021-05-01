@@ -1312,6 +1312,61 @@ tips：
 - 时间复杂度：O(n^2)；
 - 空间复杂度：O(n)，定义在循环中的哈希表每一次使用完毕后会被垃圾回收，所以整体只占用了O(n)复杂度的空间。
 
+### 49. [Group Anagrams](https://leetcode-cn.com/problems/group-anagrams/) 字母异位词分组
+
+给定一个字符串数组，将字母异位词组合在一起。字母异位词指字母相同，但排列不同的字符串。所有输入均为小写字母。不考虑答案输出的顺序。  
+示例：  
+输入：["eat", "tea", "tan", "ate", "nat", "bat"]  
+输出：
+
+```
+[
+  ["ate","eat","tea"],
+  ["nat","tan"],
+  ["bat"]
+]
+```
+
+思路：  
+互为字母异位词的两个字符串包含的字母相同，因此两个字符串中的相同字母出现的次数一定是相同的，将每个字母出现的次数使用字符串表示，作为哈希表的键。键的类型为String，内容为从a到z的出现字母拼接此字母的出现次数。
+
+题解：
+
+```java
+class Solution {
+    public List<List<String>> groupAnagrams(String[] strs) {
+        Map<String, List<String>> resMap = new HashMap<>();
+        for (String str : strs) {
+            int[] freq = new int[26];
+            for (int i = 0; i < str.length(); i++) {
+                freq[str.charAt(i) - 'a']++;
+            }
+            StringBuffer keySb = new StringBuffer();
+            for (int i = 0; i < 26; i++) {
+                if (freq[i] != 0) {
+                    keySb.append((char) (i + 'a')).append(freq[i]);
+                }
+            }
+            String keyStr = keySb.toString();
+            List<String> value = resMap.getOrDefault(keyStr, new ArrayList<String>());
+            value.add(str);
+            resMap.put(keyStr, value);
+        }
+        return new ArrayList<List<String>>(resMap.values());
+    }
+}
+```
+
+tips：
+
+- 使用java.lang.StringBuffer类，线程安全的可变字符序列，一个类似于 String 的字符串缓冲区。StringBuffer append(char c) 方法将 char 参数的字符串表示形式追加到此序列，并返回当前对象自身。使用链式编程（如果方法的返回值是一个对象，可以根据对象继续调用方法）；
+- 通过键获取值时，使用 java.util.Map<K,V>接口类中的default V getOrDefault (Object key, V defaultValue) 方法（JDK1.8 新特性）返回指定键映射到的值，如果此映射不包含该键的映射，则返回 defaultValue。来在第一次获取值时新建值ArrayList<String>对象；
+- 返回值使用ArrayList(Collection<? extends E> c) 构造一个包含指定 collection 的元素的列表，这些元素是按照该 collection 的迭代器返回它们的顺序排列的。来构造新的结果集合，且参数使用Map<K,V>类中的Collection<V> values() 方法（新特性）返回此map集合中包含的值的Collection视图；
+- 时间复杂度：OO(n*(k+∣Σ∣))，其中 n 是 strs 中的字符串的数量，k 是 strs 中的字符串的的最大长度，Σ 是字符集，在本题中字符集为所有小写字母，∣Σ∣=26；
+- 空间复杂度：O(n*(k+∣Σ∣))，需要用哈希表存储全部字符串，而记录每个字符串中每个字母出现次数的数组需要的空间为 O(∣Σ∣)，在渐进意义下小于 前者，可以忽略不计。
+
+
+
 ## Ⅴ Hash Table (LUT) 哈希表（查找表）
 
 使用底层实现为**哈希表**的Set及Map集合等的数组相关题目。查找表（Look-Up Table）是由同一类型的数据元素（或记录）构成的集合。查找操作为根据给定的某个K值，在查找表中寻找一个其键值等于K的数据元素，利用查找表的key及value来解决问题。
@@ -1935,7 +1990,8 @@ tips：
 输出：2 , [1,1] 与 [1,1] 为两种不同的情况。
 
 思路：  
-定义 pre[i] 为 nums[0..i] 里所有数的和，即以元素i为结尾的前缀和，使用前缀和及哈希表（查找表）的思路，建立哈希表 map，以前缀和为键，出现次数为对应的值，记录 pre[i] 出现的次数。每遍历一个元素i，考虑以 i 结尾的和为 k 的连续子数组个数，只需要统计有多少个前缀和为 pre[i]−k 的 pre[j]，即nums[j+1, ..., i]连续子数组的和为k，总的数组中和为k的连续子数组的不同种数就为以每遍历的元素i结尾情况的总和。
+定义 pre[i] 为 nums[0..i] 里所有数的和，即以元素i为结尾的前缀和，使用前缀和及哈希表（查找表）的思路，建立哈希表 map，以前缀和为键，出现次数为对应的值，记录 pre[i] 出现的次数。每遍历一个元素i，考虑以 i 结尾的和为 k 的连续子数组个数，只需要统计有多少个前缀和为 pre[i]−k 的 pre[j]，即nums[j+1, ..., i]连续子数组的和为k，总的数组中和为k的连续子数组的不同种数就为以每遍历的元素i结尾情况的总和。  
+![](/images/2021-04-06-array-and-string-algorithm/560.png)
 
 题解：
 
