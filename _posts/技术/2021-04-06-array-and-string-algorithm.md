@@ -308,6 +308,164 @@ tips：
 - 时间复杂度：O(m + n)
 - 空间复杂度：O(1)
 
+### 16. [3Sum Closest](https://leetcode-cn.com/problems/3sum-closest/) 最接近的三数之和
+
+给定一个包括 n 个整数的数组 nums 和 一个目标值 target。找出 nums 中的三个整数，使得它们的和与 target 最接近。返回这三个数的和。假定每组输入只存在唯一答案。  
+示例：  
+输入：nums = [-1,2,1,-4], target = 1  
+输出：2  
+解释：与 target 最接近的和是 2 (-1 + 2 + 1 = 2) 。
+
+思路：  
+对数组调用Java的库函数java.util.Arrays类中的static void sort(int[] a) 方法，对指定的 int 型数组按数字升序进行排序，其时间复杂度及空间复杂度都为O(logN)。首先考虑枚举第一个元素 a，然后考虑剩下的两个元素 b 和 c，使用两重循环来枚举所有的可能情况。遍历数组，每遍历一个数组中的元素i，其固定为第一个元素a，为了防止重复枚举，在位置 [i+1, n) 的范围内枚举 b 和 c，使用左指针 left 指向 i+1 处，右指针 right 指向 nums.length-1 处，分别代表元素b和元素c，根据 sum = nums[i] + nums[left] + nums[right] 的结果，判断 sum 与目标 target 的距离，如果更近则更新结果 ans，当ans == target时则直接返回结果，同时判断 sum 与 target 的大小关系，因为数组有序，如果 sum > target 则 right--，如果 sum < target 则 left++。
+
+题解：
+
+```java
+class Solution {
+    public int threeSumClosest(int[] nums, int target) {
+        Arrays.sort(nums);
+        int len = nums.length;
+        int result = nums[0] + nums[1] + nums[2]; // 不能初始化为Integer.MAX_VALUE，target可能为负
+        for (int i = 0; i < len - 2; i++) {
+            int left = i + 1;
+            int right = len - 1;
+            while (left < right) {
+                int sum = nums[i] + nums[left] + nums[right];
+                if (result == target) return result;
+                if (Math.abs(sum - target) < Math.abs(result - target)) result = sum;
+                if (sum > target) {
+                    right--;
+                } else {
+                    left++;
+                }
+            }
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 此题与167题思路相似；
+- 时间复杂度：快速排序O(nlogn) + 双层循环（固定a元素n次，双指针n次）O(n^2) = O(n^2)；
+- 空间复杂度：O(nlogn)
+
+### 18. [4Sum](https://leetcode-cn.com/problems/4sum/) 四数之和
+
+给定一个包含 n 个整数的数组 nums 和一个目标值 target，判断 nums 中是否存在四个元素 a，b，c 和 d ，使得 a + b + c + d 的值与 target 相等？找出所有满足条件且不重复的四元组。答案中不可以包含重复的四元组。  
+示例：  
+输入：nums = [1,0,-1,0,-2,2], target = 0  
+输出：[[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]
+
+思路：  
+先调用库函数对数组进行升序排序。三重循环，并且在循环过程中遵循以下两点：每一种循环枚举到的下标必须大于上一重循环枚举到的下标；同一重循环中，如果当前元素与上一个元素相同，则跳过当前元素。首先考虑枚举第一个元素 a，然后以同样的方式枚举第二个元素b，最后使用双指针索引考虑剩下的两个元素 c 和 d。在前两重循环中，还可以进行一些剪枝操作：在确定第一个数a之后，如果 nums[i] + nums[i+1] + nums[i+2] + nums[i+3] > target，说明此时剩下的三个数无论取什么值，四数之和一定大于 target，因此退出第一重循环（break）；在确定第一个数a之后，如果 nums[i] + nums[n−3] + nums[n−2] + nums[n−1] < target，说明此时剩下的三个数无论取什么值，四数之和一定小于 target，因此第一重循环直接进入下一轮（continue），枚举 nums[i+1]；在确定前两个数a和b之后，如果 nums[i] + nums[j] + nums[j+1] + nums[j+2] > target，说明此时剩下的两个数无论取什么值，四数之和一定大于 target，因此退出第二重循环（break）；在确定前两个数a和b之后，如果 nums[i] + nums[j] + nums[n−2] + nums[n−1] < target，说明此时剩下的两个数无论取什么值，四数之和一定小于 target，因此第二重循环直接进入下一轮（continue），枚举 nums[j+1]。使用两重循环分别枚举前两个数a和b后，然后在两重循环枚举到的数之后使用双指针枚举剩下的两个数c和d。假设两重循环枚举到的前两个数分别位于下标 i 和 j，其中 i<j。初始时，左右指针分别指向下标 j+1 和下标 n−1。每次计算四个数的和，并进行如下操作：如果和等于 target，则将枚举到的四个数加到答案中，然后将左指针右移直到遇到不同的数，将右指针左移直到遇到不同的数（左右指针都要移动，因为left++后，sum必大于target，则需right--）；如果和小于 target，则将左指针右移一位；如果和大于 target，则将右指针左移一位。
+
+题解：
+
+```java
+class Solution {
+    public List<List<Integer>> fourSum(int[] nums, int target) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (nums.length < 4) return result;
+        Arrays.sort(nums);
+        int len = nums.length;
+        for (int i = 0; i < len - 3; i++) {
+            if (i > 0 && nums[i] == nums[i - 1]) continue;
+            if (nums[i] + nums[i + 1] + nums[i + 2] + nums[i + 3] > target) break;
+            if (nums[i] + nums[len - 1] + nums[len - 2] + nums[len - 3] < target) continue;
+            for (int j = i + 1; j < len - 2; j++) {
+                if (j > i + 1 && nums[j] == nums[j - 1]) continue;
+                if (nums[i] + nums[j] + nums[j + 1] + nums[j + 2] > target) break;
+                if (nums[i] + nums[j] + nums[len - 1] + nums[len - 2] < target) continue;
+                int left = j + 1;
+                int right = len - 1;
+                while (left < right) {
+                    int sum = nums[i] + nums[j] + nums[left] + nums[right];
+                    if (sum == target) {
+                        List<Integer> ele = new ArrayList<>();
+                        ele.add(nums[i]);
+                        ele.add(nums[j]);
+                        ele.add(nums[left]);
+                        ele.add(nums[right]);
+                        result.add(ele);
+                        while (left < right && nums[left + 1] == nums[left]) left++;
+                        left++;
+                        while (left < right && nums[right - 1] == nums[right]) right--;
+                        right--;
+                    } else if (sum < target) {
+                        left++; // 无需判断是否可能会重复left的值，因为sum != target时不用添加到结果中
+                    } else {
+                        right--; // 无需判断是否可能会重复right的值，因为sum != target时不用添加到结果中
+                    }
+                }
+            }
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 此题与16题思路相似；
+- 当sum == target时，为防止重复添加相同的四元组到结果中，需要判断下一位left或right是否与上一位相等，与此同时left指针与right指针都不能越界；
+- 时间复杂度：快速排序O(nlogn) + 三重循环O(n^3) = O(n^3)；
+- 空间复杂度：忽略存储答案的空间，O(nlogn)
+
+### 15. [3Sum](https://leetcode-cn.com/problems/3sum/) 三数之和
+
+给你一个包含 n 个整数的数组 nums，判断 nums 中是否存在三个元素 a，b，c ，使得 a + b + c = 0 ？请你找出所有和为 0 且不重复的三元组。答案中不可以包含重复的三元组。  
+示例：  
+输入：nums = [-1,0,1,2,-1,-4]  
+输出：[[-1,-1,2],[-1,0,1]]
+
+题解：
+
+```java
+class Solution {
+    public List<List<Integer>> threeSum(int[] nums) {
+        List<List<Integer>> result = new ArrayList<>();
+        int len = nums.length;
+        if (len < 3) return result;
+        Arrays.sort(nums);
+        for (int i = 0; i < len - 2; i++) {
+            if (i > 0 && nums[i] == nums[i - 1]) continue;
+            if (nums[i] + nums[i + 1] + nums[i + 2] > 0) break;
+            if (nums[i] + nums[len -1] + nums[len - 2] < 0) continue;
+            int left = i + 1;
+            int right = len - 1;
+            while (left < right) {
+                int sum = nums[i] + nums[left] + nums[right];
+                if (sum == 0) {
+                    List<Integer> ele = new ArrayList<>();
+                    ele.add(nums[i]);
+                    ele.add(nums[left]);
+                    ele.add(nums[right]);
+                    result.add(ele);
+                    while (left < right && nums[left + 1] == nums[left]) left++;
+                    left++;
+                    while (left < right && nums[right - 1] == nums[right]) right--;
+                    right--;
+                } else if (sum < 0) {
+                    left++;
+                } else {
+                    right--;
+                }
+            }
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 此题与18题思路相同；
+- 时间复杂度：快速排序O(nlogn) + 两重循环O(n^2) = O(n^2)；
+- 空间复杂度：忽略存储答案的空间，O(nlogn)
+
 ## Ⅱ Two Pointers - String 双指针 - 字符串
 
 使用**双指针**思路的字符串的相关题目。
