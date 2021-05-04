@@ -1,0 +1,32 @@
+---
+layout: post
+title: 二进制的存储、运算及其应用
+description: 二进制及其位运算与应用
+category: 技术
+---
+
+## introduction 
+二进制的正负数表示、存储与运算，Java位运算，Java运算符的优先级，相关应用。
+
+## Ⅰ Underlying Mechanism 底层机制
+考虑负数参与的取模运算。
+
+通常情况下，在数论中总是使用正余数（即使负数参与了取余运算）。而在计算系统中，a(被除数) 除 n(除数) 得到商 q 和余数 r 满足以下式子：  
+a = n * q + r，q ∈ Z（整数集，..., -2, -1, 0, 1, 2, ...），|r| < |n|。
+
+在不同的编程语言中，余数的符号取决于编程语言的类型和被除数 a 或除数 n 的符号。对于Java语言，取模运算（余数）结果的符号（正负）与被除数相同。  
+eg：3 % -5 = 3，5 % -3 = 2，-3 % 5 = -3，-5 % 3 = -2
+
+正数对负数取模的运算规则与数论中的运算方法相同，而负数对正数取模的运算规则不同：商 q 与除数 n 的乘积为第一个大于被除数的整数（在数论中商 q 与除数 n 的乘积为第一个小于被除数的整数），由商则可得出模值（余数）。
+
+有记忆性结论：正数取模负数的结果和正数取模这个负数的绝对值的结果相同，负数取模正数的结果为这个负数的绝对值取模这个正数后加上一个负号。
+
+## Ⅱ Application 应用
+
+### 1. Congruence Theorem 同余定理
+
+两个整数除以同一个正整数，若得相同余数，则二整数同余。也即给定一个正整数 m，如果两个整数 a 和 b 满足 a - b 能够被 m 整除，即 (a - b) / m得到一个整数，则整数 a 与 b 对模 m 同余，记作a ≡ b (mod m)，充分必要条件。
+
+应用：结合同余定理及前缀和的思路解决区间和为整数 k 的倍数的相关问题。例如：  
+[523. Continuous Subarray Sum](https://leetcode-cn.com/problems/continuous-subarray-sum/)	[连续的子数组和](https://yujie2020.github.io/2021-04-06-array-and-string-algorithm.html)  
+[974. Subarray Sums Divisible by K](https://leetcode-cn.com/problems/subarray-sums-divisible-by-k/)	[和可被 K 整除的子数组](https://yujie2020.github.io/2021-04-06-array-and-string-algorithm.html)
