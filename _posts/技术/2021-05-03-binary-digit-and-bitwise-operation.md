@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 二进制的运算及其应用
+title: 二进制的（位）运算及其应用
 description: 位运算与应用
 category: 技术
 ---
