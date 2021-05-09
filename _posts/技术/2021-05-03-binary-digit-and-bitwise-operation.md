@@ -210,3 +210,22 @@ System.out.println(a &= 3); // 1
 
 应用：结合位运算求中间值的思路解决二分查找的相关问题。例如：  
 [34. Find First and Last Position of Element in Sorted Array](https://leetcode-cn.com/problems/continuous-subarray-sum/)ㅤㅤ[在排序数组中查找元素的第一个和最后一个位置](https://yujie2020.github.io/2021-04-14-leetcode-hot-100.html)
+
+### 2. Properties of Exclusive Or 异或运算的性质
+
+1) 任何数和 0 做异或运算结果仍然是原来的数  
+ㅤㅤa ⊕ 0 = a  
+2) 任何数和其自身做异或运算结果是 0  
+ㅤㅤa ⊕ a = 0  
+3) **满足交换律和结合律**  
+ㅤㅤa ⊕ b ⊕ a = b ⊕ a ⊕ a = b ⊕ (a ⊕ a) = b ⊕ 0 = b  
+证明：  
+将异或运算看做 加法运算后再对2求余：  
+ㅤㅤ1 eor 1 = (1 + 1) % 2 = 2 % 2 = 0  
+ㅤㅤ0 eor 0 = (0 + 0) % 2 = 0 % 2 = 0  
+ㅤㅤ0 eor 1 = (0 + 1) % 2 = 1 % 2 = 1  
+ㅤㅤ1 eor 0 = (1 + 0) % 2 = 1 % 2 = 1  
+异或运算（eor）的最后结果等于所有的运算数按照原来的优先级加起来再对2求余，因为加法运算本身是可交换可结合的，所以间接证明了异或运算（eor）也是可交换可结合的。
+
+应用：结合异或运算的性质求解除了某个元素只出现一次以外其余每个元素均出现两次的非空整数数组中那个只出现了一次的元素。例如：  
+[136. Single Number](https://leetcode-cn.com/problems/single-number/)ㅤㅤ[只出现一次的数字](https://leetcode-cn.com/problems/single-number/)
