@@ -228,4 +228,5 @@ System.out.println(a &= 3); // 1
 异或运算（eor）的最后结果等于所有的运算数按照原来的优先级加起来再对2求余，因为加法运算本身是可交换可结合的，所以间接证明了异或运算（eor）也是可交换可结合的。
 
 应用：结合异或运算的性质求解除了某个元素只出现一次以外其余每个元素均出现两次的非空整数数组中那个只出现了一次的元素。例如：  
-[136. Single Number](https://leetcode-cn.com/problems/single-number/)ㅤㅤ[只出现一次的数字](https://leetcode-cn.com/problems/single-number/)
+[136. Single Number](https://leetcode-cn.com/problems/single-number/)ㅤㅤ[只出现一次的数字](https://yujie2020.github.io/2021-04-14-leetcode-hot-100.html)  
+[461. Hamming Distance](https://leetcode-cn.com/problems/hamming-distance/)ㅤㅤ[汉明距离](https://yujie2020.github.io/2021-04-14-leetcode-hot-100.html)
