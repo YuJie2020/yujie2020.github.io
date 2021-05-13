@@ -1997,6 +1997,53 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(∣Σ∣)，其中 Σ 表示字符集（即字符串中可以出现的字符），∣Σ∣ 表示字符集的大小。此题字符集（所有大写字母 ）为所有 ASCII 码在 [65, 90] 内的字符，即∣Σ∣=26。
 
+### 118. [Pascal's Triangle](https://leetcode-cn.com/problems/pascals-triangle/) 杨辉三角
+
+给定一个非负整数 *numRows，*生成杨辉三角的前 *numRows* 行。在杨辉三角中，每个数是它左上方和右上方的数的和。  
+示例：  
+输入：5  
+输出：
+
+```
+[
+     [1],
+    [1,1],
+   [1,2,1],
+  [1,3,3,1],
+ [1,4,6,4,1]
+]
+```
+
+思路：  
+[杨辉三角](https://zh.wikipedia.org/wiki/%E6%9D%A8%E8%BE%89%E4%B8%89%E8%A7%92%E5%BD%A2)，是二项式系数在三角形中的一种几何排列。杨辉三角形第 n 层（顶层称第 0 层第 1 行，第 n 层即第 n+1 行，n 为包含 0 在内的自然数）正好对应于二项式 (a+b)^n 展开的系数。除每行最左侧与最右侧的数字以外，每个数字等于它的左上方与右上方两个数字之和（第 n 行第 k 个数字等于第 n-1 行的第 k-1 个数字与第 k 个数字的和）。
+
+题解：
+
+```java
+class Solution {
+    public List<List<Integer>> generate(int numRows) {
+        List<List<Integer>> result = new ArrayList<>();
+        for (int i = 0; i < numRows; i++) {
+            List<Integer> row = new ArrayList<>();
+            for (int j = 0; j <= i; j++) {
+                if (j == 0 || j == i) {
+                    row.add(1);
+                } else {
+                    row.add(result.get(i - 1).get(j - 1) + result.get(i - 1).get(j));
+                }
+            }
+            result.add(row);
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n^2)；
+- 空间复杂度：O(1)，不考虑结果的空间占用
+
 ### 202. [Happy Number](https://leetcode-cn.com/problems/happy-number/) 快乐数
 
 编写一个算法来判断一个数 `n` 是不是快乐数。快乐数定义为：对于一个正整数，每一次将该数替换为它每个位置上的数字的平方和；然后重复这个过程直到这个数变为 1，也可能是 无限循环 但始终变不到 1；如果 可以变为  1，那么这个数就是快乐数。如果 n 是快乐数就返回 true，不是则返回 false 。  
