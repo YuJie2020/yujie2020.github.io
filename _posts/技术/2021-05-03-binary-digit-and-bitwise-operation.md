@@ -229,4 +229,5 @@ System.out.println(a &= 3); // 1
 
 应用：结合异或运算的性质求解除了某个元素只出现一次以外其余每个元素均出现两次的非空整数数组中那个只出现了一次的元素。例如：  
 [136. Single Number](https://leetcode-cn.com/problems/single-number/)ㅤㅤ[只出现一次的数字](https://yujie2020.github.io/2021-04-14-leetcode-hot-100.html)  
-[461. Hamming Distance](https://leetcode-cn.com/problems/hamming-distance/)ㅤㅤ[汉明距离](https://yujie2020.github.io/2021-04-14-leetcode-hot-100.html)
+[461. Hamming Distance](https://leetcode-cn.com/problems/hamming-distance/)ㅤㅤ[汉明距离](https://yujie2020.github.io/2021-04-14-leetcode-hot-100.html)  
+[剑指 Offer 15. 二进制中1的个数](https://leetcode-cn.com/problems/er-jin-zhi-zhong-1de-ge-shu-lcof/)ㅤㅤ[二进制中1的个数](https://yujie2020.github.io/2021-04-14-coding-interviews.html)

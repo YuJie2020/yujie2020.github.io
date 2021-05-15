@@ -266,3 +266,96 @@ tips：
 
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
+
+### 15. [二进制中1的个数](https://leetcode-cn.com/problems/er-jin-zhi-zhong-1de-ge-shu-lcof/)
+
+请实现一个函数，输入一个整数（以二进制串形式），输出该数二进制表示中 1 的个数。例如，把 9 表示成二进制是 1001，有 2 位是 1。因此，如果输入 9，则该函数输出 2。  
+示例：  
+输入：11111111111111111111111111111101（**有歧义，实际输入为 -3**）  
+输出：31
+
+思路：  
+**常规常规数组题目，遍历，条件判断+数学（[位运算](https://yujie2020.github.io/2021-05-03-binary-digit-and-bitwise-operation.html)）**。题目输入的为带符号int范围的整数（题目有歧义，并非题目描述里的二进制串；且考虑有符号数，即不能使用遍历模2在除2的方式求每位的数），求解其补码二进制串中1的个数（当输入为负数时符号位1也需要考虑到结果中）。初始化一个用于进行位与运算的常数con=1，遍历32次（int类型的位数），每次循环体内 n & con 位与运算，每一次遍历后将con位运算左移1位（当前遍历的位为1，其他位都为0），当 n&con 不等于0则代表原数 n 当前位为1（即使原数n为负数，遍历到符号位位与运算的结果为10000000000000000000000000000000，其表示-2^31也不为0），即可求出原数二进制表示中 1 的个数。
+
+题解：
+
+```java
+class Solution {
+    // you need to treat n as an unsigned value
+    public int hammingWeight(int n) {
+        int result = 0;
+        int con = 1;
+        for (int i = 0; i < 32; i++) {
+            if ((n & con) != 0) result++; // != 的优先级高于 &
+            con <<= 1;
+        }
+        return result;
+        // return Integer.bitCount(n); // 库函数
+    }
+}
+```
+
+tips：
+
+- 调用库函数 java.lang.Integer类中的static int bitCount(int i) 方法，返回指定 int 值的二进制补码表示形式的 1 位的数量。当输入为负数时也满足题意；
+- 时间复杂度：O(1)
+- 空间复杂度：O(1)
+
+### 16. [数值的整数次方](https://leetcode-cn.com/problems/shu-zhi-de-zheng-shu-ci-fang-lcof/)
+
+实现 pow(*x*, *n*)，即计算 x 的 n 次幂函数（即，x^n）。不得使用库函数，同时不需要考虑大数问题。-2^31 <= n <= 2^31-1。  
+示例：  
+输入：x = 2.00000, n = -2  
+输出：0.25000
+
+思路：  
+**常规常规数组题目，遍历，条件判断+数学（[位运算](https://yujie2020.github.io/2021-05-03-binary-digit-and-bitwise-operation.html)）**。幂n为负数则将其转为正数并将底数x转为1/x。对于幂n考虑其二进制数，eg：当 n=18 时，其二进制数为 10010 = 2^4 + 2^1，又当 n = n1 + n2 时，有 x^n = x^(n1 + n2) = x^n1 * x^n2，故 x^18 = x^(2^4) * x^(2^1)，即对于幂的二进制数其第 i 位为 1 时，将结果result乘以 x^(2^i)， x^(2^i) 可以通过遍历存储到底数 x 中，x^(2^i) = x^2, x^4, x^6, x^8, ... （下一项总为上一项的平方，通过迭代 x *= x 实现）。遍历第一次即考虑幂n二进制的第0位，若为1则结果 resultx 乘以 x（第0位 x^(2^0) = x），将 x *= x（对下一位有效，x^(2^1)），再将n右移一位以判断下一位是否为1（**也可以除以2，但位运算的效率更高**），进行下一轮遍历考虑幂n二进制的第1位，……，当n为0时则结束遍历。  
+**递归**。当n等于返回1；当n为偶数结果为 (x^2)^(n/2) 即递归调用传入参数 x^2 和 n/2；当n为奇数返回 x * myPow(x, n - 1) ；当n小于0则返回 myPow(1/x, -n)。
+
+题解：
+
+```java
+// 迭代+数学
+class Solution {
+    public double myPow(double x, int n) {
+        double result = 1; // 结果的初始值
+        if (n < 0) {
+            x = 1 / x;
+            if (n == -2147483648) {
+                n++; // int范围为-2^31~2^31-1，-2^31转为正数会越界，将幂n减一
+                result = x; // 幂n减一后结果的初始值应为x
+            }
+            n = -n;
+        }
+        while (n != 0) {
+            if (n % 2 == 1) result *= x;
+            x *= x; // 对下一位有效 x^(2^i)
+            n >>= 1;
+        }
+        return result;
+    }
+}
+
+// 递归
+/*class Solution {
+    public double myPow(double x, int n) {
+        if (n == 0) { // 放在第一个判断，防止死循环（对2取模总为0）
+            return 1;
+        } else if (n % 2 == 0) {
+            return myPow(x * x, n / 2);
+        } else if (n % 2 == 1) {
+            return x * myPow(x, n - 1);
+        } else { // n < 0 将其转为正数
+            x = 1 / x;
+            return x * myPow(x, - n - 1); // int范围为-2^31~2^31-1，-2^31转为正数会越界，将幂n减一且结果乘以x
+        }
+    }
+}*/
+```
+
+tips：
+
+- 对于求一个整数的1/2（除以2）使用[右移位运算](https://yujie2020.github.io/2021-05-03-binary-digit-and-bitwise-operation.html)的效率更高；
+- 将一个负整数x通过-x取正时，要考虑负数边界比正数边界大1，例如 int：-2^31~2^31-1；
+- 时间复杂度：O(logn)，对于迭代方式需最多遍历31次，当取最大int整数n时也为logn级别。
+- 空间复杂度：O(1) 迭代；O(logn) 递归
