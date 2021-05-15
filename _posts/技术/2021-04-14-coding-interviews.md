@@ -357,5 +357,5 @@ tips：
 
 - 对于求一个整数的1/2（除以2）使用[右移位运算](https://yujie2020.github.io/2021-05-03-binary-digit-and-bitwise-operation.html)的效率更高；
 - 将一个负整数x通过-x取正时，要考虑负数边界比正数边界大1，例如 int：-2^31~2^31-1；
-- 时间复杂度：O(logn)，对于迭代方式需最多遍历31次，当取最大int整数n时也为logn级别。
+- 时间复杂度：O(logn)，对于迭代方式需最多遍历31次，当取最大int整数n时也为logn级别
 - 空间复杂度：O(1) 迭代；O(logn) 递归
