@@ -359,3 +359,113 @@ tips：
 - 将一个负整数x通过-x取正时，要考虑负数边界比正数边界大1，例如 int：-2^31~2^31-1；
 - 时间复杂度：O(logn)，对于迭代方式需最多遍历31次，当取最大int整数n时也为logn级别
 - 空间复杂度：O(1) 迭代；O(logn) 递归
+
+### 20. [表示数值的字符串](https://leetcode-cn.com/problems/biao-shi-shu-zhi-de-zi-fu-chuan-lcof/)
+
+请实现一个函数用来判断字符串是否表示数值（包括整数和小数）。数值（按顺序）可以分成以下几个部分：若干空格；一个 小数 或者 整数；（可选）一个 'e' 或 'E' ，后面跟着一个 整数；若干空格。小数（按顺序）可以分成以下几个部分：（可选）一个符号字符（'+' 或 '-'）；下述格式之一：至少一位数字，后面跟着一个点 '.'、至少一位数字，后面跟着一个点 '.' ，后面再跟着至少一位数字、一个点 '.' ，后面跟着至少一位数字。整数（按顺序）可以分成以下几个部分：（可选）一个符号字符（'+' 或 '-'）；至少一位数字。  
+示例：  
+输入："+100", "5e2", "-123", "3.1416", "-1E-16", "0123", "    .1  " | "12e", "1a3.14", "1.2.3", "+-5", "12e+5.4"  
+输出：true | false
+
+思路：  
+**常规常规数组题目，遍历，条件判断**。判断false而不是true，多种条件满足才能判断true，但是只要有一个条件不满足就可以判断false。定义了四个flag对应四种字符，是否出现过数字：hasNum，是否出现过e：hasE，是否出现过正负号：hasSign，是否出现过点：hasDot。先处理数值字符串前的空格，index相应的后移。定义字符串索引index，遍历字符串，如果当前字符是数字：将hasNum置为true，index往后移动一直到非数字或遍历到末尾位置。如果当前字符ch是'e'或'E'：如果e已经出现过或者当前e之前没有出现过数字，返回fasle，否则令hasE = true，并且将其他3个flag全部置为false，因为要开始遍历e后面的新数字了；如果当前字符ch是+或-：如果已经出现过+或-或者已经出现过数字或者已经出现过'.'，返回flase，否则令hasSign = true；如果当前字符ch是'.'：如果已经出现过'.'或者已经出现过'e'或'E'，返回false，否则令hasDot = true；如果当前字符ch是' '：结束循环，因为可能是末尾的空格，但也可能是数值字符串中间的空格，在循环外继续处理，index不会与n相等，返回的就是false；如果当前字符ch是除了上面几种情况以外的其他字符，直接返回false。遍历结束后继续处理数值字符串后的空格，index相应的后移。如果当前索引index与字符串长度相等，说明输入字符串遍历到了末尾，但是还要满足hasNum为true才可以最终返回true，因为如果字符串里全是符号没有数字不满足题意，同时e后面没有数字也不满足题意。
+
+题解：
+
+```java
+class Solution {
+    public boolean isNumber(String s) {
+        int len = s.length();
+        int index = 0;
+        boolean hasNum = false;
+        boolean hasSign = false;
+        boolean hasE = false;
+        boolean hasDot = false;
+        while (index < len && s.charAt(index) == ' ') index++;
+        while (index < len) {
+            while (index < len && s.charAt(index) >= '0' && s.charAt(index) <= '9') {
+                index++;
+                hasNum = true;
+            }
+            if (index == len) break; // 此处不能少了这个判断，否则在前一步判断数字时index已经到达len，继续判断后面非数字的情形会产生越界
+            char ch = s.charAt(index);
+            if (ch == 'e' || ch == 'E') {
+                if (hasE || !hasNum) return false;
+                hasE = true;
+                hasNum = false;
+                hasSign = false;
+                hasDot = false;
+            } else if (ch == '+' || ch == '-') {
+                if (hasNum || hasDot || hasSign) return false;
+                hasSign = true;
+            } else if (ch == '.') {
+                if (hasE || hasDot) return false;
+                hasDot = true;
+            } else if (ch == ' ') {
+                break;
+            } else return false;
+            index++; // 继续判断下一位
+        }
+        while (index < len && s.charAt(index) == ' ') index++;
+        return index == len && hasNum; // 不使用 if (index == len && hasNum) return true else return false 的形式
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
+### 21. [调整数组顺序使奇数位于偶数前面](https://leetcode-cn.com/problems/diao-zheng-shu-zu-shun-xu-shi-qi-shu-wei-yu-ou-shu-qian-mian-lcof/)
+
+输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数位于数组的前半部分，所有偶数位于数组的后半部分。  
+示例：  
+输入：nums = [1,2,3,4]  
+输出：[1,3,2,4]，[3,1,2,4] 也是正确的答案之一。
+
+思路：  
+**双指针**。快慢指针：指针left（慢指针）用于替换元素，指针right（快指针）用于遍历序列。left和right都从数组的头部开始遍历，如果 right 遇到了奇数，将双指针位置的数字互换同时将 left++ right--，如果 right 没有遇到奇数，继续右移 right++，right遍历到末尾时结束。对撞指针：left指向数组头，right指向数组尾，left右移直到指向了偶数，right左移直到指向了奇数，交换left和right所指数字同时将 left++ right--，直到 left >= right 结束。
+
+题解：
+
+```java
+// 快慢指针
+class Solution {
+    public int[] exchange(int[] nums) {
+        int left = 0, right = 0;
+        while (right < nums.length) {
+            if (nums[right] % 2 == 1) {
+                int temp = nums[left];
+                nums[left] = nums[right];
+                nums[right] = temp;
+                left++;
+            }
+            right++;
+        }
+        return nums;
+    }
+}
+
+// 对撞指针
+/*class Solution {
+    public int[] exchange(int[] nums) {
+        int left = 0, right = nums.length - 1;
+        while (left < right) {
+            while (left < right && nums[left] % 2 == 1) left++;
+            while (left < right && nums[right] % 2 == 0) right--;
+            int temp = nums[left];
+            nums[left] = nums[right];
+            nums[right] = temp;
+            left++;
+            right--;
+        }
+        return nums;
+    }
+}*/
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
