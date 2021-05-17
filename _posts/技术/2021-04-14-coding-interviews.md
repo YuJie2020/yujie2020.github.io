@@ -620,3 +620,39 @@ tips：
 
 - 时间复杂度：O(n)，n 为 pushed 数组的长度，每个元素最多入栈与出栈一次
 - 空间复杂度：O(n)，辅助栈 stack 最多同时存储 n 个元素
+
+### 39. [数组中出现次数超过一半的数字](https://leetcode-cn.com/problems/shu-zu-zhong-chu-xian-ci-shu-chao-guo-yi-ban-de-shu-zi-lcof/)
+
+数组中有一个数字出现的次数超过数组长度的一半，请找出这个数字。你可以假设数组是非空的，并且给定的数组总是存在多数元素。  
+示例：  
+输入：[1, 2, 3, 2, 2, 2, 5, 4, 2]  
+输出：2
+
+思路：  
+**常规数组题目，遍历，条件判断**。使用摩尔投票（Moore vote）算法的思路。候选人(result)初始化为nums[0]，票数count初始化为1。遍历数组当遇到与result相同的数，则票数count++，否则票数count--。当票数count为0时需更换候选人为当前遍历的元素（使count=0的元素），并将票数count重置为1。遍历完数组后，result即为最终答案。  
+投票法是遇到相同的则票数 + 1，遇到不同的则票数 - 1。且“多数元素”的个数 > n/2，其余元素的个数总和 <= n/2，因此 “多数元素”的个数 - 其余元素的个数总和 的结果 >= 1。相当于每个“多数元素”和其他元素两两相互抵消，抵消到最后肯定还剩余至少1个“多数元素”。
+
+题解：
+
+```java
+class Solution {
+    public int majorityElement(int[] nums) {
+        int vote = 1;
+        int result = nums[0];
+        for (int i = 1; i < nums.length; i++) {
+            if (result == nums[i]) {
+                vote++;
+            } else if (--vote == 0) {
+                result = nums[i];
+                vote = 1;
+            }
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
