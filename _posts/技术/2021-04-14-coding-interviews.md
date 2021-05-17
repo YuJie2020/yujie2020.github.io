@@ -656,3 +656,62 @@ tips：
 
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
+
+### 40. [最小的k个数](https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/)
+
+输入整数数组 `arr` ，找出其中最小的 `k` 个数。0 <= k <= arr.length <= 10000。  
+示例：  
+输入：arr = [3,2,1], k = 2  
+输出：[1,2] 或者 [2,1]
+
+思路：  
+**快速排序 - 三路快排（分治算法）**。用快速排序的划分思路来解决这个问题，每次经过「划分」操作后，一定可以确定一个元素的最终位置，即 x 的最终位置为 q，并且保证 a[l⋯q−1] 中的每个元素小于等于 a[q]，且 a[q] 小于等于 a[q+1⋯r] 中的每个元素。所以只要某次划分的 q 为第 k-1 个下标的时候，就已经找到了答案。 只需关心这一点，至于 a[l⋯q−1] 和 a[q+1⋯r] 是否是有序的，不需要关心。改进快速排序算法：在分解的过程当中，对子数组进行划分，如果划分得到的 q 正好就是需要的下标，就直接返回 a[q]；否则，如果 q 比目标下标小，就递归右子区间，否则递归左子区间。这样就可以把原来递归两个区间变成只递归一个区间，提高了时间效率。
+
+题解：
+
+```java
+class Solution {
+    public int[] getLeastNumbers(int[] arr, int k) {
+        if (k == 0) return new int[0];
+        int index = k - 1; // 第k小元素的索引
+        randomPartition(arr, 0, arr.length - 1, index);
+        return Arrays.copyOf(arr, k); // 最终结果即为改进快速排序后数组的前k个元素
+    }
+
+    // 用于判别继续向左半部分还是右半部分划分（迭代），pivot中轴值在下一迭代部分中随机选取
+    private int randomPartition(int[] arr, int left, int right, int index) {
+        int pivotIndex = new Random().nextInt(right - left + 1) + left;
+        swap(arr, pivotIndex, right); // 将pivot中值交换到数组末尾
+        int result = partition(arr, left, right);
+        if (result == index) return arr[result];
+        return result < index ? randomPartition(arr, result + 1, right, index) : randomPartition(arr, left, result - 1, index);
+    }
+
+    // 划分的方法
+    private int partition(int[] arr, int left, int right) {
+        int pivot = arr[right]; // 中轴值（位于数组末尾）
+        int i = left - 1; // [left, ..., i]的元素都小于pivot，[i + 1, ..., right]的元素都大于等于pivot
+        for (int j = left; j < right; j++) {
+            if (arr[j] < pivot) {
+                swap(arr, ++i, j);
+            }
+        }
+        swap(arr, i + 1, right); // 将中轴值归于正确的位置
+        return i + 1; // 中轴值的索引
+    }
+
+    // 数组中索引i及索引j处的元素对调位置
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+```
+
+tips：
+
+- 思路与215题相同；
+- 这里也用到了双指针的思想，指针i用于替换元素（慢指针），指针j用于遍历数组（快指针）；
+- 时间复杂度：O(n)，快速排序的性能和「划分」出的子数组的长度密切相关。直观地理解如果每次规模为 n 的问题都划分成 1 和 n - 1，每次递归的时候又向 n−1 的集合中递归，这种情况是最坏的，时间代价是 O(n^2)。这里引入随机化来加速这个过程，它的时间代价的期望是 O(n)。（证明过程：《算法导论》9.2）
+- 空间复杂度：O(logn)，递归使用栈空间的空间代价的期望为O(logn)
