@@ -508,3 +508,80 @@ tips：
 
 - 时间复杂度：O(mn)，m, n 分别为矩阵matrix的行数和列数
 - 空间复杂度：O(1)
+
+### 30. [包含min函数的栈](https://leetcode-cn.com/problems/bao-han-minhan-shu-de-zhan-lcof/)
+
+定义栈的数据结构，请在该类型中实现一个能够得到栈的最小元素的 min 函数在该栈中，调用 min、push 及 pop 的时间复杂度都是 O(1)。  
+示例：  
+MinStack minStack = new MinStack();  
+minStack.push(-2);  
+minStack.push(0);  
+minStack.push(-3);  
+minStack.min();   --> 返回 -3.  
+minStack.pop();  
+minStack.top();      --> 返回 0.  
+minStack.min();   --> 返回 -2.
+
+思路：  
+**数据结构及其设计**。使用链表来实现，每一个节点都会存储当前栈（**以当前节点为头节点的链表**）中的最小元素，所以当pop删除栈顶元素时，如果当前删除元素为最小元素，下一个栈顶元素节点获取最小元素时也不会包括上一个被删除的元素。
+
+题解：
+
+```java
+class MinStack {
+
+    Node head;
+
+    /** initialize your data structure here. */
+    public MinStack() {
+
+    }
+    
+    public void push(int x) {
+        if (head == null) {
+            head = new Node(x, x);
+        } else head = new Node(x, Math.min(x, head.minVal), head);
+    }
+    
+    public void pop() {
+        head = head.next;
+    }
+    
+    public int top() {
+        return head.val;
+    }
+    
+    public int min() {
+        return head.minVal;
+    }
+}
+
+class Node {
+    int val;
+    int minVal;
+    Node next;
+    public Node(int val, int minVal) {
+        this(val, minVal, null);
+    }
+    public Node(int val, int minVal, Node next) {
+        this.val = val;
+        this.minVal = minVal;
+        this.next = next;
+    }
+}
+
+/**
+ * Your MinStack object will be instantiated and called as such:
+ * MinStack obj = new MinStack();
+ * obj.push(x);
+ * obj.pop();
+ * int param_3 = obj.top();
+ * int param_4 = obj.min();
+ */
+```
+
+tips：
+
+- this关键字用来访问本类内容，用法有三种：在本类的成员方法中访问本类的成员变量；在本类的成员方法中访问本类的另一个成员方法；在本类的构造方法中访问本类的另一个构造方法。此题创建对象使用到了第三种用法；
+- 时间复杂度：O(1)
+- 空间复杂度：O(n)，其中 n 为总操作数。最坏情况下会连续插入 n 个元素，此时栈占用的空间为 O(n)
