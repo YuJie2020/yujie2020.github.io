@@ -716,3 +716,64 @@ tips：
 - 这里也用到了双指针的思想，指针i用于替换元素（慢指针），指针j用于遍历数组（快指针）；
 - 时间复杂度：O(n)，快速排序的性能和「划分」出的子数组的长度密切相关。直观地理解如果每次规模为 n 的问题都划分成 1 和 n - 1，每次递归的时候又向 n−1 的集合中递归，这种情况是最坏的，时间代价是 O(n^2)。这里引入随机化来加速这个过程，它的时间代价的期望是 O(n)。（证明过程：《算法导论》9.2）
 - 空间复杂度：O(logn)，递归使用栈空间的空间代价的期望为O(logn)
+
+### 41. [数据流中的中位数](https://leetcode-cn.com/problems/shu-ju-liu-zhong-de-zhong-wei-shu-lcof/)
+
+如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。设计一个支持以下两种操作的数据结构：void addNum(int num) - 从数据流中添加一个整数到数据结构中；double findMedian() - 返回目前所有元素的中位数。  
+示例：  
+输入：["MedianFinder","addNum","addNum","findMedian","addNum","findMedian"]  
+ㅤㅤㅤ[[],ㅤㅤㅤㅤ ㅤ ㅤ [1],ㅤ ㅤ ㅤ [2],ㅤㅤ ㅤ [],ㅤㅤㅤㅤㅤ [3],ㅤ ㅤ ㅤ []]  
+输出：[null,ㅤㅤㅤ ㅤ ㅤ null,ㅤㅤㅤ null,ㅤㅤㅤ1.50000,ㅤㅤ null,ㅤㅤㅤ 2.00000]
+
+思路：  
+**数据结构及其设计**。建立一个 小顶堆 minHeap 和 大顶堆 maxHeap（使用java.util.PriorityQueue实现）各保存数据流（长度为 n）的一半元素：minHeap 保存较大的一半，长度为 n/2（n 为偶数）或 (n-1)/2（n为奇数）；maxHeap 保存较小的一半，长度为 n/2（n 为偶数）或 (n+1)/2（n为奇数）。当 n 为 偶数中位数为 maxHeap 的堆顶元素加 minHeap 的堆顶元素除以2，n 为 奇数则中位数为 maxHeap 的堆顶元素。  
+从数据流中添加一个整数到数据结构时，对于大小堆元素数相等的情况，插入num 可能属于较大的一半(minHeap)，因此不能将 num 直接插入至 maxHeap。而应先将 num 先插入至 minHeap，再将 minHeap 堆顶元素插入至 maxHeap 。这样就可以始终保持 minHeap 保存较大一半，maxHeap 保存较小一半。对于大小堆元素数不相等的情况，同理。
+
+题解：
+
+```java
+class MedianFinder {
+
+    Queue<Integer> minHeap; // 小顶堆，用于存储数据流中的较大半部分，优先队列的头元素即为数据流的中间元素
+    Queue<Integer> maxHeap; // 大顶堆，用于存储数据流中的较小半部分，优先队列的头元素即为数据流的中间元素
+
+    /** initialize your data structure here. */
+    public MedianFinder() {
+        this.minHeap = new PriorityQueue<>();
+        this.maxHeap = new PriorityQueue<>(new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) { // 这里重写的方法为int compare(T o1, T o2) 比较用来排序的两个参数。参数应为范型 Integer 而不是 int
+                return o2 - o1; // 降序
+            }
+        });
+    }
+    
+    public void addNum(int num) {
+        if (minHeap.size() == maxHeap.size()) { // 需要将新元素插入正确位置，且大顶堆元素数 + 1
+            minHeap.add(num);
+            maxHeap.add(minHeap.poll());
+        } else { // 需要将新元素插入正确位置，且小顶堆元素数 + 1
+            maxHeap.add(num);
+            minHeap.add(maxHeap.poll());
+        }
+    }
+    
+    public double findMedian() {
+        return minHeap.size() ==  maxHeap.size() ? (maxHeap.peek() + minHeap.peek()) * 0.5 : maxHeap.peek();
+    }
+}
+
+/**
+ * Your MedianFinder object will be instantiated and called as such:
+ * MedianFinder obj = new MedianFinder();
+ * obj.addNum(num);
+ * double param_2 = obj.findMedian();
+ */
+```
+
+tips：
+
+- java.util.PriorityQueue类是一个基于优先级堆的无界优先级队列。优先级队列的元素按照其自然顺序进行排序，或者根据构造队列时提供的 Comparator 进行排序，具体取决于所使用的构造方法。优先级队列不允许使用 null 元素。依靠自然顺序的优先级队列还不允许插入不可比较的对象（可能导致 ClassCastException）。 此队列的头是按指定排序方式确定的最小元素。如果多个元素都是最小值，则头是其中一个元素（选择方法是任意的）。队列获取操作 poll、remove、peek 和 element 访问处于队列头的元素。此实现不是同步的，此实现为排队和出队方法（offer、poll、remove() 和 add）提供 O(log(n)) 时间，为 remove(Object) 和 contains(Object) 方法提供线性时间；为获取方法（peek、element 和 size）提供固定时间。此题使用PriorityQueue类来实现大、小顶堆的功能；
+- 使用 PriorityQueue (Comparator<? super E> comparator) 创建具有默认初始容量的 PriorityQueue ，并根据指定的比较器对其元素进行排序。来实例化此优先级队列（JDK 1.8新特性）；
+- 时间复杂度：O(1)，findMedian方法；O(logn)，addNum方法，堆的插入和弹出操作使用 O(logn) 时间
+- 空间复杂度：O(n)
