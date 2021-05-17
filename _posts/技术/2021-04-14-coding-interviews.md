@@ -469,3 +469,42 @@ tips：
 
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
+
+### 29. [顺时针打印矩阵](https://leetcode-cn.com/problems/shun-shi-zhen-da-yin-ju-zhen-lcof/)
+
+输入一个矩阵，按照从外向里以顺时针的顺序依次打印出每一个数字。0 <= matrix.length <= 100，0 <= matrix[i].length <= 100。  
+示例：  
+输入：matrix = [[1,2,3],[4,5,6],[7,8,9]]  
+输出：[1,2,3,6,9,8,7,4,5]
+
+思路：  
+**常规常规数组题目，遍历，条件判断**。设定矩阵的左、右、上、下四个边界 l , r , t , b ，用于打印的结果数组 result。循环打印： “从左向右、从上向下、从右向左、从下向上” 四个方向循环，根据边界打印，将元素按顺序添加至数组 result 尾部，每次打印完一条边界将对应边界向内收缩1（代表已被打印，并判断是否打印完毕（边界是否相遇），若打印完毕则退出用于打印的循环。
+
+题解：
+
+```java
+class Solution {
+    public int[] spiralOrder(int[][] matrix) {
+        if (matrix.length == 0) return new int[0];
+        int l = 0, r = matrix[0].length - 1, t = 0, b = matrix.length - 1; // 矩阵matrix的左右上下边界索引
+        int[] result = new int[(r + 1) * (b + 1)]; // 结果数组
+        int index = 0; // 结果数组的索引
+        while (true) {
+            for (int i = l; i <= r; i++) result[index++] = matrix[t][i];
+            if (++t > b) break;
+            for (int i = t; i <= b; i++) result[index++] = matrix[i][r];
+            if (l > --r) break;
+            for (int i = r; i >= l; i--) result[index++] = matrix[b][i];
+            if (t > --b) break;
+            for (int i = b; i >= t; i--) result[index++] = matrix[i][l];
+            if (++l > r) break;
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(mn)，m, n 分别为矩阵matrix的行数和列数
+- 空间复杂度：O(1)
