@@ -777,3 +777,83 @@ tips：
 - 使用 PriorityQueue (Comparator<? super E> comparator) 创建具有默认初始容量的 PriorityQueue ，并根据指定的比较器对其元素进行排序。来实例化此优先级队列（JDK 1.8新特性）；
 - 时间复杂度：O(1)，findMedian方法；O(logn)，addNum方法，堆的插入和弹出操作使用 O(logn) 时间
 - 空间复杂度：O(n)
+
+### 42. [连续子数组的最大和](https://leetcode-cn.com/problems/lian-xu-zi-shu-zu-de-zui-da-he-lcof/)
+
+输入一个整型数组，数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。要求时间复杂度为O(n)。  
+示例：  
+输入：nums = [-2,1,-3,4,-1,2,1,-5,4]  
+输出：6  
+解释：连续子数组 [4,-1,2,1] 的和最大，为 6
+
+思路：  
+**动态规划**。定义动态规划数组 dp[]，dp[i] 代表以元素 nums[i] 为结尾的连续子数组最大和（最大和数组 dp[i] 中必须包含元素 nums[i]：保证 dp[i] 递推到 dp[i+1] 的正确性，如果不包含 nums[i]，递推时则不满足连续子数组要求）。转移方程（若 dp[i−1]≤0，说明 dp[i - 1] 对 dp[i] 产生负贡献，即 dp[i-1] + nums[i] 还不如 nums[i] 本身大）：当 dp[i−1]>0 时执行 dp[i] = dp[i-1] + nums[i] ，当 dp[i−1]≤0 时执行 dp[i]=nums[i]。初始状态：dp[0] = nums[0]，即以 nums[0] 结尾的连续子数组最大和为 nums[0] 。返回值：返回 dp[] 数组中的最大值即代表全局最大值（所有子数组的和的最大值）。  
+由于 dp[i] 只与 dp[i-1] 和 nums[i] 有关，故可以将原数组 nums 用作 dp[] 数组，即直接在原数组 nums 上修改。
+
+题解：
+
+```java
+class Solution {
+    public int maxSubArray(int[] nums) {
+        int result = nums[0];
+        for (int i = 1; i < nums.length; i++) {
+            nums[i] += Math.max(nums[i - 1], 0); // 以上一元素结尾的子数组最大和nums[i - 1]为正才对以当前元素结尾的子数组最大和有贡献
+            result = Math.max(result, nums[i]); // 以各个元素结尾的子数组最大和的最大值即为所有子数组的和的最大值
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
+### 43. [1～n 整数中 1 出现的次数](https://leetcode-cn.com/problems/1nzheng-shu-zhong-1chu-xian-de-ci-shu-lcof/)
+
+输入一个整数 n ，求1～n这 n 个整数的十进制表示中 1 出现的次数。1 <= n < 2^31。  
+示例：  
+输入：12  
+输出：5  
+解释：1～12这些整数中包含1 的数字有1、10、11和12，1一共出现了5次
+
+思路：  
+**常规数组题目，遍历，条件判断+数学（固定一位其他位的组合数及范围确定）**。将 1 ~ n 的个位、十位、百位、...的 1 出现次数（某位中 1 出现次数：固定 1 到某一位上，其它位在有效范围内的不同组合数也即不同的数值数）相加，即为 1 出现的总次数。设数字 n 是个 x 位数，记 n 的第 i 位为 ni，则可将 n 写为 nxnx-1⋯n2n1：称 ni 为 当前位，记为 cur；将 ni-1ni-2⋯n2n1 称为低位，记为 low；将 nxnx-1⋯ni+2ni+1  称为 高位，记为 high；将 10^i 称为位因子，记为 digit。  
+某位中 1 出现次数的计算方法：  
+1) 当 cur = 0 时：此位 1 的出现次数只由高位 high 决定：high * digit  
+![](/images/2021-04-14-coding-interviews/43_1.png)  
+2) 当 cur = 1 时：此位 1 的出现次数由高位 high 和低位 low 同时决定：high * digit + low + 1  
+![](/images/2021-04-14-coding-interviews/43_2.png)  
+3) 当 cur = 2,3,⋯,9 时：此位 1 的出现次数只由高位 high 决定：(high + 1) * digit  
+![](/images/2021-04-14-coding-interviews/43_3.png)
+
+题解：
+
+```java
+class Solution {
+    public int countDigitOne(int n) {
+        int result = 0;
+        int high = n / 10, cur = n % 10, low = 0, digit = 1; // 高位、当前位、低位、位因子（10^i，从个位i=0开始）参数变量的初始化
+        while (high != 0 || cur != 0) { // 高位和当前位都为0代表每位都遍历结束则退出循环
+            if (cur == 0) {
+                result += high * digit;
+            } else if (cur == 1) {
+                result += (high * digit + low + 1);
+            } else result += (high + 1) * digit; // cur > 1 (2 ~ 9)
+            // 更新下一轮的高位、当前位、低位、位因子参数变量（从个位到最高位的递推公式如下）
+            low += cur * digit;
+            cur = high % 10;
+            high /= 10;
+            digit *= 10;
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 更新下一轮参数用到的当前轮参数需要在后面更新（更新优先级低），更新用不到的当前轮参数先更新（更新优先级高），以保证正确性（eg：low 参数在后面其他参数更新时用不到所以先更新，low 参数更新用到 cur 和 digit 参数所以 cur 和 digit 参数后更新，自更新的比如 high 和 digit 参数可以放到最后更新）；
+- 时间复杂度：O(logn)，循环内的计算操作使用 )O(1) 时间，循环次数为数字 n 的位数，即 log10(n)，因此循环使用 O(logn) 时间
+- 空间复杂度：O(1)
