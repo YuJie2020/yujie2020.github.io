@@ -857,3 +857,47 @@ tips：
 - 更新下一轮参数用到的当前轮参数需要在后面更新（更新优先级低），更新用不到的当前轮参数先更新（更新优先级高），以保证正确性（eg：low 参数在后面其他参数更新时用不到所以先更新，low 参数更新用到 cur 和 digit 参数所以 cur 和 digit 参数后更新，自更新的比如 high 和 digit 参数可以放到最后更新）；
 - 时间复杂度：O(logn)，循环内的计算操作使用 )O(1) 时间，循环次数为数字 n 的位数，即 log10(n)，因此循环使用 O(logn) 时间
 - 空间复杂度：O(1)
+
+### 44. [数字序列中某一位的数字](https://leetcode-cn.com/problems/shu-zi-xu-lie-zhong-mou-yi-wei-de-shu-zi-lcof/)
+
+数字以0123456789101112131415…的格式序列化到一个字符序列中。在这个序列中，第5位（从下标0开始计数）是5，第13位是1，第19位是4，等等。请写一个函数，求任意第n位对应的数字。0 <= n < 2^31。  
+示例：  
+输入：n = 11  
+输出：0
+
+思路：  
+**常规数组题目，遍历，条件判断+数学（寻找递增格式化序列的规律）**。对于 n > 9，即从序列第10位（下标由0开始计数，则序列的第 n 位为序列中的第 n+1 个数）开始，计算时采用序列中的第几个数字的说法，故将 n++，定义变量 digit 表示位数（数字有几位数，1,2,3...），start 表示每 digit 位数的起始数字，count 表示 digit 位数的数字总数量。  
+![](/images/2021-04-14-coding-interviews/44.png)  
+求格式化序列任意第n位对应的数字：  
+1) 确定第 n+1 个数所在 数字 的 位数 digit：循环执行 n 减去 一位数、两位数、... 的数字总数量 count ，直至 n≤count 时跳出，故结果在 digit 位数中且从数字 start 开始的序列的第 n 个数。  
+2) 确定第 n+1 个数所在 数字 num：结果在从从数字 start 开始的第 (n−1)/digit 个 数字 中（start 为第 0 个数字）。  
+3) 确定第 n+1 个数所在 数字 的 哪一位数：结果在 数字 num 的第 (n−1)%digit 位（数字 num 的首个数位为第 0 位）。
+
+题解：
+
+```java
+class Solution {
+    public int findNthDigit(int n) {
+        if (n < 10) return n; // 当 n 为 0~9 时直接返回 n 的值
+        n++;
+        int digit = 1; // 位数的初始值，1位
+        long start = 1; // 1 位数的起始数字
+        long count = 10; // 1 位数的数字总数量，0~9
+        while (n > count) {
+            n -= count;
+            digit++;
+            start *= 10;
+            count = 9 * start * digit;
+        }
+        long num = start + (n - 1) / digit;
+        return Long.toString(num).charAt((n - 1) % digit) - '0';
+    }
+}
+```
+
+tips：
+
+- 使用java.lang.Long类中的 static String toString(long i) 方法，返回表示指定 long 的 String 对象。 将结果所在数字转化为字符串，使用 charAt 方法得到所在位数的 0~9 的char字符，再将其减去字符 '0'，**字符char类型运算会提升为int类型**，结果即为结果的 int 类型；
+- n < 2^31，序列的大小为一大数，需要考虑越界问题，start, count 及 num 需要使用 long 类型；
+- 时间复杂度：O(logn) ，所求结果 result 对应数字 num 的位数 digit 最大为 O(logn)，第一步最多循环 O(logn) 次，第三步中**将 num 转化为字符串使用 O(logn) 时间**，因此总体为 O(logn) 
+- 空间复杂度：O(logn)，**将数字 num 转化为字符串 str(num) ，占用 O(logn) 的额外空间**
