@@ -317,7 +317,7 @@ tips：
 解释：与 target 最接近的和是 2 (-1 + 2 + 1 = 2) 。
 
 思路：  
-对数组调用Java的库函数java.util.Arrays类中的static void sort(int[] a) 方法，对指定的 int 型数组按数字升序进行排序，其时间复杂度及空间复杂度都为O(logN)。首先考虑枚举第一个元素 a，然后考虑剩下的两个元素 b 和 c，使用两重循环来枚举所有的可能情况。遍历数组，每遍历一个数组中的元素i，其固定为第一个元素a，为了防止重复枚举，在位置 [i+1, n) 的范围内枚举 b 和 c，使用左指针 left 指向 i+1 处，右指针 right 指向 nums.length-1 处，分别代表元素b和元素c，根据 sum = nums[i] + nums[left] + nums[right] 的结果，判断 sum 与目标 target 的距离，如果更近则更新结果 ans，当ans == target时则直接返回结果，同时判断 sum 与 target 的大小关系，因为数组有序，如果 sum > target 则 right--，如果 sum < target 则 left++。
+对数组调用Java的库函数java.util.Arrays类中的static void sort(int[] a) 方法，对指定的 int 型数组按数字升序进行排序。首先考虑枚举第一个元素 a，然后考虑剩下的两个元素 b 和 c，使用两重循环来枚举所有的可能情况。遍历数组，每遍历一个数组中的元素i，其固定为第一个元素a，为了防止重复枚举，在位置 [i+1, n) 的范围内枚举 b 和 c，使用左指针 left 指向 i+1 处，右指针 right 指向 nums.length-1 处，分别代表元素b和元素c，根据 sum = nums[i] + nums[left] + nums[right] 的结果，判断 sum 与目标 target 的距离，如果更近则更新结果 ans，当ans == target时则直接返回结果，同时判断 sum 与 target 的大小关系，因为数组有序，如果 sum > target 则 right--，如果 sum < target 则 left++。
 
 题解：
 
