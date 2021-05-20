@@ -983,3 +983,34 @@ tips：
 - 当字符串中出现较长的相同连续字符时left与right会交替的向前移动（滑动窗口）；
 - 时间复杂度：O(n)
 - 空间复杂度：O(∣Σ∣)，此题字符集为所有 ASCII 码在 [0,128) 内的字符，即∣Σ∣=128
+
+### 50. [第一个只出现一次的字符](https://leetcode-cn.com/problems/di-yi-ge-zhi-chu-xian-yi-ci-de-zi-fu-lcof/)
+
+在字符串 s 中找出第一个只出现一次的字符。如果没有，返回一个单空格。 s 只包含小写字母。  
+示例：  
+输入：s = "abaccdeff"  
+输出：b
+
+思路：  
+**数据结构**。使用 java.util.LinkedHashMap<K,V> 类，Map 接口的哈希表和链接列表实现，具有可预知的迭代顺序。**此实现与 HashMap 的不同之处在于，后者维护着一个运行于所有条目的双重链接列表**。此链接列表定义了迭代顺序，该迭代顺序通常就是将键插入到映射中的顺序（插入顺序）。注意，如果**在映射中重新插入 键，则插入顺序不受影响**（如果在调用 m.put(k, v) 前 m.containsKey(k) 返回了 true，则调用时会将键 k 重新插入到映射 m 中），即插入相同的 key，会覆盖先前的 key : value，顺序还未原来的位置。  
+map 集合的键使用 Character 类，表示字符串 s 中的字符，值使用 Boolean 类，当一个字符第一次插入且遍历结束仅插入过一次其值为 true。遍历字符串结束后再次遍历有序 map 集合寻找第一个 value 为true 的 key 返回。
+
+题解：
+
+```java
+class Solution {
+    public char firstUniqChar(String s) {
+        Map<Character, Boolean> map = new LinkedHashMap<>();
+        for (int i = 0; i < s.length(); i++) map.put(s.charAt(i), !map.containsKey(s.charAt(i)));
+        for (Map.Entry<Character, Boolean> entry : map.entrySet()) {
+            if (entry.getValue()) return entry.getKey();
+        }
+        return ' ';
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)，s 只包含小写字母，因此最多有 26 个不同字符，LinkedHashMap 存储需占用 O(26) = O(1) 的额外空间
