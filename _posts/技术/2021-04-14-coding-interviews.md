@@ -910,7 +910,7 @@ tips：
 输出："3033459"
 
 思路：  
-**排序**。调用 java.lang.String 类中的 static String valueOf(int i) 方法，返回 int 参数的字符串表示形式，将 int 数组转换为字符串表示形式的字符串数组。调用库函数 java.util.Arrays 类中的  static <T> void sort(T[] a, Comparator<? super T> c) 方法，根据指定比较器产生的顺序对指定对象数组进行排序。  
+**排序**。调用 java.lang.String 类中的 static String valueOf(int i) 方法，返回 int 参数的字符串表示形式，将 int 数组转换为字符串表示形式的字符串数组。调用库函数 java.util.Arrays 类中的  static \<T> void sort(T[] a, Comparator<? super T> c) 方法，根据指定比较器产生的顺序对指定对象数组进行排序。  
 重写 Comparator 类中的 compare 方法（对两个字符串表示形式的数字进行大小比对）：拼接 (o1 + o2) 字符串后调用 java.lang.String 类中的 int compareTo(String anotherString) 方法，按字典顺序比较两个字符串，如果按字典顺序此 String 对象位于参数字符串之前，则比较结果为一个负整数。  
 字典排序的定义：如果这两个字符串不同，那么它们要么在某个索引处的字符不同（该索引对二者均为有效索引），要么长度不同，或者同时具备这两种情况。如果它们在一个或多个索引位置上的字符不同，假设 k 是这类索引的最小值，则在位置 k 上具有较小值的那个字符串（使用 < 运算符确定），其字典顺序在其他字符串之前。在这种情况下，compareTo 返回这两个字符串在位置 k 处两个char 值的差，即值：this.charAt(k) - anotherString.charAt(k) ；如果没有字符不同的索引位置，则较短字符串的字典顺序在较长字符串之前。在这种情况下，compareTo 返回这两个字符串长度的差，即值：this.length() - anotherString.length() 。  
 参数传入 (o2 + o1) 拼接后的字符串，当前者拼接方式字符串字典序小于后者拼接方式字符串字典序，则表示 o1 应 排在 o2 前面（字符串数组，o1 < o2）。  
