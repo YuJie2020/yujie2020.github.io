@@ -666,7 +666,7 @@ tips：
 
 思路：  
 **快速排序 - 三路快排（分治算法）**。用快速排序的划分思路来解决这个问题，每次经过「划分」操作后，一定可以确定一个元素的最终位置，即 x 的最终位置为 q，并且保证 a[l⋯q−1] 中的每个元素小于等于 a[q]，且 a[q] 小于等于 a[q+1⋯r] 中的每个元素。所以只要某次划分的 q 为第 k-1 个下标的时候，就已经找到了答案。 只需关心这一点，至于 a[l⋯q−1] 和 a[q+1⋯r] 是否是有序的，不需要关心。改进快速排序算法：在分解的过程当中，对子数组进行划分，如果划分得到的 q 正好就是需要的下标，就直接返回 a[q]；否则，如果 q 比目标下标小，就递归右子区间，否则递归左子区间。这样就可以把原来递归两个区间变成只递归一个区间，提高了时间效率。  
-![](/images/2021-04-14-coding-interviews/215.png)
+![](/images/2021-04-14-coding-interviews/40.png)
 
 题解：
 
@@ -943,3 +943,44 @@ tips：
 - 快速排序的一大优势就在于：排序过程中元素间总是两两比较（通用性更强）（将小于/大于中轴值 pivot 的元素位于两边），故通过 Comparable 或者 Comparator 接口实现 int compareTo(T o) 或者 int compare(T o1, T o2) 方法 来定义两个参数的大小比较规则；
 - 时间复杂度：O(nlogn)
 - 空间复杂度：O(n)
+
+### 48. [最长不含重复字符的子字符串](https://leetcode-cn.com/problems/zui-chang-bu-han-zhong-fu-zi-fu-de-zi-zi-fu-chuan-lcof/)
+
+请从字符串中找出一个最长的不包含重复字符的子字符串，计算该最长子字符串的长度。  
+示例：  
+输入："pwwkew"  
+输出：3
+
+思路：  
+**滑动窗口**。定义两个指针left和right分别表示子数组（滑动窗口）的开始位置和结束位置。判断子串是否含有重复字符还需要使用额外的数据结构比如数组存储ASCII为数组索引值的字符在子串（滑动窗口）中出现的频率。此题是不满足要求移动左指针寻找新的满足要求的子数组。  
+![](/images/2021-04-14-coding-interviews/48.png)
+
+题解：
+
+```java
+class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        int[] charFreq = new int[128]; // 存储ASCII为数组索引值的字符在子串（滑动窗口）中出现的频率
+        int left = 0, right = -1; // nums[left, right]为滑动窗口
+        int maxLen = 0;
+        while (left < s.length()) {
+            if (right + 1 < s.length() && charFreq[s.charAt(right + 1)] == 0) {
+                charFreq[s.charAt(++right)]++;
+            } else {
+                charFreq[s.charAt(left++)]--;
+            }
+            maxLen = Math.max(maxLen, right - left + 1); // 当前子串（滑动窗口）一定不含有重复字符
+        }
+        return maxLen;
+    }
+}
+```
+
+tips：
+
+- 对于数组来说需要注意是否越界问题，同理对于字符串来说，使用charAt()方法取值也需要注意是否越界的问题；
+- char类型在运算的时候会被首先提升为int类型然后再计算，适用于算术运算、比较运算、赋值运算和数组的索引赋值，此题运用了数组的索引赋值；
+- 判断时只需要使用子串起始索引left就可以，不需要再附加终止索引right的判断；
+- 当字符串中出现较长的相同连续字符时left与right会交替的向前移动（滑动窗口）；
+- 时间复杂度：O(n)
+- 空间复杂度：O(∣Σ∣)，此题字符集为所有 ASCII 码在 [0,128) 内的字符，即∣Σ∣=128
