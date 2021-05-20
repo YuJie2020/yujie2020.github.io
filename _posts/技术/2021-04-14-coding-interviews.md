@@ -1086,3 +1086,55 @@ tips：
 - 对于 int mid = (left + right) / 2; 的计算除了位运算，还可以使用 int mid = left + (right - left) / 2; 的形式，意义在于当 left 和 right 都特别大时，left + right 可能越界；
 - 时间复杂度：O(nlogn)
 - 空间复杂度：O(n)
+
+### 53. [在排序数组中查找数字 I](https://leetcode-cn.com/problems/zai-pai-xu-shu-zu-zhong-cha-zhao-shu-zi-lcof/)
+
+统计一个数字在排序数组中出现的次数。  
+示例：  
+输入：nums = [5,7,7,8,8,10], target = 8  
+输出：2
+
+思路：  
+**二分查找+数学（[位运算](https://yujie2020.github.io/2021-05-03-binary-digit-and-bitwise-operation.html)）**。**此题 while循环使用 left < right 的判断方式，则当退出循环时 left = right**，判断 nums[left] == target即找到。搜索过程中数组的中间元素mid使用位运算来求解，将位模式右移一位。求target在数组中的开始位置，mid中间数下取整，即mid = left + right >> 1，当while循环的最后一次执行中，保证left = mid（因target <= nums[mid]时right = mid，防止陷入死循环）；求target在数组中的结束位置，mid中间数上取整，即mid = left + right + 1 >> 1，当while循环的最后一次执行中，保证right = mid（因target >= nums[mid]时left = mid，防止陷入死循环）。
+
+题解：
+
+```java
+class Solution {
+    public int search(int[] nums, int target) {
+        int len = nums.length;
+        if (len == 0) return 0;
+        int begin = -1, end = -1;
+        int left = 0, right = len - 1;
+        while (left < right) {
+            int mid = left + right >> 1;
+            if (target <= nums[mid]) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+        if (nums[left] != target) {
+            return 0;
+        } else {
+            begin = left;
+            right = len - 1; // 不再重新定义left = 0，使搜索范围缩小为target开始位置到数组末尾，提高程序执行效率
+            while (left < right) {
+                int mid = left + right + 1 >> 1;
+                if (target >= nums[mid]) {
+                    left = mid;
+                } else {
+                    right = mid - 1;
+                }
+            }
+            end = left; // 即使target只出现了一次，进入此循环的有效数组范围任包括target开始位置，故可找到其结束位置=开始位置
+            return end - begin + 1;
+        }
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(logn)
+- 空间复杂度：O(1)
