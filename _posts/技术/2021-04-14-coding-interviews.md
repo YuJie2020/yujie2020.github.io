@@ -901,3 +901,45 @@ tips：
 - n < 2^31，序列的大小为一大数，需要考虑越界问题，start, count 及 num 需要使用 long 类型；
 - 时间复杂度：O(logn) ，所求结果 result 对应数字 num 的位数 digit 最大为 O(logn)，第一步最多循环 O(logn) 次，第三步中**将 num 转化为字符串使用 O(logn) 时间**，因此总体为 O(logn) 
 - 空间复杂度：O(logn)，**将数字 num 转化为字符串 str(num) ，占用 O(logn) 的额外空间**
+
+### 45. [把数组排成最小的数](https://leetcode-cn.com/problems/ba-shu-zu-pai-cheng-zui-xiao-de-shu-lcof/)
+
+输入一个非负整数数组，把数组里所有数字拼接起来排成一个数，打印能拼接出的所有数字中最小的一个。输出结果可能非常大，所以你需要返回一个字符串而不是整数。拼接起来的数字可能会有前导 0，最后结果不需要去掉前导 0 。  
+示例：  
+输入：[3,30,34,5,9]  
+输出："3033459"
+
+思路：  
+**排序**。调用 java.lang.String 类中的 static String valueOf(int i) 方法，返回 int 参数的字符串表示形式，将 int 数组转换为字符串表示形式的字符串数组。调用库函数 java.util.Arrays 类中的  static <T> void sort(T[] a, Comparator<? super T> c) 方法，根据指定比较器产生的顺序对指定对象数组进行排序。   
+重写 Comparator 类中的 compare 方法（对两个字符串表示形式的数字进行大小比对）：  
+拼接 (o1 + o2) 字符串后调用 java.lang.String 类中的 int compareTo(String anotherString) 方法，按字典顺序比较两个字符串，如果按字典顺序此 String 对象位于参数字符串之前，则比较结果为一个负整数。  
+字典排序的定义：如果这两个字符串不同，那么它们要么在某个索引处的字符不同（该索引对二者均为有效索引），要么长度不同，或者同时具备这两种情况。如果它们在一个或多个索引位置上的字符不同，假设 k 是这类索引的最小值，则在位置 k 上具有较小值的那个字符串（使用 < 运算符确定），其字典顺序在其他字符串之前。在这种情况下，compareTo 返回这两个字符串在位置 k 处两个char 值的差，即值：this.charAt(k) - anotherString.charAt(k) ；如果没有字符不同的索引位置，则较短字符串的字典顺序在较长字符串之前。在这种情况下，compareTo 返回这两个字符串长度的差，即值：this.length() - anotherString.length() 。  
+参数传入 (o2 + o1) 拼接后的字符串，当前者拼接方式字符串字典序小于后者拼接方式字符串字典序，则表示 o1 应 排在 o2 前面（字符串数组，o1 < o2）。  
+字符串数组排序完毕遍历添加到结果中。
+
+题解：
+
+```java
+class Solution {
+    public String minNumber(int[] nums) {
+        String[] strs = new String[nums.length];
+        for (int i = 0; i < nums.length; i++) strs[i] = String.valueOf(nums[i]); 
+        Arrays.sort(strs, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return (o1 + o2).compareTo(o2 + o1);
+            }
+        });
+        StringBuilder result = new StringBuilder();
+        for (String str : strs) result.append(str);
+        return result.toString();
+    }
+}
+```
+
+tips：
+
+- java.util.Arrays 类中的 static <T> void sort(T[] a, Comparator<? super T> c) 方法，根据指定比较器产生的顺序对指定对象数组进行排序。数组中的所有元素都必须是通过指定比较器可相互比较的（也就是说，对于数组中的任何 e1 和 e2 元素而言，c.compare(e1, e2) 不得抛出 ClassCastException）。保证此排序是稳定的：不会因调用 sort 方法而对相等的元素进行重新排序。此算法提供可保证的 n*log(n) 性能（快速排序）；
+- 快速排序的一大优势就在于：排序过程中元素间总是两两比较（通用性更强）（将小于/大于中轴值 pivot 的元素位于两边），故通过 Comparable 或者 Comparator 接口实现 int compareTo(T o) 或者 int compare(T o1, T o2) 方法 来定义两个参数的大小比较规则；
+- 时间复杂度：O(nlogn)
+- 空间复杂度：O(n)
