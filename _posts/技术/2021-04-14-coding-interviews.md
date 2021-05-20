@@ -6,7 +6,8 @@ category: 技术
 ---
 
 ### introduction 
-剑指 Offer - 第 2 版
+剑指 Offer - 第 2 版  
+标星* 题目 代表使用了相关算法板块未涉及的 解法分类。
 
 ### 03. [数组中重复的数字](https://leetcode-cn.com/problems/shu-zu-zhong-zhong-fu-de-shu-zi-lcof/)
 
@@ -1014,3 +1015,74 @@ tips：
 
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)，s 只包含小写字母，因此最多有 26 个不同字符，LinkedHashMap 存储需占用 O(26) = O(1) 的额外空间
+
+### 51. [数组中的逆序对](https://leetcode-cn.com/problems/shu-zu-zhong-de-ni-xu-dui-lcof/)
+
+在数组中的两个数字，如果前面一个数字大于后面的数字，则这两个数字组成一个逆序对。输入一个数组，求出这个数组中的逆序对的总数。  
+示例：  
+输入：[7,5,6,4]  
+输出：5
+
+思路：  
+**归并排序**。使用归并排序的算法思路，仅是在添加右半有序序列剩余的第一个元素到中转数组时更新结果（左半部分剩余几个元素就表示对于当前添加的右半部分元素的不同逆序对的个数）。合并两个有序子数组的过程中，利用数组的部分有序性，计算出一个数之前元素的逆序个数，所以排序的工作是必要的，在下一轮利用顺序关系加快逆序数的计算，也能避免重复计算。正确性验证：总是在原数组的某一子区间计算当前子区间的逆序对数，**子区间元素排序后其相对位置还是处于原数组原来的位置**（不影响后面的计算）。  
+归并排序利用归并的思想，采用分治策略（将问题分成一些小的问题然后递归求解，而治的阶段则将分的阶段得到的各答案“修补”在一起，即分而治之）。分阶段为递归拆分子序列的过程（不进行任何排序操作），治阶段需要将两个已经有序的子序列合并成一个有序序列。
+
+题解：
+
+```java
+class Solution {
+
+    private int result;
+
+    public int reversePairs(int[] nums) {
+        result = 0;
+        int[] tempArray = new int[nums.length];
+        mergeSort(nums, 0, nums.length - 1, tempArray);
+        return result;
+    }
+
+    // 分：递归拆分子序列 & 最后从栈顶开始治（将两个已经有序的子序列合并成一个有序序列）
+    private void mergeSort(int[] nums, int left, int right, int[] tempArray) {
+        if (left < right) {
+            int mid = left + (right - left) / 2;
+            mergeSort(nums, left, mid, tempArray); // 向左递归进行拆分
+            mergeSort(nums, mid + 1, right, tempArray); // 向右递归进行拆分
+            merge(nums, left, mid, right, tempArray); // 治：将两个已经有序的子序列合并成一个有序序列
+        }
+    }
+
+    /**
+     * 治：将两个已经有序的子序列合并成一个有序序列
+     * @param array 排序的原始数组
+     * @param left  左边有序序列的初始索引（最左端索引）
+     * @param mid   中间索引
+     * @param right 右边有序序列的最右端索引
+     * @param tempArray  用于中转的数组
+     */
+    private void merge(int[] nums, int left, int mid, int right, int[] tempArray) {
+        int i = left; // 左边有序序列的初始索引（最左端索引）
+        int j = mid + 1; // 右边有序序列的初始索引（最左端索引）
+        int index = 0; // 指向用于中转的数组temp的当前索引
+        while (i <= mid && j <= right) { // 将左右两边的有序序列按照规则填充到中转数组，直到左右两边的有序序列有一边处理完毕
+            if (nums[i] <= nums[j]) { // 左边有序序列的当前元素**小于等于**右边有序序列的当前元素则将左边有序序列的当前元素填充到中转数组
+                tempArray[index++] = nums[i++];
+            } else { // 右边有序序列的当前元素**小于**左边有序序列的当前元素则将右边有序序列的当前元素填充到中转数组，同时更新结果（结果增加左半部分剩余元素的个数）
+                tempArray[index++] = nums[j++];
+                result += mid - i + 1; // 左半部分剩余几个元素就表示对于当前添加的右半部分元素的不同逆序对的个数
+            }
+        }
+        // 将有剩余数据的一边有序数组依次全部填充到中转数组（当右半部分有剩余元素时，左半部分数组已为空，故不需更新结果）
+        while (i <= mid) tempArray[index++] = nums[i++];
+        while (j <= right) tempArray[index++] = nums[j++];
+        index = 0; // 中转数组的索引重新置0，用于将中转数组排序好的元素覆盖到原数组中的正确位置
+        int indexNums = left; // 原数组的索引
+        while (indexNums <= right) nums[indexNums++] = tempArray[index++]; // 将中转数组的元素拷贝到原数组中（并非拷贝所有）
+    }
+}
+```
+
+tips：
+
+- 对于 int mid = (left + right) / 2; 的计算除了位运算，还可以使用 int mid = left + (right - left) / 2; 的形式，意义在于当 left 和 right 都特别大时，left + right 可能越界；
+- 时间复杂度：O(nlogn)
+- 空间复杂度：O(n)
