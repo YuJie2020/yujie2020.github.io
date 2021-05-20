@@ -1104,7 +1104,7 @@ class Solution {
     public int search(int[] nums, int target) {
         int len = nums.length;
         if (len == 0) return 0;
-        int begin = -1, end = -1;
+        int begin = -1, end = -1; // 数字 target 在排序数组中的起始和终止索引
         int left = 0, right = len - 1;
         while (left < right) {
             int mid = left + right >> 1;
