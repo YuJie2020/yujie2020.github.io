@@ -231,4 +231,5 @@ System.out.println(a &= 3); // 1
 [136. Single Number](https://leetcode-cn.com/problems/single-number/)ㅤㅤ[只出现一次的数字](https://yujie2020.github.io/2021-04-14-leetcode-hot-100.html)  
 [461. Hamming Distance](https://leetcode-cn.com/problems/hamming-distance/)ㅤㅤ[汉明距离](https://yujie2020.github.io/2021-04-14-leetcode-hot-100.html)  
 [剑指 Offer 15. 二进制中1的个数](https://leetcode-cn.com/problems/er-jin-zhi-zhong-1de-ge-shu-lcof/)ㅤㅤ[二进制中1的个数](https://yujie2020.github.io/2021-04-14-coding-interviews.html)  
-[剑指 Offer 16. 数值的整数次方](https://leetcode-cn.com/problems/shu-zhi-de-zheng-shu-ci-fang-lcof/)ㅤㅤ[数值的整数次方](https://yujie2020.github.io/2021-04-14-coding-interviews.html)
+[剑指 Offer 16. 数值的整数次方](https://leetcode-cn.com/problems/shu-zhi-de-zheng-shu-ci-fang-lcof/)ㅤㅤ[数值的整数次方](https://yujie2020.github.io/2021-04-14-coding-interviews.html)  
+[剑指 Offer 56 - I. 数组中数字出现的次数](https://leetcode-cn.com/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-lcof/)ㅤㅤ[数组中数字出现的次数](https://yujie2020.github.io/2021-04-14-coding-interviews.html)

@@ -1087,7 +1087,7 @@ tips：
 - 时间复杂度：O(nlogn)
 - 空间复杂度：O(n)
 
-### 53. [在排序数组中查找数字 I](https://leetcode-cn.com/problems/zai-pai-xu-shu-zu-zhong-cha-zhao-shu-zi-lcof/)
+### 53 - I. [在排序数组中查找数字](https://leetcode-cn.com/problems/zai-pai-xu-shu-zu-zhong-cha-zhao-shu-zi-lcof/)
 
 统计一个数字在排序数组中出现的次数。  
 示例：  
@@ -1137,4 +1137,72 @@ class Solution {
 tips：
 
 - 时间复杂度：O(logn)
+- 空间复杂度：O(1)
+
+### 53 - II. [0～n-1中缺失的数字](https://leetcode-cn.com/problems/que-shi-de-shu-zi-lcof/)
+
+一个长度为n-1的递增排序数组中的所有数字都是唯一的，并且每个数字都在范围0～n-1之内。在范围0～n-1内的n个数字中有且只有一个数字不在该数组中，请找出这个数字。1 <= 数组长度 <= 10000。  
+示例：  
+输入：[0,1,3]  
+输出：2
+
+思路：  
+**二分查找**。数组可以划分为两部分：左子数组 nums[i] = i，右子数组 nums[i] != i 。while循环使用 left < right 的判断方式，则当退出循环时 left = right，且一定为缺失数字所在的索引（mid == nums[mid] 时 right = mid）。当索引位于数组末尾时，缺失数字可能为当前索引也可能为当前索引加一（eg：数组 0,1,2,3 缺失数字为 4），故返回值需要判断。
+
+题解：
+
+```java
+class Solution {
+    public int missingNumber(int[] nums) {
+        int left = 0, right = nums.length - 1;
+        while (left < right) {
+            int mid = left + right >> 1;
+            if (mid == nums[mid]) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
+        }
+        return nums[left] == left ? left + 1 : left;
+    }
+}
+```
+
+tips：
+
+- 排序数组中的搜索问题，一般使用 二分查找 解决；
+- 时间复杂度：O(logn)
+- 空间复杂度：O(1)
+
+### 56 - I. [数组中数字出现的次数](https://leetcode-cn.com/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-lcof/)
+
+一个整型数组 `nums` 里除两个数字之外，其他数字都出现了两次。请写程序找出这两个只出现一次的数字。要求时间复杂度是O(n)，空间复杂度是O(1)。  
+示例：  
+输入：nums = [4,1,4,6]  
+输出：[1,6] 或 [6,1]
+
+思路：  
+**数学（[位运算](https://yujie2020.github.io/2021-05-03-binary-digit-and-bitwise-operation.html)）**。如果数组 nums 中只有一个出现一次的数字，其余数字均为出现两次的数字，则由[异或运算的性质](https://yujie2020.github.io/2021-05-03-binary-digit-and-bitwise-operation.html)，数组中全部元素的异或运算结果即为此出现一次的数字。
+对于此题，设两个只出现一次的数字其中一个为 x（另一个为 y），由于 x != y，则 x 和 y 二进制至少有一位不同（即分别为 0 和 1 ），根据此位通过对数组中元素进行与运算可以将原数组 nums 拆分为两个子数组使得：两个只出现一次的数字在不同的子数组中同时原数组中相同的数字会被分到相同的子数组中（两个相同的数字的对应位都是相同的，所以一个被分到了某一组另一个必然被分到这一组；x 和 y 的此二进制位不同则不会被分到同一组）。遍历数组 nums，其中所有元素异或运算的结果为 excl = x⊕y；定义 util 为与运算用于分组的数，其初始值为1。寻找整数 x⊕y 任意一个为 1 的二进制位：将 excl 与 util 进行与运算，结果为 0 则将 util 左移一位，结果不为0时则找到此二进制位 util （二进制位只有一位为1其余都为0）。将 util 对原数组中元素进行与运算，此位为 0 的为一组，对此子数组全部元素的异或运算即可求得只出现一次的数字其中的一个 x，将 x 与原数组nums中所有元素异或运算的结果 excl 进行异或运算即可求得两个只出现一次的数字的另外一个 y。
+
+题解：
+
+```java
+class Solution {
+    public int[] singleNumbers(int[] nums) {
+        int x = 0, excl = 0, util = 1; // x为两个只出现一次的数字中的一个；excl为数组nums中所有元素异或运算的结果；util为与运算用于分组的数
+        for (int num : nums) excl ^= num;
+        while ((excl & util) == 0) util <<= 1;
+        for (int num : nums) {
+            if ((num & util) == 0) x ^= num;
+        }
+        return new int[] {x, x ^ excl};
+    }
+}
+```
+
+tips：
+
+- 思路与136题相似；
+- 时间复杂度：O(n)
 - 空间复杂度：O(1)
