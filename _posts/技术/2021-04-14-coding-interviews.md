@@ -1245,3 +1245,77 @@ tips：
 
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
+
+### 57 - I. [和为s的两个数字](https://leetcode-cn.com/problems/he-wei-sde-liang-ge-shu-zi-lcof/)
+
+输入一个递增排序的数组和一个数字s，在数组中查找两个数，使得它们的和正好是s。如果有多对数字的和等于s，则输出任意一对即可。  
+示例：  
+输入：nums = [2,7,11,15], target = 9  
+输出：[2,7] 或者 [7,2]
+
+题解：
+
+```java
+class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        int left = 0, right = nums.length - 1;
+        while (left < right) {
+            int sum = nums[left] + nums[right];
+            if (sum == target) {
+                return new int[] {nums[left], nums[right]};
+            } else if (sum < target) {
+                left++;
+            } else right--;
+        }
+        return null;
+    }
+}
+```
+
+tips：
+
+- **双指针**。对撞指针的思路，与167题思路相同。
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
+### 57 - II. [和为s的连续正数序列](https://leetcode-cn.com/problems/he-wei-sde-lian-xu-zheng-shu-xu-lie-lcof/)
+
+输入一个正整数 target ，输出所有和为 target 的连续正整数序列（至少含有两个数）。序列内的数字由小到大排列，不同序列按照首个数字从小到大排列。  
+示例：  
+输入：target = 9  
+输出：[[2,3,4],[4,5]]
+
+思路：  
+**滑动窗口**。使用两个指针 l 和 r 表示当前枚举到的以 l 为起点到 r 的区间，sum = (l + r) * (r - l + 1) / 2 表示 [l,r] 的区间和。sum<target 时，说明指针 r 还可以向右拓展使得 sum 增大，r++；sum>target 时，说明以 l 为起点不存在一个 r 使得 sum=target，此时要枚举下一个起点，l++；sum==target 时，即找到一连续子区间满足题意，保存当前结果，以 l 为起点的合法解最多只有一个，枚举下一个起点，l++。
+
+题解：
+
+```java
+class Solution {
+    public int[][] findContinuousSequence(int target) {
+        List<int[]> result = new ArrayList<>();
+        for (int l = 1, r = 2; l < r;) {
+            int sum = (l + r) * (r - l + 1) / 2;
+            if (sum == target) {
+                int[] ele = new int[r - l + 1];
+                for (int i = l; i <= r; i++) ele[i - l] = i;
+                result.add(ele);
+                l++; // 防止陷入死循环，需查找下一个结果，l++（以l开头的连续序列唯一）
+            } else if (sum < target) {
+                r++;
+            } else { // 当满足最后一个区间（指针 r 移动到了 (target+1)/2 的位置）后，l++总会等于r而退出循环
+                l++;
+            }
+        }
+        return result.toArray(new int[result.size()][]);
+    }
+}
+```
+
+tips：
+
+- 泛型E可以是数组；
+- **二维数组每行的大小可以不同**；
+- 使用 java.util.List<E> 类中的 <T> T[] toArray(T[] a) 方法，返回按适当顺序（从第一个元素到最后一个元素）包含列表中所有元素的数组。这里无需指定每行的大小，因为每个子区间的大小不同即二维数组的每行大小不同。对于每行均为泛型 int[]，满足参数要求；
+- 时间复杂度：O(n)，两个指针移动均单调不减且最多移动 target/2 次
+- 空间复杂度：O(1)
