@@ -1319,3 +1319,55 @@ tips：
 - 使用 java.util.List<E> 类中的 <T> T[] toArray(T[] a) 方法，返回按适当顺序（从第一个元素到最后一个元素）包含列表中所有元素的数组。这里无需指定每行的大小，因为每个子区间的大小不同即二维数组的每行大小不同。对于每行均为泛型 int[]，满足参数要求；
 - 时间复杂度：O(n)，两个指针移动均单调不减且最多移动 target/2 次
 - 空间复杂度：O(1)
+
+### 58 - I. [翻转单词顺序](https://leetcode-cn.com/problems/fan-zhuan-dan-ci-shun-xu-lcof/)
+
+输入一个英文句子，翻转句子中单词的顺序，但单词内字符的顺序不变。为简单起见，标点符号和普通字母一样处理。无空格字符构成一个单词。输入字符串可以在前面或者后面包含多余的空格，但是反转后的字符不能包括。如果两个单词间有多余的空格，将反转后单词间的空格减少到只含一个。  
+示例：  
+输入："             hello                   world!  "  
+输出："world! hello"
+
+题解：
+
+```java
+class Solution {
+    public String reverseWords(String s) {
+        String[] words = s.trim().split("\\s+");
+        StringBuilder result = new StringBuilder();
+        for (int i = words.length - 1; i > 0; i--) result.append(words[i]).append(" ");
+        result.append(words[0]);
+        return result.toString();
+    }
+}
+```
+
+tips：
+
+- **常规数组题目，遍历，条件判断**；
+- 使用 java.lang.String 类中的 String trim() 方法，返回字符串的副本，忽略前导空白和尾部空白；
+- 使用 java.lang.String 类中的 String[] split(String regex) 方法，根据给定正则表达式的匹配拆分此字符串。此处参数正则表达式传入 "\\\s+"，\s 代表空白字符：[ \t\n\x0B\f\r] ，\ 需要使用 \ 进行转义（某一些特定的字符在编程语言中被定义为特殊用途的字符，这些字符由于被定义为特殊用途，它们失去了原有的意义，为了使用这些符号，就需要定义它的转义字符串）；
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+### 58 - II. [左旋转字符串](https://leetcode-cn.com/problems/zuo-xuan-zhuan-zi-fu-chuan-lcof/)
+
+字符串的左旋转操作是把字符串前面的若干个字符转移到字符串的尾部。请定义一个函数实现字符串左旋转操作的功能。  
+示例：  
+输入：s = "abcdefg", k = 2  
+输出："cdefgab"
+
+题解：
+
+```java
+class Solution {
+    public String reverseLeftWords(String s, int n) {
+        return s.substring(n) + s.substring(0, n);
+    }
+}
+```
+
+tips：
+
+- java.lang.String 类中的 public String substring(int index) 方法：截取从参数位置一直到字符串末尾，返回新字符串；public String substring(int beginIndex, int endIndex) 方法：截取从begin开始，一直到end结束，中间的字符串（[beginIndex,endIndex)，包含左边，不包含有右边）；
+- 时间复杂度：O(n)，字符串切片函数为线性时间复杂度
+- 空间复杂度：O(n)
