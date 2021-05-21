@@ -1206,3 +1206,42 @@ tips：
 - 思路与136题相似；
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
+
+### 56 - II. [数组中数字出现的次数 II](https://leetcode-cn.com/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-ii-lcof/)
+
+在一个数组 `nums` 中除一个数字只出现一次之外，其他数字都出现了三次。请找出那个只出现一次的数字。1 <= nums[i] < 2^31。  
+示例：  
+输入：nums = [9,1,7,9,7,9,7]  
+输出：1
+
+思路：  
+**数学（[位运算](https://yujie2020.github.io/2021-05-03-binary-digit-and-bitwise-operation.html)）**。考虑数字的二进制形式，对于出现三次的数字，各 二进制位 出现1或0的次数都是 3 的倍数。统计所有数字的各二进制位中 1 的出现次数，并对 3 求余，结果则为只出现一次的数字。  
+![](/images/2021-04-14-coding-interviews/56.png)  
+使用与运算和右移运算可统计一个数字各二进制位为1还是0，遍历数组中每一个数，定义长度为32的数组 oneFreq 记录所有数字的各二进制位 1 出现次数的总和。遍历 oneFreq 数组，对每一二进制位1出现的次数对 3 取模，将结果（1或0）对 result 进行或运算赋值给 result 对应二进制位（因为为或运算，所以对已有结果二进制位没有影响），左移 result 遍历求解。
+
+题解：
+
+```java
+class Solution {
+    public int singleNumber(int[] nums) {
+        int[] oneFreq = new int[32];
+        for (int num : nums) {
+            for (int i = 0; i < 32; i++) {
+                oneFreq[i] += num & 1;
+                num >>= 1;
+            }
+        }
+        int result = 0; // 结果的初始值为0
+        for (int i = 0; i < 32; i++) {
+            result <<= 1; // 需先执行左移运算，否则在最后一次循环内结果已经先生成但是又左移了一次导致答案错误（后执行左移运算：左移32次，错误；先执行左移运算：左移31次，正确，实际执行了32次，但是第一次result=0，左移还为0）
+            result |= oneFreq[31 - i] % 3; // 从高位开始
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
