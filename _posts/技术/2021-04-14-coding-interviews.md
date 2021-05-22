@@ -1371,3 +1371,47 @@ tips：
 - java.lang.String 类中的 public String substring(int index) 方法：截取从参数位置一直到字符串末尾，返回新字符串；public String substring(int beginIndex, int endIndex) 方法：截取从begin开始，一直到end结束，中间的字符串（[beginIndex,endIndex)，包含左边，不包含有右边）；
 - 时间复杂度：O(n)，字符串切片函数为线性时间复杂度
 - 空间复杂度：O(n)
+
+### 59 - I. [滑动窗口的最大值](https://leetcode-cn.com/problems/hua-dong-chuang-kou-de-zui-da-zhi-lcof/)
+
+给定一个数组 `nums` 和滑动窗口的大小 `k`，请找出所有滑动窗口里的最大值。  
+示例：  
+输入：nums = [1,3,-1,-3,5,3,6,7], k = 3  
+输出：[3,3,5,5,6,7]  
+解释：  
+滑动窗口的位置ㅤㅤㅤㅤㅤ最大值  
+[1  3  -1] -3  5  3  6  7ㅤㅤㅤㅤ3  
+ 1 [3  -1  -3] 5  3  6  7ㅤㅤㅤㅤ3  
+ 1  3 [-1  -3  5] 3  6  7ㅤㅤㅤㅤ5  
+ 1  3  -1 [-3  5  3] 6  7ㅤㅤㅤㅤ5  
+ 1  3  -1  -3 [5  3  6] 7ㅤㅤㅤㅤ6  
+ 1  3  -1  -3  5 [3  6  7]ㅤㅤㅤㅤ7
+
+思路：  
+**数据结构**。有序双端队列（有序的也即为单调队列）的思路。遍历数组，**使用一个队列存储所有还没有被移除的下标（并非值）**。在队列中，这些下标按照从小到大的顺序被存储，并且它们在数组 nums 中对应的值是严格单调递减的。当滑动窗口向右移动时，需要把一个新的元素放入队列中。如果当前遍历的数（窗口移动时的新增元素）比队尾的值大，则需要不断弹出队尾值，直到队列重新满足从大到小的要求，再添加当前遍历的数（因为**之前**比当前遍历的数小的元素的值之后滑动窗口选取元素最大值的时候一定用不上）。刚开始遍历时，有一个形成窗口的过程，当窗口大小形成（遍历到第一个窗口的最后一个索引）后，每次移动时，判断队首的值的数组下标是否在滑动窗口中，如果在则需要弹出队首的值，当前窗口的最大值即为队首的数。  
+![](/images/2021-04-14-coding-interviews/59.png)
+
+题解：
+
+```java
+class Solution {
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        if (k == 0) return new int[0];
+        int[] result = new int[nums.length - k + 1];
+        Deque<Integer> deque = new LinkedList<>();
+        for (int i = 0; i < nums.length; i++) {
+            while (deque.size() > 0 && nums[i] > nums[deque.getLast()]) deque.removeLast();
+            deque.addLast(i);
+            if (i - k + 1 >= 0) result[i - k + 1] = nums[deque.getFirst()];
+            if (i - k + 1 >= deque.getFirst()) deque.removeFirst();
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 对java.util.Queue\<E>接口类的熟悉；
+- 时间复杂度：O(n)
+- 空间复杂度： O(k)，新增最大长度为k的双端队列
