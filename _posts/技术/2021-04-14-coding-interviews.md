@@ -1316,7 +1316,7 @@ tips：
 
 - 泛型E可以是数组；
 - **二维数组每行的大小可以不同**；
-- 使用 java.util.List<E> 类中的 <T> T[] toArray(T[] a) 方法，返回按适当顺序（从第一个元素到最后一个元素）包含列表中所有元素的数组。这里无需指定每行的大小，因为每个子区间的大小不同即二维数组的每行大小不同。对于每行均为泛型 int[]，满足参数要求；
+- 使用 java.util.List\<E> 类中的 \<T> T[] toArray(T[] a) 方法，返回按适当顺序（从第一个元素到最后一个元素）包含列表中所有元素的数组。这里无需指定每行的大小，因为每个子区间的大小不同即二维数组的每行大小不同。对于每行均为泛型 int[]，满足参数要求；
 - 时间复杂度：O(n)，两个指针移动均单调不减且最多移动 target/2 次
 - 空间复杂度：O(1)
 
@@ -1415,3 +1415,62 @@ tips：
 - 对java.util.Queue\<E>接口类的熟悉；
 - 时间复杂度：O(n)
 - 空间复杂度： O(k)，新增最大长度为k的双端队列
+
+### 59 - II. [队列的最大值](https://leetcode-cn.com/problems/dui-lie-de-zui-da-zhi-lcof/)
+
+请定义一个队列并实现函数 max_value 得到队列里的最大值，要求函数max_value、push_back 和 pop_front 的均摊时间复杂度都是O(1)。若队列为空，pop_front 和 max_value 需要返回 -1。  
+示例：  
+输入：["MaxQueue","push_back","push_back","max_value","pop_front","max_value"]  
+ㅤㅤㅤ[[],ㅤㅤㅤㅤㅤㅤ[1],ㅤㅤㅤㅤ[2],ㅤㅤㅤㅤㅤ[],ㅤㅤㅤㅤㅤ[],ㅤㅤㅤㅤㅤ[]]  
+输出：[null,ㅤㅤㅤㅤㅤnull,ㅤㅤㅤ null, ㅤㅤㅤ ㅤ 2, ㅤ ㅤ ㅤ ㅤ1,ㅤㅤㅤㅤㅤ2]
+
+思路：  
+**数据结构及其设计**。首先构建一个普通队列 queue，实现入队 push_back() 和出队 pop_front() 操作。其次构建一个有序双端队列（有序的也即为单调队列）deque 来保存队列 queue 所有递减的元素，deque 随着入队和出队操作实时更新（保证队列 queue 最大元素始终对应 deque 的首元素）：当执行入队 push_back() 时，若入队一个比队列某些元素更大的数字 value，为了保持 deque 单调不增（若队列 queue 中存在两个 值相同的最大元素 ，此时 queue 和 deque 同时弹出一个最大元素，而 queue 中还有一个此最大元素，即采用单调递减将导致两队列中的元素不一致。eg：先执行 push(5), push(5), pop(5)，queue 为 [5] -> [5, 5] -> [5]，deque 为 [5] -> [5] -> []，再次执行 getMax()，返回值应为 5 而双端队列 deque 为单调递减时返回 -1 则错误，原因即为两队列中的元素不一致），需要将双端队列 deque 尾部所有小于 value 的元素 弹出；当执行出队 pop_front() 时，若出队的元素是最大元素，则 双端队列 deque 需要同时 将首元素出队 ，以保持队列 queue 和 双端队列 deque 的元素一致性。
+
+题解：
+
+```java
+class MaxQueue {
+
+    private Queue<Integer> queue;
+    private Deque<Integer> deque;
+
+    public MaxQueue() {
+        queue = new LinkedList<>();
+        deque = new LinkedList<>();
+    }
+    
+    public int max_value() {
+        return deque.isEmpty() ? -1 : deque.peekFirst();
+    }
+    
+    public void push_back(int value) {
+        while (!deque.isEmpty() && value > deque.peekLast()) deque.pollLast();
+        deque.offerLast(value);
+        queue.offer(value);
+    }
+    
+    public int pop_front() {
+        if (queue.isEmpty()) return -1;
+        if (queue.peek().equals(deque.peekFirst())) deque.pollFirst();
+        return queue.poll();
+    }
+}
+
+/**
+ * Your MaxQueue object will be instantiated and called as such:
+ * MaxQueue obj = new MaxQueue();
+ * int param_1 = obj.max_value();
+ * obj.push_back(value);
+ * int param_3 = obj.pop_front();
+ */
+```
+
+tips：
+
+- java.util.Queue\<E> 类中的 boolean offer(E e) 方法，将指定的元素插入此队列（如果立即可行且不会违反容量限制），当使用有容量限制的队列时，此方法通常要优于 add(E)，后者可能无法插入元素，而只是抛出一个异常；
+- java.util.Queue\<E> 类中的 E peek() 方法，获取但不移除此队列的头，如果此队列为空则返回 null。E poll() 方法，获取并移除此队列的头，如果此队列为空，则返回 null；
+- interface Deque\<E> extends Queue\<E> extends Collection\<E>，Deque 类中的 offerFirst 方法通常优于 addFirst(E) 方法，后者可能无法插入元素，而只是抛出一个异常。offerLast 方法通常优于 addLast(E) 方法，后者可能无法插入元素，而只是抛出一个异常。pollFirst 和 pollLast 方法在双端队列为空时都返回 null，而 removeFirst 和 removeLast 在双端队列为空时将抛出一个异常。peekFirst 和 peekLast 方法在双端队列为空时都返回 null，而 getFirst 和 getLast 在双端队列为空时将抛出一个异常；
+- **两个对象都为 Integer 时使用 == 作比较将不会发生自动拆装箱，比较的为对象的地址值**。**两个都是包装类需使用 .equals() 方法比较**，故出队时两个队列首元素的比较需要使用 java.lang.Integer 类中的 boolean equals(Object obj) 方法，比较此对象与指定对象。当且仅当参数不为 null，并且是一个与该对象包含相同 int 值的 Integer 对象时，结果为 true。eg：Integer i1 = new Integer(1); Integer i2 = new Integer(1) ，i1 == i2 将返回false ，没有发生自动拆装箱。而一个是 int 类型，一个是包装类，则可以直接使用 == 进行比较，包装类自动拆箱为 int 类型，比较的是值，不会存在一个是基本类型一个是引用类型（包装类）不能比较的情况；
+- 时间复杂度：O(1)，max_value(), push_back(), pop_front() 方法的均摊时间复杂度均为 O(1)
+- 空间复杂度：O(n)，当元素个数为 n 时，最差情况下 deque 中保存 n 个元素
