@@ -1474,3 +1474,83 @@ tips：
 - **两个对象都为 Integer 时使用 == 作比较将不会发生自动拆装箱，比较的为对象的地址值**。**两个都是包装类需使用 .equals() 方法比较**，故出队时两个队列首元素的比较需要使用 java.lang.Integer 类中的 boolean equals(Object obj) 方法，比较此对象与指定对象。当且仅当参数不为 null，并且是一个与该对象包含相同 int 值的 Integer 对象时，结果为 true。eg：Integer i1 = new Integer(1); Integer i2 = new Integer(1) ，i1 == i2 将返回false ，没有发生自动拆装箱。而一个是 int 类型，一个是包装类，则可以直接使用 == 进行比较，包装类自动拆箱为 int 类型，比较的是值，不会存在一个是基本类型一个是引用类型（包装类）不能比较的情况；
 - 时间复杂度：O(1)，max_value(), push_back(), pop_front() 方法的均摊时间复杂度均为 O(1)
 - 空间复杂度：O(n)，当元素个数为 n 时，最差情况下 deque 中保存 n 个元素
+
+### 61. [扑克牌中的顺子](https://leetcode-cn.com/problems/bu-ke-pai-zhong-de-shun-zi-lcof/)
+
+从扑克牌中随机抽5张牌，判断是不是一个顺子，即这5张牌是不是连续的。2～10为数字本身，A为1，J为11，Q为12，K为13，而大、小王为 0 ，可以看成任意数字。A 不能视为 14。数组的数取值为 [0, 13]。  
+示例：  
+输入：[0,0,1,2,5]  
+输出：true
+
+题解：
+
+```java
+class Solution {
+    public boolean isStraight(int[] nums) {
+        int[] poker = new int[14]; // 用于判断是否有重复的牌
+        int max = 0, min = 13; // 数组中除0外最大值的初始值为0（为一数组可能出现的最小的值），除0外最小值的初始值需为13不能为0（为一数组可能出现的最大的值）
+        for (int num : nums) {
+            if (num == 0) continue; // 遇到大小王则直接跳过
+            if (poker[num]++ == 1) return false; // 除大小王外有重复牌则直接返回false
+            max = Math.max(max, num);
+            min = Math.min(min, num);
+        }
+        return max - min < 5;
+    }
+}
+```
+
+tips：
+
+- **常规数组题目，遍历，条件判断**；
+- 时间复杂度：O(1)
+- 空间复杂度：O(1)
+
+### 62. [圆圈中最后剩下的数字](https://leetcode-cn.com/problems/yuan-quan-zhong-zui-hou-sheng-xia-de-shu-zi-lcof/)
+
+0,1,···,n-1这n个数字排成一个圆圈，从数字0开始，每次从这个圆圈里删除第m个数字（删除后从下一个数字开始计数）。求出这个圆圈里剩下的最后一个数字。1 <= n <= 10^5，1 <= m <= 10^6。  
+示例：  
+输入：n = 5, m = 3  
+输出：3  
+解释：0、1、2、3、4这5个数字组成一个圆圈，从数字0开始每次删除第3个数字，则删除的前4个数字依次是2、0、4、1，因此最后剩下的数字是3。
+
+思路：  
+**数据结构 / 动态规划+数学**。  
+1) 使用ArrayList<Integer>模拟单向环形链表的解法：  
+对于单纯使用链表（单向环形链表的实现）的情况，时间复杂度为O(nm)，超时。使用ArrayList<Integer>模拟单向环形链表，时间复杂度则为O(n^2)（ArrayList 类 remove 方法的时间复杂度为O(n)），**单纯使用链表（单向环形链表的实现）即暴力解法**：每次找到需删除的数字，需要 O(m) 的时间复杂度，然后删除了 n-1 次（时间复杂度为O(nm)）；而对于集合模拟链表，可以直接找到下一个要删除的位置（O(1)）：假设当前删除的位置是 index（同时为下一轮计数的起始索引），则下一个删除的数字的位置应为 index + m - 1，由于计数到末尾会从头继续计数，所以需要再对集合大小取模，即为 (index + m − 1) % n。遍历 n 次将元素添加到集合形成初始圆圈，迭代 n-1 次每轮计数结束将元素总数（集合大小）n 减一，最终集合 0 索引位置元素即为圆圈里剩下的最后一个数字。  
+2) 约瑟夫（Josephu）问题的动态规划解法（过程中使用了数学推导）：  
+从最终只剩一个元素的索引反推（迭代）：上一轮index = (当前index + m) mod 上一轮剩余数字的个数。  
+![](/images/2021-04-14-coding-interviews/62.png)
+
+题解：
+
+```java
+// 单向环形链表（使用ArrayList<Integer>模拟）
+class Solution {
+    public int lastRemaining(int n, int m) {
+        List<Integer> circleList = new ArrayList<>(n);
+        for (int i = 0; i < n; i++) circleList.add(i);
+        int beginOrRemove = 0; // 每轮次开始计数的起始索引，因由其计算得此轮次应删除元素的索引同时又为下一轮开始计数的起始索引，故使其进行自更新（当删除元素为当前轮次的最后一个元素(索引为n-1)时，下一轮开始计数的起始索引应为0而不是n-1(下一轮数组的最大索引为n-2)，但是下一轮(数组元素个数变为n-1)使用迭代公式更新应删除元素的索引时，其对n-1取模，起始索引就会自动更新为0，故当删除元素为当前轮次的最后一个元素时下一轮开始计数的起始索引使用n-1也正确）
+        while (n > 1) { // n为每轮次的元素总数（ArrayLsit集合的大小）
+            beginOrRemove = (beginOrRemove + m - 1) % n;
+            circleList.remove(beginOrRemove);
+            n--;
+        }
+        return circleList.get(0);
+    }
+}
+
+// 数学解法
+/*class Solution {
+    public int lastRemaining(int n, int m) {
+        int result = 0;
+        for (int i = 2; i <= n; i++) result = (result + m) % i;
+        return result;
+    }
+}*/
+```
+
+tips：
+
+- 时间复杂度：O(n^2)，数据结构；O(n)，动态规划+数学
+- 空间复杂度：O(n)，数据结构；O(1)，动态规划+数学
