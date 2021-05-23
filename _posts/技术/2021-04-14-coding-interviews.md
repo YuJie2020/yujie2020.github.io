@@ -1614,3 +1614,72 @@ tips：
 
 - 时间复杂度：O(n)，计算 n+(n−1)+...+2+1 需要开启 n 个递归函数
 - 空间复杂度：O(n)，递归深度为 n，使用 O(n) 大小的额外空间
+
+### 65. [不用加减乘除做加法](https://leetcode-cn.com/problems/bu-yong-jia-jian-cheng-chu-zuo-jia-fa-lcof/)
+
+写一个函数，求两个整数之和，要求在函数体内不得使用 “+”、“-”、“*”、“/” 四则运算符号。a, b 均可能是负数或 0。  
+示例：  
+输入：a = 1, b = 1  
+输出：2
+
+思路：  
+**数学（[位运算](https://yujie2020.github.io/2021-05-03-binary-digit-and-bitwise-operation.html)）**。通过位运算实现两数的加法。设两数字的二进制形式 a, b，其求和 s = a + b，以 x(i) 代表一个数 x 的二进制第 i 位，令无进位和为 n，进位为 c，则两数相加有以下四种情况：  
+a(i)ㅤb(i)ㅤ无进位和n(i)ㅤ进位c(i+1)  
+0ㅤㅤ0ㅤㅤㅤㅤ0ㅤㅤㅤㅤㅤ0  
+0ㅤㅤ1ㅤㅤㅤㅤ1ㅤㅤㅤㅤㅤ0  
+1ㅤㅤ0ㅤㅤㅤㅤ1ㅤㅤㅤㅤㅤ0  
+1ㅤㅤ1ㅤㅤㅤㅤ0ㅤㅤㅤㅤㅤ1  
+无进位和 与 异或运算 规律相同，进位 与 与运算 规律相同（需要左移一位），故无进位和 n = a⊕b，进位 c = a&b<<1，和 s = a + b = n + c，循环求解 n 和 c，直至 进位 c 等于0，此时和 s = n 返回结果。
+
+题解：
+
+```java
+class Solution {
+    public int sumNums(int n) {
+        boolean flag = n > 0 && (n += sumNums(n - 1)) > 0;
+        return n;
+    }
+}
+```
+
+tips：
+
+- 对于负数也适用（使用补码计算）。在计算机系统中，数值一律用 补码 来表示和存储：加减法可以统一处理；
+- 时间复杂度：O(1)，最差情况下（eg：a=-1, b=1 时）需循环 32 次使用 O(1) 时间，每轮中的常数次位操作使用 O(1) 时间
+- 空间复杂度：O(1) 
+
+### 66. [构建乘积数组](https://leetcode-cn.com/problems/gou-jian-cheng-ji-shu-zu-lcof/)
+
+给定一个数组 A[0,1,…,n-1]，请构建一个数组 B[0,1,…,n-1]，其中 B[i] 的值是数组 A 中除了下标 i 以外的元素的积, 即 B[i]=A[0]×A[1]×…×A[i-1]×A[i+1]×…×A[n-1]。不能使用除法。  
+示例：  
+输入：[1,2,3,4,5]  
+输出：[120,60,40,30,24]
+
+思路：  
+**常规数组题目，遍历，条件判断**。output[i] 表示的乘积 = 当前数 i 左边的乘积 * 当前数 i 右边的乘积。使用两次循环来分别求解左边的乘积和右边的乘积。
+
+题解：
+
+```java
+class Solution {
+    public int[] constructArr(int[] a) {
+        int len = a.length; // len > 1
+        int[] result = new int[len];
+        int l = 1, r = 1; // l为当前索引左边元素的乘积，r为当前索引右边元素的乘积
+        for (int i = 0; i < len; i++) { // result[i] = nums[0,...,i-1]中元素的乘积
+            result[i] = l;
+            l *= a[i];
+        }
+        for (int i = len - 1; i >= 0; i--) { // result[i] *= nums[i+1,...,end]中元素的乘积
+            result[i] *= r; // 这里为 *=
+            r *= a[i];
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)，输出数组不被视为额外空间
