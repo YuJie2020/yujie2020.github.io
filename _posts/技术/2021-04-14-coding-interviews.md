@@ -1588,3 +1588,29 @@ tips：
 - **常规数组题目，遍历，条件判断**。
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
+
+### 64. [求1+2+…+n](https://leetcode-cn.com/problems/qiu-12n-lcof/)
+
+求 `1+2+...+n` ，要求不能使用乘除法、for、while、if、else、switch、case等关键字及条件判断语句（A?B:C）。  
+示例：  
+输入：n = 3  
+输出：6
+
+思路：  
+**递归**。递归语句为 return n == 1 ? 1 : n + sumNums(n - 1); ，利用逻辑运算符与 && 的短路特性来替代条件判断语句（当 n=1 时终止递归）。
+
+题解：
+
+```java
+class Solution {
+    public int sumNums(int n) {
+        boolean flag = n > 0 && (n += sumNums(n - 1)) > 0;
+        return n;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)，计算 n+(n−1)+...+2+1 需要开启 n 个递归函数
+- 空间复杂度：O(n)，递归深度为 n，使用 O(n) 大小的额外空间
