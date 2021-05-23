@@ -1554,3 +1554,37 @@ tips：
 
 - 时间复杂度：O(n^2)，数据结构；O(n)，动态规划+数学
 - 空间复杂度：O(n)，数据结构；O(1)，动态规划+数学
+
+### 63. [股票的最大利润](https://leetcode-cn.com/problems/gu-piao-de-zui-da-li-run-lcof/)
+
+假设把某股票的价格按照时间先后顺序存储在数组中，请问买卖该股票一次可能获得的最大利润是多少？0 <= 数组长度 <= 10^5。  
+示例：  
+输入：[7,1,5,3,6,4]ㅤ|ㅤ[7,6,4,3,1]  
+输出：5ㅤ|ㅤ0  
+解释：在第 2 天（股票价格 = 1）的时候买入，在第 5 天（股票价格 = 6）的时候卖出，最大利润 = 6-1 = 5 。注意利润不能是 7-1 = 6, 因为卖出价格需要大于买入价格。ㅤ|ㅤ在这种情况下, 没有交易完成, 所以最大利润为 0。
+
+题解：
+
+```java
+class Solution {
+    public int maxProfit(int[] prices) {
+        int result = 0;
+        if (prices.length == 0) return result;
+        int min = prices[0];
+        for (int i = 1; i < prices.length; i++) {
+            if (prices[i] < min) {
+                min = prices[i];
+            } else {
+                result = Math.max(result, prices[i] - min);
+            }
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- **常规数组题目，遍历，条件判断**。
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
