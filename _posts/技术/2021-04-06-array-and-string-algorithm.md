@@ -2191,7 +2191,39 @@ class Solution {
 tips：
 
 - 时间复杂度：O(n)
-- 空间复杂度：O(∣Σ∣)，其中 Σ 表示字符集（即字符串中可以出现的字符），∣Σ∣ 表示字符集的大小。此题字符集（所有大写字母 ）为所有 ASCII 码在 [65, 90] 内的字符，即∣Σ∣=26。
+- 空间复杂度：O(∣Σ∣)，其中 Σ 表示字符集（即字符串中可以出现的字符），∣Σ∣ 表示字符集的大小。此题字符集（所有大写字母 ）为所有 ASCII 码在 [65, 90] 内的字符，即∣Σ∣=26
+
+### 9. [Palindrome Number](https://leetcode-cn.com/problems/palindrome-number/) 回文数
+
+给你一个整数 `x` ，如果 `x` 是一个回文整数，返回 `true` ；否则，返回 `false` 。回文数是指正序（从左向右）和倒序（从右向左）读都是一样的整数。  
+示例：  
+输入：x = 121ㅤ|ㅤx = -121  
+输出：trueㅤ|ㅤfalse
+
+思路：  
+取出后半段数字进行反转。当 x 不大于 revert 时则表示后半部分反转数字已经对半或者过半（数字 x 的位数为奇数时），数字 x 的位数为偶数时也可能后半部分反转后的数字小于 x 则还会（最多）继续将后半部分数字位数多一位（此种情况只有等于 x 时才为回文数，故不影响最终结果）。
+
+题解：
+
+```java
+class Solution {
+    public boolean isPalindrome(int x) {
+        if (x < 0 || x % 10 == 0 && x != 0) return false; // 当x为负数或者个位为0但为两位以上数字时返回 false
+        int revert = 0; // 原数字 x 的后半部分反转后的结果
+        while (x > revert) {
+            revert = revert * 10 + x % 10; // 将x最后一位添加到revert末尾（取出最低位数字：对10取模）
+            x /= 10; // 舍去x最后一位：除以10后取整
+        }
+        return x == revert || x == revert / 10; // x 位数为奇数时，原数最中间的数字就在revert的最低位上，则revert需要除以10
+    }
+}
+```
+
+tips：
+
+- && 运算符的优先级高于 ||；
+- 时间复杂度：O(logn)
+- 空间复杂度：O(1)
 
 ### 118. [Pascal's Triangle](https://leetcode-cn.com/problems/pascals-triangle/) 杨辉三角
 
