@@ -3,15 +3,17 @@ layout: post
 title: 链表结构-相关算法
 description: 抽出LeetCode题库中链表结构相关的算法题目，再以相似类型的题目进行分类归纳总结题解。
 category: 技术
+
 ---
 
 ## introduction 
+
 抽出LeetCode题库中链表结构相关的算法题目，再以相似类型的题目进行分类归纳总结题解。  
 并非每道题目的解法都是它的最优写法，只是在尽量保证代码执行高效性的前提下，为了归纳总结便于记忆而给定的解法，故这里每道题的题解也都只列出了一种写法。
 
 ## Ⅰ Pointers 指针
 
-对于引用类型（eg：链表中的节点）：
+对于引用类型（eg：链表中的节点）：  
 指针即代表一种引用（对象/引用类型的引用），**指向引用对象的地址值**，**用于操作指向（引用）对象的成员变量**。eg：ListNode removed = point.next; point.next = point.next.next;，removed 即为一指针：指向 point 的成员变量 next 也即 point 的下一节点（point 的下一节点对象的引用/地址）；而 point.next 并非指针，代表 point 对象的成员变量 next 也即 point 的下一节点，point.next = point.next.next 为将 point 对象的成员变量 next 更新为 point.next.next，即将 point 的下一节点更新为 point 的后一节点。
 
 ### 206. [Reverse Linked List](https://leetcode-cn.com/problems/reverse-linked-list/) 反转链表
@@ -163,6 +165,13 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
 
+## Ⅱ Insertion Method 插入法
+
+使用插入法的相关链表题目，头插法属于插入法。
+
+时间复杂度：O(n)  
+空间复杂度：O(1)
+
 ### 92. [Reverse Linked List II](https://leetcode-cn.com/problems/reverse-linked-list-ii/) 反转链表 II
 
 给你单链表的头指针 head 和两个整数 left 和 right ，其中 left <= right 。请你反转从位置 left 到位置 right 的链表节点，返回 反转后的链表 。  
@@ -210,9 +219,7 @@ class Solution {
 
 tips：
 
-- 指针即代表一种引用（对象/引用类型的引用），**指向引用对象的地址值**，**用于操作指向（引用）对象的成员变量**。eg：ListNode removed = point.next; point.next = point.next.next;，removed 即为一指针：指向 point 的成员变量 next 也即 point 的下一节点（point 的下一节点对象的引用/地址）；而 point.next 并非指针，代表 point 对象的成员变量 next 也即 point 的下一节点，point.next = point.next.next 为将 point 对象的成员变量 next 更新为 point.next.next，即将 point 的下一节点更新为 point 的后一节点；
-- 时间复杂度：O(n)
-- 空间复杂度：O(1)
+- 指针即代表一种引用（对象/引用类型的引用），**指向引用对象的地址值**，**用于操作指向（引用）对象的成员变量**。eg：ListNode removed = point.next; point.next = point.next.next;，removed 即为一指针：指向 point 的成员变量 next 也即 point 的下一节点（point 的下一节点对象的引用/地址）；而 point.next 并非指针，代表 point 对象的成员变量 next 也即 point 的下一节点，point.next = point.next.next 为将 point 对象的成员变量 next 更新为 point.next.next，即将 point 的下一节点更新为 point 的后一节点。
 
 ### 86. [Partition List](https://leetcode-cn.com/problems/partition-list/) 分隔链表
 
@@ -292,6 +299,72 @@ class Solution {
 
 tips：
 
-- 思路与92题相似（这里的cur指针与92题point指针功能不同：92题point指针是静态的总是指向同一节点因为其后的一部分节点都需要插入，不需要条件判断，而此题cur指针是动态的因为并非cur指针其后的元素都可以插入，需要条件判断。**pre指针相当于一个动态的哨兵，而92题的guard指针相当于一个静态的哨兵**，此题的dummyHead指针功能与92题相同，用于头节点head为一大于等于x的元素以便于在head节点前插入元素的功能，也用于返回头节点），也结合了83题条件更新cur指针的思路；
-- 时间复杂度：O(n)
-- 空间复杂度：O(1)
+- 思路与92题相似（这里的cur指针与92题point指针功能不同：92题point指针是静态的总是指向同一节点因为其后的一部分节点都需要插入，不需要条件判断，而此题cur指针是动态的因为并非cur指针其后的元素都可以插入，需要条件判断。**pre指针相当于一个动态的哨兵，而92题的guard指针相当于一个静态的哨兵**，此题的dummyHead指针功能与92题相同，用于头节点head为一大于等于x的元素以便于在head节点前插入元素的功能，也用于返回头节点），也结合了83题条件更新cur指针的思路。
+
+### 328. [Odd Even Linked List](https://leetcode-cn.com/problems/odd-even-linked-list/) 奇偶链表
+
+给定一个单链表，把所有的奇数节点和偶数节点分别排在一起。请注意，这里的奇数节点和偶数节点指的是节点编号的奇偶性，而不是节点的值的奇偶性。请尝试使用原地算法完成。你的算法的空间复杂度应为 O(1)，时间复杂度应为 O(nodes)，nodes 为节点总数。应当保持奇数节点和偶数节点的相对顺序。链表的第一个节点视为奇数节点，第二个节点视为偶数节点，以此类推。  
+示例：  
+输入：2->1->3->5->6->4->7->NULL  
+输出：2->3->6->7->1->5->4->NULL
+
+思路：  
+原地：使用插入法+哨兵的思路，迭代求解。此题pre指针相当于一个动态的哨兵。  
+模拟：维护两个链表，一个链表其中都为原链表奇数位置的节点另一个链表都为原链表偶数位置。
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+
+ // 原地解法
+class Solution {
+    public ListNode oddEvenList(ListNode head) {
+        if (head == null || head.next == null) return head; // 或运算，先判断head不为空才会继续判断head.next是否为空，故不会发生空指针异常
+        ListNode pre = head, cur = head.next;
+        // 从cur（第一个偶数位置节点）开始遍历，删除其后奇数位置的元素并将其插入到pre节点之后
+        while (cur != null && cur.next != null) { // 指针遍历到链表末尾（链表长度为偶数时）或者链表倒数第二个节点（链表长度为奇数时）：cur指针总是在偶数位置
+            ListNode removed = cur.next;
+            cur.next = cur.next.next;
+            removed.next = pre.next; // 总是插入到哨兵pre的后面
+            pre.next = removed;
+            pre = pre.next; // 每次插入节点后pre指针需要向后移动（保证有序性，不更新则成为头插法）
+            cur = cur.next; // 这里的cur指针无需再判断条件而更新（移动），插入元素后cur指针指向的元素从偶数位移动到了奇数位置，cur指针后移一位即可
+        }
+        return head;
+    }
+}
+
+// 模拟解法
+/*class Solution {
+    public ListNode oddEvenList(ListNode head) {
+        if (head == null || head.next == null) return head;
+        ListNode oddHead = head, evenHead = head.next;
+        ListNode odd = head, even = head.next;
+        ListNode cur = head.next.next;
+        while (cur != null) {
+            odd.next = cur;
+            even.next = cur.next;
+            odd = odd.next;
+            even = even.next;
+            if (cur.next == null) break; // 当链表长度为奇数时，防止空指针异常：cur指针总是在奇数位置
+            cur = cur.next.next;
+        }
+        odd.next = evenHead;
+        return oddHead;
+    }
+}*/
+```
+
+tips：
+
+- 思路与86题相同。
