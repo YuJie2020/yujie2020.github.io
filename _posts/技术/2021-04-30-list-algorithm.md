@@ -122,6 +122,47 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
 
+### 83. [Remove Duplicates from Sorted List](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-list/) 删除排序链表中的重复元素
+
+存在一个按升序排列的链表，给你这个链表的头节点 `head` ，请你删除所有重复的元素，使每个元素 只出现一次 。返回同样按升序排列的结果链表。  
+示例：  
+输入：head = [1,1,2,3,3]  
+![](/images/2021-04-30-list-algorithm/83.jpg)  
+输出：[1,2,3]
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+
+class Solution {
+    public ListNode deleteDuplicates(ListNode head) {
+        ListNode cur = head;
+        while (cur != null && cur.next != null) { // 指针遍历到链表末尾（最后两个元素不同时）或者链表倒数第二个节点（最后两个元素可能相同可能不同）结束遍历
+            if (cur.val == cur.next.val) { // 删除重复的元素
+                cur.next = cur.next.next;
+            } else cur = cur.next; // 相邻节点的值不同时才将cur指针后移
+        }
+        return head;
+    }
+}
+```
+
+tips：
+
+- 指针。使用 cur 指针删除重复的元素；
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
 ### 92. [Reverse Linked List II](https://leetcode-cn.com/problems/reverse-linked-list-ii/) 反转链表 II
 
 给你单链表的头指针 head 和两个整数 left 和 right ，其中 left <= right 。请你反转从位置 left 到位置 right 的链表节点，返回 反转后的链表 。  
@@ -131,7 +172,7 @@ tips：
 输出：[1,4,3,2,5]
 
 思路：  
-使用头插法的思路，迭代求解。
+使用头插法（插入法）+哨兵的思路，迭代求解。此题guard指针相等于一个静态的哨兵。
 
 题解：
 
@@ -148,7 +189,7 @@ tips：
  */
 class Solution {
     public ListNode reverseBetween(ListNode head, int left, int right) {
-        ListNode dummyHead = new ListNode(0); // 定义一虚拟头节点用于返回反转链表的头节点，当left=1时反转后的链表头节点会变化
+        ListNode dummyHead = new ListNode(0); // 定义一虚拟头节点用于返回反转链表的头节点（当left=1时反转后的链表头节点会变化），同时也便于元素插入（当left=1时）
         dummyHead.next = head;
         ListNode guard = dummyHead; // 守卫guard指针：指向部分反转链表起始位置的前一节点（第一个要反转的节点的前一节点）
         ListNode point = head; // point指针：指向部分反转链表的起始位置（第一个要反转的节点）
@@ -173,3 +214,84 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
 
+### 86. [Partition List](https://leetcode-cn.com/problems/partition-list/) 分隔链表
+
+给你一个链表的头节点 head 和一个特定值 x ，请你对链表进行分隔，使得所有 小于 x 的节点都出现在 大于或等于 x 的节点之前。你应当 保留 两个分区中每个节点的初始相对位置。  
+示例：  
+输入：head = [1,4,3,2,5,2], x = 3  
+![](/images/2021-04-30-list-algorithm/86.jpg)  
+输出：[1,2,2,4,3,5]
+
+思路：  
+原地：使用插入法+哨兵的思路，迭代求解。此题pre指针相当于一个动态的哨兵。  
+模拟：使用两个虚拟头节点dummyHead维护两个链表，一个链表其中都为小于x的节点另一个链表都为大于等于x的节点。遍历完原链表后，只要将 small 链表尾节点指向 large 链表的头节点即能完成对链表的拼接。
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+
+// 原地解法
+class Solution {
+    public ListNode partition(ListNode head, int x) {
+        ListNode dummyHead = new ListNode(x - 1); //  小于 x 的节点在前，故dummyHead节点的值需定义为小于x
+        dummyHead.next = head;
+        ListNode pre = dummyHead, cur = dummyHead;
+        while (cur != null && cur.val < x) { // 1) 首先遍历链表找到第一个大于等于x的节点并将cur指针指向此节点，pre指针则指向cur指针前一节点（即当前最后一个小于x的节点）
+            pre = cur;
+            cur = cur.next;
+        }
+        while (cur != null && cur.next != null) { // 指针遍历到链表末尾（最后一个元素的值大于等于x时）或者链表倒数第二个节点（最后一个元素可能小于x可能大于等于x）结束遍历
+            if (cur.next.val < x) { // 2) 之后从cur开始遍历，删除小于x的元素并将其插入到pre节点之后
+                ListNode removed = cur.next;
+                cur.next = cur.next.next;
+                removed.next = pre.next; // 总是插入到哨兵pre的后面
+                pre.next = removed;
+                pre = pre.next; // 每次插入节点后pre指针需要向后移动（保证有序性，不更新则成为头插法）
+            } else { // 下一节点的值大于等于x时才将cur指针后移，同时哨兵pre不能更新
+                cur = cur.next;
+            }
+        }
+        return dummyHead.next;
+    }
+}
+
+// 模拟解法
+/*class Solution {
+    public ListNode partition(ListNode head, int x) {
+        ListNode small = new ListNode(0);
+        ListNode smallHead = small; // 前半部分链表的 dummyHead 指针
+        ListNode large = new ListNode(0);
+        ListNode largeHead = large; // 后半部分链表的 dummyHead 指针
+        ListNode cur = head;
+        while (cur != null) {
+            if (cur.val < x) {
+                small.next = cur;
+                small = small.next;
+            } else {
+                large.next = cur;
+                large = large.next;
+            }
+            cur = cur.next;
+        }
+        small.next = largeHead.next;
+        large.next = null; // 不能少了词条语句：代表到达链表末尾，否则：Error - Found cycle in the ListNode
+        return smallHead.next;
+    }
+}*/
+```
+
+tips：
+
+- 思路与92题相似（这里的cur指针与92题point指针功能不同：92题point指针是静态的总是指向同一节点因为其后的一部分节点都需要插入，不需要条件判断，而此题cur指针是动态的因为并非cur指针其后的元素都可以插入，需要条件判断。**pre指针相当于一个动态的哨兵，而92题的guard指针相当于一个静态的哨兵**，此题的dummyHead指针功能与92题相同，用于头节点head为一大于等于x的元素以便于在head节点前插入元素的功能，也用于返回头节点），也结合了83题条件更新cur指针的思路；
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
