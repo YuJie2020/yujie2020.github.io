@@ -154,15 +154,13 @@ class Solution {
             int ele2 = l2 == null ? 0 : l2.val;
             int sum = flag ? ele1 + ele2 + 1 : ele1 + ele2;
             flag = sum >= 10 ? true : false; // 更新是否需要进位情况
-            ListNode node = new ListNode(sum % 10); // 新建节点添加到结果链表的尾部
-            cur.next = node;
+            cur.next = new ListNode(sum % 10);  // 新建节点添加到结果链表的尾部
             cur = cur.next;
             l1 = l1 == null ? l1 : l1.next; // 防止空指针异常
             l2 = l2 == null ? l2 : l2.next;
         }
         if (flag) { // 原两链表最高位还需要进位则需再创建一个节点将其值置于1
-            ListNode node = new ListNode(1);
-            cur.next = node;
+            cur.next = new ListNode(1);
         }
         return dummyHead.next;
     }
@@ -174,6 +172,65 @@ tips：
 - 模拟：数学+指针。模拟两个数手动相加的过程，使用指针将当前位的值创建的节点添加到结果；
 - 时间复杂度：O(max(m,n))，m 和 n 分别为两个链表的长度
 - 空间复杂度：O(1)，返回值不计入空间复杂度
+
+### 445. [Add Two Numbers II](https://leetcode-cn.com/problems/add-two-numbers-ii/) 两数相加 II
+
+给你两个 非空 链表来代表两个非负整数。数字最高位位于链表开始位置。它们的每个节点只存储一位数字。将这两数相加会返回一个新的链表。你可以假设除了数字 0 之外，这两个数字都不会以零开头。你不能对列表中的节点进行翻转。  
+示例：  
+输入：(7 -> 2 -> 4 -> 3) + (5 -> 6 -> 4)  
+输出：7 -> 8 -> 0 -> 7
+
+思路：  
+模拟：思路与2题相似，链表中数的顺序与做加法的顺序是相反的，为了逆序处理所有数，把原链表所有数字压入栈中，再依次取出相加，模拟两个数手动相加的过程。结果链表的位数也需要与做加法的顺序相反：使用head指针保存当前位的值创建的节点并将其添加到结果链表的头部（head指针总是指向结果链表的头部）。
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        Stack<Integer> stack1 = new Stack<>();
+        Stack<Integer> stack2 = new Stack<>();
+        while (l1 != null || l2 != null) {
+            if (l1 != null) {
+                stack1.push(l1.val);
+                l1 = l1.next;
+            }
+            if (l2 != null) {
+                stack2.push(l2.val);
+                l2 = l2.next;
+            }
+        }
+        ListNode head = null; // 指针
+        boolean flag = false; // 用于标记当前位是否需要进位
+        while (!stack1.empty() || !stack2.empty() || flag) { // 当最后一位需要进位时也进入循环
+            int ele1 = stack1.empty() ? 0 : stack1.pop();
+            int ele2 = stack2.empty() ? 0 : stack2.pop();
+            int sum = flag ? ele1 + ele2 + 1 : ele1 + ele2;
+            flag = sum >= 10 ? true : false;
+            ListNode node = new ListNode(sum % 10);
+            node.next = head; // 在结果链表的前面添加当前位新节点
+            head = node; // 使用head保存（指向）当前位节点，也即结果链表的头节点
+        }
+        return head;
+    }
+}
+```
+
+tips：
+
+- 对象（引用类型）的变量名仅代表了一个地址，当这个地址值还有引用，就不会在内存中消失（被垃圾回收）：**当变量名（局部变量的引用类型：对象）的作用域范围以外时此变量的地址还有被其他对象引用此对象就不会消失**。eg：此题中的node节点；
+- 时间复杂度：O(max(m,n))，m 和 n 分别为两个链表的长度
+- 空间复杂度：O(m+n)，取决于把链表内容放入栈中所用的空间，返回值不计入空间复杂度
 
 ### 83. [Remove Duplicates from Sorted List](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-list/) 删除排序链表中的重复元素
 
