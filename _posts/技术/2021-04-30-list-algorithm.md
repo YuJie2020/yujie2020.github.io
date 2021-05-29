@@ -124,6 +124,57 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
 
+### 2. [Add Two Numbers](https://leetcode-cn.com/problems/add-two-numbers/) 两数相加
+
+给你两个 非空 的链表，表示两个非负的整数。它们每位数字都是按照 逆序 的方式存储的，并且每个节点只能存储 一位 数字。请你将两个数相加，并以相同形式返回一个表示和的链表。你可以假设除了数字 0 之外，这两个数都不会以 0 开头。  
+示例：  
+输入：l1 = [9,9,9,9,9,9,9], l2 = [9,9,9,9]  
+输出：[8,9,9,9,0,0,0,1]
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        boolean flag = false; // 用于标记当前位是否需要进位
+        ListNode dummyHead = new ListNode(); // 虚拟头节点，用于返回结果链表的头节点
+        ListNode cur = dummyHead; // 指针
+        while (l1 != null || l2 != null) { // l1 与 l2 的长度不一的相同
+            int ele1 = l1 == null ? 0 : l1.val; // 其中一个链表到达末尾则其位上的值为0
+            int ele2 = l2 == null ? 0 : l2.val;
+            int sum = flag ? ele1 + ele2 + 1 : ele1 + ele2;
+            flag = sum >= 10 ? true : false; // 更新是否需要进位情况
+            ListNode node = new ListNode(sum % 10); // 新建节点添加到结果链表的尾部
+            cur.next = node;
+            cur = cur.next;
+            l1 = l1 == null ? l1 : l1.next; // 防止空指针异常
+            l2 = l2 == null ? l2 : l2.next;
+        }
+        if (flag) { // 原两链表最高位还需要进位则需再创建一个节点将其值置于1
+            ListNode node = new ListNode(1);
+            cur.next = node;
+        }
+        return dummyHead.next;
+    }
+}
+```
+
+tips：
+
+- 模拟：数学+指针。模拟两个数手动相加的过程，使用指针将当前位的值创建的节点添加到结果；
+- 时间复杂度：O(max(m,n))，m 和 n 分别为两个链表的长度
+- 空间复杂度：O(1)，返回值不计入空间复杂度
+
 ### 83. [Remove Duplicates from Sorted List](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-list/) 删除排序链表中的重复元素
 
 存在一个按升序排列的链表，给你这个链表的头节点 `head` ，请你删除所有重复的元素，使每个元素 只出现一次 。返回同样按升序排列的结果链表。  
