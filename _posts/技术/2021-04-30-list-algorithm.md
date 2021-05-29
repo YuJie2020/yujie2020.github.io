@@ -273,6 +273,59 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
 
+### 82. [Remove Duplicates from Sorted List II](https://leetcode-cn.com/problems/remove-duplicates-from-sorted-list-ii/) 删除排序链表中的重复元素 II
+
+存在一个按升序排列的链表，给你这个链表的头节点 head ，请你删除链表中所有存在数字重复情况的节点，只保留原始链表中 没有重复出现 的数字。返回同样按升序排列的结果链表。  
+示例：  
+输入：head = [1,1,1,2,3]  
+输出：[2,3]
+
+思路：  
+思路与83题相似。使用双指针的思路，使用pre指针保存（指向）cur指针指向的节点的前一个节点，用于删除节点；cur指针用于遍历重复的元素（功能与83题相同）。
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode deleteDuplicates(ListNode head) {
+        ListNode dummyHead = new ListNode();
+        dummyHead.next = head; // 虚拟头节点，便于返回结果链表头节点（可能原链表的头节点即为重复值元素，即需要删除）
+        ListNode pre = dummyHead, cur = head;
+        boolean flag = false; // 标记链表遍历过程中是否出现重复的元素，当前cur节点值唯一为false，否则为true
+        while (cur != null && cur.next != null) {
+            if (cur.val == cur.next.val) { // 遍历值重复元素的过程
+                cur.next = cur.next.next;
+                flag = true; // 当前值cur.val出现重复元素标记为true
+            } else if (flag) { // 值重复元素遍历到末尾
+                pre.next = cur.next; // 将相同值的元素全部删除
+                cur = cur.next; // 遍历下一个不同值的元素
+                flag = false; // 删除重复元素后flag需要重新置false
+            } else { // 代表当前cur节点的值与下一节点的值不同并且当前节点的值的元素唯一，则不需要删除当前元素，双指针后移即可
+                pre = cur;
+                cur = cur.next;
+            }
+        }
+        if (flag) pre.next = cur.next; // 当原链表的末尾出现值重复的元素，cur.next会到达原链表末尾为null，则不会进入循环体，故还需要在遍历结束外再次检查
+        return dummyHead.next;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
 ## Ⅱ Insertion Method 插入法
 
 使用插入法的相关链表题目，头插法属于插入法。
