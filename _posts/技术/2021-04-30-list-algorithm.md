@@ -11,6 +11,8 @@ category: 技术
 抽出LeetCode题库中链表结构相关的算法题目，再以相似类型的题目进行分类归纳总结题解。  
 并非每道题目的解法都是它的最优写法，只是在尽量保证代码执行高效性的前提下，为了归纳总结便于记忆而给定的解法，故这里每道题的题解也都只列出了一种写法。
 
+对于链表相关题目，无论使用哪种思路解题，一般都有会使用到 **虚拟头节点 dummyHead** 的思路，用于返回结果链表的头节点，以及在原链表需要删除的元素可能为头节点的情况下为了便于删除节点，或者便于在新结果链表中添加元素/节点。
+
 ## Ⅰ Pointers 指针
 
 对于引用类型（eg：链表中的节点）：  
@@ -81,7 +83,7 @@ tips：
 输出：true
 
 思路：  
-双指针。cur指针用于反转链表。
+双指针。cur指针用于反转链表。将链表的前半部分反转，然后和后半部分进行比较。
 
 题解：
 
@@ -123,6 +125,77 @@ tips：
 - 指针自更新移动（a=a.next; / a=a.next.next; ...）时需要注意当前自更新指针指向的节点在之前的程序执行中是否有其他指针指向此节点且已经改变了链表的顺序：防止空指针异常，且保证自更新指针的正常移动；
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
+
+### 21. [Merge Two Sorted Lists](https://leetcode-cn.com/problems/merge-two-sorted-lists/) 合并两个有序链表
+
+将两个升序链表合并为一个新的 **升序** 链表并返回。新链表是通过拼接给定的两个链表的所有节点组成的。  
+示例：  
+输入：l1 = [1,2,4], l2 = [1,3,4]  
+![](/images/2021-04-30-list-algorithm/21-title.png)  
+输出：[1,1,2,3,4,4]
+
+思路：  
+1）迭代：由递归模型建模，递归模型由递归函数与递归边界条件（递归结束条件）组成，边界条件即不再调用递归函数而直接返回某值。此题在回溯过程中拼接了结果链表。  
+递归模型：  
+递归函数merge：两个链表头部值较小的一个节点与剩下元素的 merge 操作结果拼接。  
+递归边界条件：当 l1 或 l2 为空（传递进来的节点为空），直接返回另一不为空的节点。  
+![](/images/2021-04-30-list-algorithm/21-answer.png)  
+2）迭代：使用cur指针将 l1 和 l2 链表值更小的头节点添加到结果中，当一个节点被添加到结果中之后将对应链表中的节点向后移一位。
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+
+// 递归
+class Solution {
+    public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+        if (l1 == null || l2 == null) return l1 == null ? l2 : l1; // 递归结束条件
+        if (l1.val < l2.val) {
+            l1.next = mergeTwoLists(l1.next, l2);
+            return l1;
+        } else {
+            l2.next = mergeTwoLists(l1, l2.next);
+            return l2;
+        }
+    }
+}
+
+// 迭代
+/*class Solution {
+    public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+        ListNode dummyHead = new ListNode(); // 虚拟头节点，用于返回结果链表的头节点和便于添加元素
+        ListNode cur = dummyHead;
+        while (l1 != null && l2 != null) { // l1 与 l2 其中总有一个先遍历结束
+            if (l1.val < l2.val) {
+                cur.next = l1;
+                l1 = l1.next;
+            } else {
+                cur.next = l2;
+                l2 = l2.next;
+            }
+            cur = cur.next;
+        }
+        cur.next = l1 == null ? l2 : l1; // 还有一个原链表未遍历完，直接将结果链表末尾指针指向未遍历完的链表即可
+        return dummyHead.next;
+    }
+}*/
+```
+
+tips：
+
+- 对于迭代，方法传入的参数 l1 与 l2 链表的头节点，在返回值的时候用不到，故可以直接将头节点 l1 和 l2 当作遍历两个升序链表的指针；
+- 时间复杂度：O(m+n)，递归；O(m+n)，迭代；无论递归还是迭代，执行次数都不会超过两链表长度之和
+- 空间复杂度：O(m+n)，递归；O(1)，迭代
 
 ### 2. [Add Two Numbers](https://leetcode-cn.com/problems/add-two-numbers/) 两数相加
 
@@ -326,9 +399,51 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
 
+### 203. [Remove Linked List Elements](https://leetcode-cn.com/problems/remove-linked-list-elements/) 移除链表元素
+
+给你一个链表的头节点 `head` 和一个整数 `val` ，请你删除链表中所有满足 `Node.val == val` 的节点，并返回 新的头节点。  
+示例：  
+输入：head = [1,2,6,3,4,5,6], val = 6  
+输出：[1,2,3,4,5]
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode removeElements(ListNode head, int val) {
+        ListNode dummyHead = new ListNode(); // 定义一虚拟头节点，用于返回结果链表的头节点，同时原链表头节点可能为需要删除的节点
+        dummyHead.next = head;
+        ListNode cur = dummyHead;
+        while (cur.next != null) { // 无论原链表最后一个节点的值是否等于val，都会遍历到最后一个节点
+            if (cur.next.val == val) {
+                cur.next = cur.next.next;
+            } else cur = cur.next; // 下一节点的值不等于val才将cur指针后移
+        }
+        return dummyHead.next;
+    }
+}
+```
+
+tips：
+
+- 思路与83题相似，使用 cur 指针（有类似前一节点pre指针的功能）删除值等于val的元素；
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
 ## Ⅱ Insertion Method 插入法
 
-使用插入法的相关链表题目，头插法属于插入法。
+使用插入法的相关链表题目，头插法属于插入法。  
+对于插入法，一般都会使用到 **哨兵**，用于删除节点。
 
 时间复杂度：O(n)  
 空间复杂度：O(1)
@@ -529,3 +644,37 @@ class Solution {
 tips：
 
 - 思路与86题相同。
+
+## Ⅲ General 常规
+
+常规链表题目。
+
+时间复杂度：O(1)
+空间复杂度：O(1)
+
+### 237. [Delete Node in a Linked List](https://leetcode-cn.com/problems/delete-node-in-a-linked-list/) 删除链表中的节点
+
+请编写一个函数，使其可以删除某个链表中给定的（非末尾）节点。传入函数的唯一参数为 要被删除的节点。链表至少包含两个节点。链表中所有节点的值都是唯一的。给定的节点为非末尾节点并且一定是链表中的一个有效节点。不要从你的函数中返回任何结果。  
+示例：  
+输入：head = [4,5,1,9], node = 5  
+输出：[4,1,9]  
+解释：给定你链表中值为 5 的第二个节点，那么在调用了你的函数之后，该链表应变为 4 -> 1 -> 9
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public void deleteNode(ListNode node) {
+        node.val = node.next.val; // 将当前节点的值设置为下一节点的值
+        node.next = node.next.next; // 删除下一节点
+    }
+}
+```
