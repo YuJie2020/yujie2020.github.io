@@ -2193,6 +2193,113 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(∣Σ∣)，其中 Σ 表示字符集（即字符串中可以出现的字符），∣Σ∣ 表示字符集的大小。此题字符集（所有大写字母 ）为所有 ASCII 码在 [65, 90] 内的字符，即∣Σ∣=26
 
+### 415. [Add Strings](https://leetcode-cn.com/problems/add-strings/) 字符串相加
+
+给定两个字符串形式的非负整数 num1 和num2 ，计算它们的和。num1 和num2 的长度都小于 5100，num1 和num2 都只包含数字 0-9，num1 和num2 都不包含任何前导零，你不能使用任何內建 BigInteger 库， 也不能直接将输入的字符串转换为整数形式。  
+示例：  
+输入：num1 = "99", num2 = "999"  
+输出："1098"
+
+题解：
+
+```java
+class Solution {
+    public String addStrings(String num1, String num2) {
+        boolean flag = false; // 用于标记当前位是否需要进位
+        StringBuilder result = new StringBuilder();
+        for (int i = num1.length() - 1, j = num2.length() - 1; i >= 0 || j >= 0; i--, j--) {
+            int ele1 = i < 0 ? 0 : num1.charAt(i) - '0';
+            int ele2 = j < 0 ? 0 : num2.charAt(j) - '0';
+            int sum = flag ? ele1 + ele2 + 1 : ele1 + ele2;
+            flag = sum >= 10 ? true : false;
+            result.append(sum % 10);
+        }
+        if (flag) result.append(1); // 原字符串最高位还需要进位则结果字符串还需拼接1
+        return result.reverse().toString();
+    }
+}
+```
+
+tips：
+
+- 整型直接相加会产生溢出错误。使用模拟的思路，模拟两个数手动相加的过程；
+- java.lang.StringBuilder 类中的 append() 方法（始终将这些字符添加到生成器的末端）比 insert() 方法（在指定的位置添加字符）效率高，故使用 append() 方法添加每位的计算结果再 调用 StringBuilder reverse() 方法，将此字符序列用其反转形式取代；
+- 时间复杂度：O(max(len1, len2))
+- 空间复杂度：O(1)
+
+### 67. [Add Binary](https://leetcode-cn.com/problems/add-binary/) 二进制求和
+
+给你两个二进制字符串，返回它们的和（用二进制表示）。输入为 非空 字符串且只包含数字 1 和 0。每个字符串仅由字符 '0' 或 '1' 组成。1 <= a.length, b.length <= 10^4。字符串如果不是 "0" ，就都不含前导零。  
+示例：  
+输入：a = "1010", b = "1011"  
+输出："10101"
+
+题解：
+
+```java
+class Solution {
+    public String addBinary(String a, String b) {
+        boolean flag = false;
+        StringBuilder result = new StringBuilder();
+        for (int i = a.length() - 1, j = b.length() - 1; i >=0 || j >= 0 || flag; i--, j--) {
+            int bit1 = i < 0 ? 0 : a.charAt(i) - '0';
+            int bit2 = j < 0 ? 0 : b.charAt(j) - '0';
+            int sum = flag ? bit1 + bit2 + 1 : bit1 + bit2;
+            flag = sum >= 2 ? true : false;
+            result.append(sum % 2);
+        }
+        return result.reverse().toString();
+    }
+}
+```
+
+tips：
+
+- 思路与415题相同。整型直接相加会产生溢出错误；
+- 时间复杂度：O(max(len1, len2))
+- 空间复杂度：O(1)
+
+### 43. [Multiply Strings](https://leetcode-cn.com/problems/multiply-strings/) 字符串相乘
+
+给定两个以字符串形式表示的非负整数 num1 和 num2，返回 num1 和 num2 的乘积，它们的乘积也表示为字符串形式。num1 和 num2 的长度小于110。num1 和 num2 只包含数字 0-9。num1 和 num2 均不以零开头，除非是数字 0 本身。不能使用任何标准库的大数类型（比如 BigInteger）或直接将输入转换为整数来处理。  
+示例：  
+输入：num1 = "99", num2 = "99"  
+输出："9801"
+
+思路：  
+整型直接相乘会产生溢出错误。模拟两数手动相乘的过程。两数相乘时，乘数某位与被乘数某位相乘产生结果存入结果数组中：乘数 num1 位数为 n，被乘数 num2 位数为 m，num2 x num1 结果 result 最大总位数为 m+n，num1[i] x num2[j] 的结果为 tmp (位数为两位，"0x" 或 "xy" 的形式)，其第一位位于 result[i+j]，第二位位于 result[i+j+1]。  
+![](/images/2021-04-06-array-and-string-algorithm/43.png)  
+res[i + j] += sum / 10; 可能产生进位（result 数组元素大于 10）。i+j 是最终结果的高位，i+j+1 是低位。由于计算顺序是从右往左、从低到高的，所以每一轮都不需要考虑高位是否要进位，下一轮自然会去处理（下一轮此高位就变成了低位）。对于 索引为 0 处的值（最后一次相加），因为 result[0] = 0，所以无论最后相加的两个数多大都不会产生进位，最后一次相加不产生进位即可。
+
+题解：
+
+```java
+class Solution {
+    public String multiply(String num1, String num2) {
+        if (num1.charAt(0) == '0' || num2.charAt(0) == '0') return "0"; // 当某数为0则直接返回0，否则结果数组转换为字符串会多出0
+        int[] result = new int[num1.length() + num2.length()];
+        for (int i = num1.length() - 1; i >= 0; i--) {
+            int ele1 = num1.charAt(i) - '0';
+            for (int j = num2.length() - 1; j >= 0; j--) {
+                int ele2 = num2.charAt(j) - '0';
+                int mult = ele1 * ele2 + result[i + j + 1]; // 需要加上低位的数
+                result[i + j + 1] = mult % 10; // 低位：考虑进位
+                result[i + j] += mult / 10; // 高位：不考虑进位
+            }
+        }
+        StringBuilder resString = new StringBuilder();
+        if (result[0] != 0) resString.append(result[0]); // 舍去高位0
+        for (int i = 1; i < result.length; i ++) resString.append(result[i]);
+        return resString.toString();
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(m * n)，m, n 分别为 num1 和 num2 的长度
+- 空间复杂度：O(m+n)，用于存储计算结果
+
 ### 9. [Palindrome Number](https://leetcode-cn.com/problems/palindrome-number/) 回文数
 
 给你一个整数 `x` ，如果 `x` 是一个回文整数，返回 `true` ；否则，返回 `false` 。回文数是指正序（从左向右）和倒序（从右向左）读都是一样的整数。  
