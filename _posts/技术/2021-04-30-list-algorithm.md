@@ -11,7 +11,8 @@ category: 技术
 抽出LeetCode题库中链表结构相关的算法题目，再以相似类型的题目进行分类归纳总结题解。  
 并非每道题目的解法都是它的最优写法，只是在尽量保证代码执行高效性的前提下，为了归纳总结便于记忆而给定的解法，故这里每道题的题解也都只列出了一种写法。
 
-对于链表相关题目，无论使用哪种思路解题，一般都有会使用到 **虚拟头节点 dummyHead** 的思路，用于返回结果链表的头节点，以及在原链表需要删除的元素可能为头节点的情况下为了便于删除节点，或者便于在新结果链表中添加元素/节点。
+对于链表相关题目，无论使用哪种思路解题，大都有会使用到 **虚拟头节点 dummyHead** 的思路，用于返回结果链表的头节点，以及在原链表需要删除的元素可能为头节点的情况下为了便于删除节点，或者便于在新结果链表中添加元素/节点。
+用此同时，链表相关题目都会使用到指针。
 
 ## Ⅰ Pointers 指针
 
@@ -645,7 +646,243 @@ tips：
 
 - 思路与86题相同。
 
-## Ⅲ General 常规
+### 147. [Insertion Sort List](https://leetcode-cn.com/problems/insertion-sort-list/) 对链表进行插入排序
+
+对链表进行插入排序。从第一个元素开始，该链表可以被认为已经部分排序。每次迭代时，从输入数据中移除一个元素，并原地将其插入到已排好序的链表中。插入排序是迭代的，每次只移动一个元素，直到所有元素可以形成一个有序的输出列表。每次迭代中，插入排序只从输入数据中移除一个待排序的元素，找到它在序列中适当的位置，并将其插入。重复直到所有输入数据插入完为止。  
+示例：  
+输入：-1->5->3->4->0  
+输出：-1->0->3->4->5
+
+思路：  
+插入法，插入排序。维护一个有序序列，初始时有序序列只有一个元素，每次将一个新的元素插入到有序序列中，将有序序列的长度增加 1，直到全部元素都加入到有序序列中。  
+算法优化：当前需要插入元素的值大于等于有序链表的最后一个元素则后移cur指针跳出循环以判断下一个待插入元素。作用：也省去了 1）记录与更新有序序列的长度与当前查找次数的工作（当前查找次数应小于等于有序序列长度）；2）pre指针可能会达链表末尾（查找插入位置过程中还需判断pre != null）
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode insertionSortList(ListNode head) {
+        ListNode dummyHead = new ListNode();
+        dummyHead.next = head;
+        ListNode cur = head; // 被删除元素（需插入元素）的前一元素的指针
+        while (cur != null && cur.next != null) {
+            ListNode removed = cur.next; // 被删除的元素，也即当前轮次需要插入的元素（需要在原链表先删除）
+            int val = removed.val;
+            if (val >= cur.val) { // **算法优化**：当前需要插入元素的值大于等于有序链表的最后一个元素则后移cur指针跳出循环以判断下一个待插入元素
+                cur = cur.next;
+                continue;
+            } // 当前需要插入元素的值小于有序链表的最后一个元素则无需更新cur指针
+            cur.next = cur.next.next;
+            ListNode pre = dummyHead; // 指针：需要插入节点的前一节点（一个动态的哨兵，每次查找插入位置都需要重置为链表头节点）
+            while (val > pre.next.val) pre = pre.next; // 查找插入位置
+            removed.next = pre.next;
+            pre.next = removed;
+        }
+        return dummyHead.next;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n^2)
+- 空间复杂度：O(1)
+
+## Ⅲ Merge Sort 归并排序
+
+利用归并的思想，采用分治策略（将问题分成一些小的问题然后递归求解，而治的阶段则将分的阶段得到的各答案“修补”在一起，即分而治之）。分阶段为递归拆分子序列的过程（不进行任何排序操作），治阶段需要将两个已经有序的子序列合并成一个有序序列。编写递归函数，每一次都一分为二拆分序列的子区间，然后在方法栈弹出的时候，一步一步合并两个有序序列，最后完成排序工作。「合并两个有序序列」的步骤利用了序列的部分有序性。
+
+### 23. [Merge k Sorted Lists](https://leetcode-cn.com/problems/merge-k-sorted-lists/) 合并K个升序链表
+
+给你一个链表数组，每个链表都已经按升序排列。请你将所有链表合并到一个升序链表中，返回合并后的链表。k == lists.length，0 <= k <= 10^4。  
+示例：  
+输入：lists = [[1,4,5],[1,3,4],[2,6]]  
+输出：[1,1,2,3,4,4,5,6]
+
+思路：  
+归并排序的思路。mergeTwoLists 方法用于治，与21题迭代方式相同，用于两个排序链表的合并。在 merge 方法中实现分，通过递归实现。分阶段为递归拆分子序列的过程（不进行任何排序操作），治阶段需要将两个已经有序的子序列合并成一个有序序列。  
+![](/images/2021-04-30-list-algorithm/23.png)
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode mergeKLists(ListNode[] lists) {
+        if (lists.length == 0) return null;
+        return merge(lists, 0, lists.length - 1);
+    }
+ 
+    private ListNode merge(ListNode[] lists, int left, int right) {
+        if (left == right) return lists[left];
+        if (left + 1 == right) return mergeTwoLists(lists[left], lists[right]);
+        int mid = left + (right - left) / 2;
+        ListNode l1 = merge(lists, left, mid);
+        ListNode l2 = merge(lists, mid + 1, right);
+        return mergeTwoLists(l1, l2);
+    }
+
+    private ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+        ListNode dummyHead = new ListNode();
+        ListNode cur = dummyHead;
+        while (l1 != null && l2 != null) {
+            if (l1.val < l2.val) {
+                cur.next = l1;
+                l1 = l1.next;
+            } else {
+                cur.next = l2;
+                l2 = l2.next;
+            }
+            cur = cur.next;
+        }
+        cur.next = l1 == null ? l2 : l1;
+        return dummyHead.next;
+    }
+}
+```
+
+tips：
+
+- 思路与83题相似，使用 cur 指针（有类似前一节点pre指针的功能）删除值等于val的元素；
+- 时间复杂度：O(nklogk)
+- 空间复杂度：O(logk)，递归会使用到 O(logk) 代价的栈空间
+
+### 148. [Sort List](https://leetcode-cn.com/problems/sort-list/) 排序链表
+
+给你链表的头结点 `head` ，请将其按 升序 排列并返回 排序后的链表。在 `O(n log n)` 时间复杂度和常数级空间复杂度下，对链表进行排序。  
+示例：  
+输入：head = [-1,5,3,4,0]  
+输出：[-1,0,3,4,5]
+
+思路：  
+1）归并排序：mergeTwoLists 方法用于治，与21题迭代方式相同，用于两个排序链表的合并。在 sortList 方法中实现分，通过递归实现。分阶段为递归拆分子序列的过程（不进行任何排序操作），治阶段需要将两个已经有序的子序列合并成一个有序序列。  
+2）迭代：模拟归并排序递归过程  
+将链表拆分成子链表进行合并。定义 subLen 表示每次需要排序的子链表的长度（初始值为1）；每次将链表拆分成若干个长度为 subLen 的子链表（最后一个子链表的长度可以小于 subLen，最后一个子链表可能为合并用第一个或者第二个子链表），按照每两个子链表一组进行合并，合并后即可得到若干个长度为 subLen×2 的有序子链表（最后一个子链表的长度可以小于 subLen×2），合并两个子链表与21题迭代方式相同；每次当前分组情况全部排序合并完毕后，将 subLen 的值增大一倍，进行下一分组情况的排序，对更长的有序子链表进行合并操作，直到有序子链表的长度大于或等于链表长度 len，整个链表排序完毕。每个长度为 subLen 的子链表已经有序，合并两个长度为 subLen 的有序子链表，得到长度为 subLen×2 的子链表，一定也是有序的。
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+
+// 迭代解法：模拟归并排序递归过程 tc: O(nlogn) sc: O(1)
+class Solution {
+    public ListNode sortList(ListNode head) {
+        int len = 0; // 链表长度
+        ListNode node = head;
+        while (node != null) {
+            len++;
+            node = node.next;
+        }
+        ListNode dummyHead = new ListNode();
+        dummyHead.next = head;
+        for (int subLen = 1; subLen < len; subLen <<= 1) {
+            ListNode pre = dummyHead, cur = dummyHead.next;
+            while (cur != null) {
+                ListNode head1 = cur;
+                for (int i = 1; i < subLen && cur.next != null; i++) cur = cur.next; // 合并用第一个子链表不会为空
+                ListNode head2 = cur.next; // 合并用第二个子链表可能为空
+                cur.next = null;
+                cur = head2;
+                for (int i = 1; i < subLen && cur != null && cur.next != null; i++) cur = cur.next; // 第二个子链表可能为空
+                ListNode next = null;
+                if (cur != null) {
+                    next = cur.next;
+                    cur.next = null;
+                }
+                ListNode merged = mergeTwoLists(head1, head2);
+                pre.next = merged;
+                while (pre.next != null) pre = pre.next;
+                cur = next;
+            }
+        }
+        return dummyHead.next;
+    }
+
+    private ListNode mergeTwoLists(ListNode l1, ListNode l2) { // 合并两个有序链表的方法
+        ListNode dummyHead = new ListNode();
+        ListNode cur = dummyHead;
+        while (l1 != null && l2 != null) {
+            if (l1.val < l2.val) {
+                cur.next = l1;
+                l1 = l1.next;
+            } else {
+                cur.next = l2;
+                l2 = l2.next;
+            }
+            cur = cur.next;
+        }
+        cur.next = l1 == null ? l2 : l1;
+        return dummyHead.next;
+    }
+}
+
+// 归并排序解法 tc: O(nlogn) sc: O(logn)
+/*class Solution {
+    public ListNode sortList(ListNode head) { // 在回溯的过程中不断合并两个有序链表
+        if (head == null || head.next == null) return head; // 递归结束条件，head是否为空的判断条件用于当原链表为空时直接返回null
+        ListNode slow = head, fast = head.next; // 使用快慢指针寻找链表的中点，快指针每次移动 2 步，慢指针每次移动 1 步，当快指针到达链表末尾时，慢指针指向的链表节点即为链表的中点
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        } // 退出循环后slow指针位于链表中位，后以中位为分界，将链表拆分成两个子链表
+        ListNode mid = slow.next; // mid指向二分链表后半部分的头节点
+        slow.next = null; // 将二分链表前半部分的末尾置空
+        return mergeTwoLists(sortList(head), sortList(mid));
+    }
+
+    private ListNode mergeTwoLists(ListNode l1, ListNode l2) { // 合并两个有序链表的方法
+        ListNode dummyHead = new ListNode();
+        ListNode cur = dummyHead;
+        while (l1 != null && l2 != null) {
+            if (l1.val < l2.val) {
+                cur.next = l1;
+                l1 = l1.next;
+            } else {
+                cur.next = l2;
+                l2 = l2.next;
+            }
+            cur = cur.next;
+        }
+        cur.next = l1 == null ? l2 : l1;
+        return dummyHead.next;
+    }
+}*/
+```
+
+tips：
+
+- 时间复杂度：O(nlogn)
+- 空间复杂度：O(logn)，归并排序；O(1)，迭代：模拟归并排序递归过程
+
+## Ⅳ General 常规
 
 常规链表题目。
 
