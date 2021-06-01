@@ -762,7 +762,6 @@ class Solution {
 
 tips：
 
-- 思路与83题相似，使用 cur 指针（有类似前一节点pre指针的功能）删除值等于val的元素；
 - 时间复杂度：O(nklogk)
 - 空间复杂度：O(logk)，递归会使用到 O(logk) 代价的栈空间
 
