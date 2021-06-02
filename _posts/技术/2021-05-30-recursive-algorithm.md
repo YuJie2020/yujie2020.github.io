@@ -11,8 +11,9 @@ category: 技术
 抽出LeetCode题库中递归相关的算法题目，再以相似类型的题目进行分类归纳总结题解。  
 并非每道题目的解法都是它的最优写法，只是在尽量保证代码执行高效性的前提下，为了归纳总结便于记忆而给定的解法，故这里每道题的题解也都只列出了一种写法。
 
-递归：由递归模型建模，**递归模型由递归函数与递归边界条件（递归结束条件）组成**，边界条件即不再调用递归函数而直接返回某值。  
-**递归不要进入到递归中看其执行流程（压栈与返回值），而是利用明确的定义来实现算法逻辑**。
+递归是一个反复调用自身的过程，这就说明它每一级/层的功能都是一样的，**因此只需要关注一级/层递归的解决过程即可**。**递归不要进入到递归中看其执行流程（压栈与返回值），而是利用明确的定义来实现算法逻辑**。
+
+递归：由递归模型建模，**递归模型由递归函数与递归边界条件（递归结束条件）组成**。递归函数则由在这一层的递归中应该完成什么任务和返回值（即应该给上一层递归返回什么值）；边界条件即不再调用递归函数而直接返回某值。  
 
 ## Ⅰ Linked List 链表
 
@@ -145,3 +146,68 @@ tips：
 
 - 时间复杂度：O(n)，迭代；O(n)，递归
 - 空间复杂度：O(1)，迭代；O(n)，递归，使用栈空间，递归深度达到 n 层
+
+### 24. [Swap Nodes in Pairs](https://leetcode-cn.com/problems/swap-nodes-in-pairs/) 两两交换链表中的节点
+
+给定一个链表，两两交换其中相邻的节点，并返回交换后的链表。你不能只是单纯的改变节点内部的值，而是需要实际的进行节点交换。链表中节点的数目在范围 [0, 100] 内。  
+示例：  
+输入：head = [1,2,3,4,5]  
+输出：[2,1,4,3,5]
+
+思路：  
+1）递归：  
+递归函数：node1.next = swap(node2.next)。给上一层递归的值应该是已经交换完成后的子链表；对于本级递归，这个链表也即三个节点：head、head.next、已处理完的链表部分，而本级递归的任务就是交换这3个节点中的前两个节点。  
+递归边界条件：链表中没有节点，或者链表中只有一个节点，此时无法进行交换。  
+![](/images/2021-05-30-recursive-algorithm/24.png)  
+2）迭代：维护4个指针，pre指针指向需要相邻两两交换的节点的前一节点，node1和node2指针指向两需要对调的节点，next指针指向两需要对调的节点的下一节点。
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+
+// 递归
+class Solution {
+    public ListNode swapPairs(ListNode head) { // 在回溯过程中两两反转链表
+        if (head == null || head.next == null) return head; // 递归结束条件，第一次返回的为原链表最后一个节点（链表长度为奇数）或链表末尾的null（链表长度为偶数）
+        ListNode node2 = head.next; // 对调前：head总为node1节点，其下一节点则为node2节点
+        head.next = swapPairs(node2.next); // 将node1节点的下一节点更新为两两反转节点的后继节点
+        node2.next = head; // 将node2节点的下一节点更新为node1节点
+        return node2; // 返回值总为当前两两反转节点的头节点（node2位置被对调到node1的位置，为下一待两两反转节点的后继结点）
+    }
+}
+
+// 迭代
+/*class Solution {
+    public ListNode swapPairs(ListNode head) {
+        ListNode dummyHead = new ListNode();
+        dummyHead.next = head;
+        ListNode pre = dummyHead; // 前驱指针：指向需要相邻两两交换的节点的前一节点
+        while (pre.next != null && pre.next.next != null) { // pre指针一定不为空
+            ListNode node1 = pre.next;
+            ListNode node2 = node1.next;
+            ListNode next = node2.next; // 后继指针：两需要对调的节点的下一节点
+            node2.next = node1;
+            node1.next = next;
+            pre.next = node2;
+            pre = node1; // 更新pre指针
+        }
+        return dummyHead.next;
+    }
+}*/
+```
+
+tips：
+
+- 思路与206题相似（迭代/递归）；
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)，递归；O(1)，迭代
