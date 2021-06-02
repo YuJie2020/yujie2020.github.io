@@ -211,3 +211,65 @@ tips：
 - 思路与206题相似（迭代/递归）；
 - 时间复杂度：O(n)
 - 空间复杂度：O(n)，递归；O(1)，迭代
+
+### 19. [Remove Nth Node From End of List](https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/) 删除链表的倒数第 N 个结点
+
+给你一个链表，删除链表的倒数第 n 个结点，并且返回链表的头结点。使用一趟扫描实现。  
+示例：  
+输入：head = [1,2,3,4,5], n = 2  
+输出：[1,2,3,5]
+
+思路：  
+1）双指针，滑动窗口：迭代。定义pre指针为需删除节点的前一节点，end指针为链表的末尾null，pre指针与end指针间的距离为n+1，故可以将pre指针和end指针都初始化为虚拟头节点dummyHead，先向右平移n+1位将end指针与pre指针的距离固定到n+1，之后同时平移pre指针和end指针直到end指针指向链表末尾null（滑动窗口），则代表找到需删除节点的前一节点pre的正确位置，删除其下一节点。  
+![](/images/2021-05-30-recursive-algorithm/19.png)  
+2）递归：  
+递归函数：  
+执行任务：当前层递归参数的next为上一层递归的返回值；  
+返回值：当前层递归的返回值为当前层递归参数的下一节点或当前层递归参数。  
+递归边界条件：当递归参数head为空即到达链表末尾时。
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+
+// 双指针，滑动窗口：迭代
+class Solution {
+    public ListNode removeNthFromEnd(ListNode head, int n) {
+        ListNode dummyHead = new ListNode();
+        dummyHead.next = head;
+        ListNode pre = dummyHead, end = dummyHead;
+        for (int i = 0; i < n + 1; i++) end = end.next;
+        while (end != null) {
+            pre = pre.next;
+            end = end.next;
+        }
+        pre.next = pre.next.next;
+        return dummyHead.next;
+    }
+}
+
+// 递归
+/*class Solution {
+    int count = 0; // 成员变量
+    public ListNode removeNthFromEnd(ListNode head, int n) { // 回溯的过程中拼接链表，只是在倒数第n个位置时舍去了原链表中本应拼接的下一节点而拼接了后一个节点
+        if (head == null) return null; 
+        head.next = removeNthFromEnd(head.next, n);
+        return ++count == n ? head.next : head;
+    }
+}*/
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)，双指针，滑动窗口：迭代；O(n)，递归

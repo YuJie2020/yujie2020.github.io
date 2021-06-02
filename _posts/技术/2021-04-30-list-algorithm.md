@@ -76,6 +76,67 @@ tips：
 - 时间复杂度：O(n)，迭代；O(n)，递归
 - 空间复杂度：O(1)，迭代；O(n)，递归，使用栈空间，递归深度达到 n 层
 
+### 143. [Reorder List](https://leetcode-cn.com/problems/reorder-list/) 重排链表
+
+给定一个单链表 L：L0→L1→…→Ln-1→Ln ，将其重新排列后变为： L0→Ln→L1→Ln-1→L2→Ln-2→… 。你不能只是单纯的改变节点内部的值，而是需要实际的进行节点交换。  
+示例：  
+输入：1->2->3->4->5  
+输出：1->5->2->4->3
+
+思路：  
+双指针。**使用快慢指针寻找链表的中点**。将链表的后半部分反转，然后和前半部分进行分别各取一个节点逐一拼接。
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public void reorderList(ListNode head) {
+
+        // 1) 使用快慢指针寻找链表的中点
+        ListNode slow = head, fast = head.next;
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        } // 退出循环后：当链表长度为奇数时slow指针位于链表中间节点，当链表长度为偶数时slow指针位于链表前半部分的末尾
+
+        // 2) 将链表后半部分进行反转
+        ListNode pre = null, cur = slow.next;
+        slow.next = null; // 将链表前半部分末尾置空（与后半部分链表断开）
+        while (cur != null) {
+            ListNode next = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = next;
+        } // 退出循环后pre指针即为后半部分反转链表的新头节点
+
+        // 3) 将原链表的前半部分和反转后的后半部分分别各取一个节点逐一拼接在一起
+        ListNode cur1 = head, cur2 = pre; // cur1和cur2指针分别指向原链表的前半部分和反转后的后半部分的当前遍历节点（初始值都为两个子链表的头节点）
+        while (cur2 != null) {
+            ListNode next = cur2.next; // 需要先保存原链表反转后的后半部分当前节点的下一节点
+            cur2.next = cur1.next;
+            cur1.next = cur2;
+            cur1 = cur1.next.next;
+            cur2 = next;
+        }
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
 ### 24. [Swap Nodes in Pairs](https://leetcode-cn.com/problems/swap-nodes-in-pairs/) 两两交换链表中的节点
 
 给定一个链表，两两交换其中相邻的节点，并返回交换后的链表。你不能只是单纯的改变节点内部的值，而是需要实际的进行节点交换。链表中节点的数目在范围 [0, 100] 内。  
@@ -503,6 +564,117 @@ class Solution {
 tips：
 
 - 思路与83题相似，使用 cur 指针（有类似前一节点pre指针的功能）删除值等于val的元素；
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
+### 19. [Remove Nth Node From End of List](https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/) 删除链表的倒数第 N 个结点
+
+给你一个链表，删除链表的倒数第 n 个结点，并且返回链表的头结点。使用一趟扫描实现。  
+示例：  
+输入：head = [1,2,3,4,5], n = 2  
+输出：[1,2,3,5]
+
+思路：  
+1）双指针，滑动窗口：迭代。定义pre指针为需删除节点的前一节点，end指针为链表的末尾null，pre指针与end指针间的距离为n+1，故可以将pre指针和end指针都初始化为虚拟头节点dummyHead，先向右平移n+1位将end指针与pre指针的距离固定到n+1，之后同时平移pre指针和end指针直到end指针指向链表末尾null（滑动窗口），则代表找到需删除节点的前一节点pre的正确位置，删除其下一节点。  
+![](/images/2021-04-30-list-algorithm/19.png)  
+2）递归：  
+递归函数：  
+执行任务：当前层递归参数的next为上一层递归的返回值；  
+返回值：当前层递归的返回值为当前层递归参数的下一节点或当前层递归参数。  
+递归边界条件：当递归参数head为空即到达链表末尾时。
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+
+// 双指针，滑动窗口：迭代
+class Solution {
+    public ListNode removeNthFromEnd(ListNode head, int n) {
+        ListNode dummyHead = new ListNode();
+        dummyHead.next = head;
+        ListNode pre = dummyHead, end = dummyHead;
+        for (int i = 0; i < n + 1; i++) end = end.next;
+        while (end != null) {
+            pre = pre.next;
+            end = end.next;
+        }
+        pre.next = pre.next.next;
+        return dummyHead.next;
+    }
+}
+
+// 递归
+/*class Solution {
+    int count = 0; // 成员变量
+    public ListNode removeNthFromEnd(ListNode head, int n) { // 回溯的过程中拼接链表，只是在倒数第n个位置时舍去了原链表中本应拼接的下一节点而拼接了后一个节点
+        if (head == null) return null; 
+        head.next = removeNthFromEnd(head.next, n);
+        return ++count == n ? head.next : head;
+    }
+}*/
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)，双指针，滑动窗口：迭代；O(n)，递归
+
+### 61. [Rotate List](https://leetcode-cn.com/problems/rotate-list/) 旋转链表
+
+给你一个链表的头节点 `head` ，旋转链表，将链表每个节点向右移动 `k` 个位置。链表中节点的数目在范围 [0, 500] 内。  
+示例：  
+输入：head = [0,1,2], k = 4  
+![](/images/2021-04-30-list-algorithm/61.jpg)  
+输出：[2,0,1]
+
+思路：  
+将原链表倒数的第k个元素作为新链表的头节点，原链表的头节点拼接到原链表的尾部。统计链表长度len，则原链表中第 len - k % len 个节点即为链表应该被分割的位置。
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode rotateRight(ListNode head, int k) {
+        if (head == null) return null;
+        int len = 1; // 链表长度
+        ListNode cur = head; // 用于统计链表的长度和查找链表分割的位置（指向待分割链表的前一节点）
+        while (cur.next != null) {
+            len++;
+            cur = cur.next;
+        }
+        ListNode tail = cur; // tail指针指向原链表末尾节点
+        cur = head; // 将cur指针重置指向头节点，用于查找链表分割的位置
+        for (int i = 1; i < len - k % len; i++) cur = cur.next;
+        tail.next = head; // 将原链表的尾节点拼接到原链表的头节点
+        ListNode newHead = cur.next; // 新的头节点，需要置于原链表尾节点拼接完之后（因为链表分割位置可能在最后即旋转链表还为原链表）
+        cur.next = null; // 将拼接后的新链表末尾置空
+        return newHead;
+    }
+}
+```
+
+tips：
+
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
 
