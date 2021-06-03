@@ -14,244 +14,13 @@ category: 技术
 对于链表相关题目，无论使用哪种思路解题，大都有会使用到 **虚拟头节点 dummyHead** 的思路，用于返回结果链表的头节点，以及在原链表需要删除的元素可能为头节点的情况下为了便于删除节点，或者便于在新结果链表中添加元素/节点。  
 与此同时，链表相关题目都会使用到指针。
 
-## Ⅰ Pointers 指针
+## Ⅰ Recursive 递归
 
-对于引用类型（eg：链表中的节点）：  
-指针即代表一种引用（对象/引用类型的引用），**指向引用对象的地址值**，**用于操作指向（引用）对象的成员变量**。eg：ListNode removed = point.next; point.next = point.next.next;，removed 即为一指针：指向 point 的成员变量 next 也即 point 的下一节点（point 的下一节点对象的引用/地址）；而 point.next 并非指针，代表 point 对象的成员变量 next 也即 point 的下一节点，point.next = point.next.next 为将 point 对象的成员变量 next 更新为 point.next.next，即将 point 的下一节点更新为 point 的后一节点。
+递归是一个反复调用自身的过程，这就说明它每一级/层的功能都是一样的，**因此只需要关注一级/层递归的解决过程即可**。**递归不要进入到递归中看其执行流程（压栈与返回值），而是利用明确的定义来实现算法逻辑**。
 
-### 206. [Reverse Linked List](https://leetcode-cn.com/problems/reverse-linked-list/) 反转链表
+递归：由递归模型建模，**递归模型由递归函数与递归边界条件（递归结束条件）组成**。递归函数则由在这一层的递归中应该完成什么任务和返回值（即应该给上一层递归返回什么值）组成；边界条件即不再调用递归函数而直接返回某值所需的条件。
 
-给你单链表的头节点 `head` ，请你反转链表，并返回反转后的链表。链表中节点的数目范围是 [0, 5000]。  
-示例：  
-输入：head = [1,2,3,4,5]  
-输出：[5,4,3,2,1]
-
-思路：  
-迭代：使用指针指向链表的当前节点及其前一节点和后一节点，反转链表cur,next=pre;，后移三个指针完成遍历。  
-递归：递归到原链表的最后一个节点时返回原链表最后一个节点（递归的结束条件），回溯过程中进行链表的反转。
-
-题解：
-
-```java
-/**
- * Definition for singly-linked list.
- * public class ListNode {
- *     int val;
- *     ListNode next;
- *     ListNode() {}
- *     ListNode(int val) { this.val = val; }
- *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
- * }
- */
-
-// 递归
- class Solution {
-    public ListNode reverseList(ListNode head) {
-        if (head == null || head.next == null) return head; // head==null用于判断当原链表长度为0时返回null，head.next==null用于判断当原链表递归到最后一个节点（递归结束条件）
-        ListNode newHead = reverseList(head.next); // 用于保存反转后链表的头节点，即原链表的最后一个节点（第一次回溯时返回的值）
-        head.next.next = head; // 反转
-        head.next = null; // 用于当递归回溯到原链表的头节点（也即反转链表的最后一个节点）时，其next应指向null，否则其next还指向原链表的next节点，会使得反转后的链表产生循环
-        return newHead;
-    }
-}
-
-// 迭代
-/*class Solution {
-    public ListNode reverseList(ListNode head) {
-        ListNode pre = null; // 当前节点的前一节点指针
-        ListNode cur = head; // 当前节点的指针
-        while (cur != null) { // 当前节点cur指针不为空时再求其next指针
-            ListNode next = cur.next; // 当前节点的下一节点指针
-            cur.next = pre; // 反转
-            pre = cur; // pre指针后移
-            cur = next; // 当前节点cur指针后移
-        }
-        return pre; // 迭代结束cur指针指向原链表最后一个节点的下一个null引用，而pre指针则为原链表中最后一个节点
-    }
-}*/
-```
-
-tips：
-
-- 时间复杂度：O(n)，迭代；O(n)，递归
-- 空间复杂度：O(1)，迭代；O(n)，递归，使用栈空间，递归深度达到 n 层
-
-### 143. [Reorder List](https://leetcode-cn.com/problems/reorder-list/) 重排链表
-
-给定一个单链表 L：L0→L1→…→Ln-1→Ln ，将其重新排列后变为： L0→Ln→L1→Ln-1→L2→Ln-2→… 。你不能只是单纯的改变节点内部的值，而是需要实际的进行节点交换。  
-示例：  
-输入：1->2->3->4->5  
-输出：1->5->2->4->3
-
-思路：  
-双指针。**使用快慢指针寻找链表的中点**。将链表的后半部分反转，然后和前半部分进行分别各取一个节点逐一拼接。
-
-题解：
-
-```java
-/**
- * Definition for singly-linked list.
- * public class ListNode {
- *     int val;
- *     ListNode next;
- *     ListNode() {}
- *     ListNode(int val) { this.val = val; }
- *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
- * }
- */
-class Solution {
-    public void reorderList(ListNode head) {
-
-        // 1) 使用快慢指针寻找链表的中点
-        ListNode slow = head, fast = head.next;
-        while (fast != null && fast.next != null) {
-            slow = slow.next;
-            fast = fast.next.next;
-        } // 退出循环后：当链表长度为奇数时slow指针位于链表中间节点，当链表长度为偶数时slow指针位于链表前半部分的末尾
-
-        // 2) 将链表后半部分进行反转
-        ListNode pre = null, cur = slow.next;
-        slow.next = null; // 将链表前半部分末尾置空（与后半部分链表断开）
-        while (cur != null) {
-            ListNode next = cur.next;
-            cur.next = pre;
-            pre = cur;
-            cur = next;
-        } // 退出循环后pre指针即为后半部分反转链表的新头节点
-
-        // 3) 将原链表的前半部分和反转后的后半部分分别各取一个节点逐一拼接在一起
-        ListNode cur1 = head, cur2 = pre; // cur1和cur2指针分别指向原链表的前半部分和反转后的后半部分的当前遍历节点（初始值都为两个子链表的头节点）
-        while (cur2 != null) {
-            ListNode next = cur2.next; // 需要先保存原链表反转后的后半部分当前节点的下一节点
-            cur2.next = cur1.next;
-            cur1.next = cur2;
-            cur1 = cur1.next.next;
-            cur2 = next;
-        }
-    }
-}
-```
-
-tips：
-
-- 时间复杂度：O(n)
-- 空间复杂度：O(1)
-
-### 24. [Swap Nodes in Pairs](https://leetcode-cn.com/problems/swap-nodes-in-pairs/) 两两交换链表中的节点
-
-给定一个链表，两两交换其中相邻的节点，并返回交换后的链表。你不能只是单纯的改变节点内部的值，而是需要实际的进行节点交换。链表中节点的数目在范围 [0, 100] 内。  
-示例：  
-输入：head = [1,2,3,4,5]  
-输出：[2,1,4,3,5]
-
-思路：  
-1）递归：  
-递归函数：node1.next = swap(node2.next)。给上一层递归的值应该是已经交换完成后的子链表；对于本级递归，这个链表也即三个节点：head、head.next、已处理完的链表部分，而本级递归的任务就是交换这3个节点中的前两个节点。  
-递归边界条件：链表中没有节点，或者链表中只有一个节点，此时无法进行交换。  
-![](/images/2021-04-30-list-algorithm/24.png)  
-2）迭代：维护4个指针，pre指针指向需要相邻两两交换的节点的前一节点，node1和node2指针指向两需要对调的节点，next指针指向两需要对调的节点的下一节点。
-
-题解：
-
-```java
-/**
- * Definition for singly-linked list.
- * public class ListNode {
- *     int val;
- *     ListNode next;
- *     ListNode() {}
- *     ListNode(int val) { this.val = val; }
- *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
- * }
- */
-
-// 递归
-class Solution {
-    public ListNode swapPairs(ListNode head) { // 在回溯过程中两两反转链表
-        if (head == null || head.next == null) return head; // 递归结束条件，第一次返回的为原链表最后一个节点（链表长度为奇数）或链表末尾的null（链表长度为偶数）
-        ListNode node2 = head.next; // 对调前：head总为node1节点，其下一节点则为node2节点
-        head.next = swapPairs(node2.next); // 将node1节点的下一节点更新为两两反转节点的后继节点
-        node2.next = head; // 将node2节点的下一节点更新为node1节点
-        return node2; // 返回值总为当前两两反转节点的头节点（node2位置被对调到node1的位置，为下一待两两反转节点的后继结点）
-    }
-}
-
-// 迭代
-/*class Solution {
-    public ListNode swapPairs(ListNode head) {
-        ListNode dummyHead = new ListNode();
-        dummyHead.next = head;
-        ListNode pre = dummyHead; // 前驱指针：指向需要相邻两两交换的节点的前一节点
-        while (pre.next != null && pre.next.next != null) { // pre指针一定不为空
-            ListNode node1 = pre.next;
-            ListNode node2 = node1.next;
-            ListNode next = node2.next; // 后继指针：两需要对调的节点的下一节点
-            node2.next = node1;
-            node1.next = next;
-            pre.next = node2;
-            pre = node1; // 更新pre指针
-        }
-        return dummyHead.next;
-    }
-}*/
-```
-
-tips：
-
-- 思路与206题相似（迭代/递归）；
-- 时间复杂度：O(n)
-- 空间复杂度：O(n)，递归；O(1)，迭代
-
-### 234. [Palindrome Linked List](https://leetcode-cn.com/problems/palindrome-linked-list/) 回文链表
-
-请判断一个链表是否为回文链表。用 O(n) 时间复杂度和 O(1) 空间复杂度解决此题。  
-示例：  
-输入：1->2->1  
-输出：true
-
-思路：  
-双指针。cur指针用于反转链表。**使用快慢指针寻找链表的中点**。将链表的前半部分反转，然后和后半部分进行比较。
-
-题解：
-
-```java
-/**
- * Definition for singly-linked list.
- * public class ListNode {
- *     int val;
- *     ListNode next;
- *     ListNode() {}
- *     ListNode(int val) { this.val = val; }
- *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
- * }
- */
-class Solution {
-    public boolean isPalindrome(ListNode head) {
-        ListNode cur = head, pre = null; // cur指针用于反转链表（更新其成员变量next），pre指针总是指向cur指针指向节点的前一节点
-        ListNode slow = head, fast = head; // 快慢指针，用于辅助cur和pre指针反转链表（仅引用地址，并未更新其成员变量next，即未进行链表操作）
-        while (fast != null && fast.next != null) {
-            cur = slow; // 更新cur指针指向slow（当前反转的节点）
-            slow = slow.next; // 自更新，每次后移一位，**需要在反转操作前更新**（否则影响指针的正常后移）
-            fast = fast.next.next; // 自更新，每次后移两位，**需要在反转操作前更新**（否则影响指针的正常后移）
-            cur.next = pre; // 反转前半部分链表（是由cur指针操作的）
-            pre = cur; // 更新pre指针指向当前反转的节点
-        } // 退出循环后slow指针指向链表的中间节点（总是指向前半部分反转链表后的第一个节点，即后半未反转链表的第一个节点：因为slow和fast指针在每次循环中分别各自移动一位和两位），则pre指针总是指向前半部分反转链表的最后一个节点，fast指针指向链表的末尾节点（链表长度为奇数时）或末尾节点的next空引用（链表长度为偶数时）
-        if (fast != null) slow = slow.next; // 链表的长度为奇数时将slow指针移向用于比较的后半部分链表的起始节点
-        while (pre != null || slow != null) {
-            if (pre.val != slow.val) return false;
-            pre = pre.next;
-            slow = slow.next;
-        }
-        return true; // 当传入的参数head=null或head.next=null也成立（不会进入上述循环）
-    }
-}
-```
-
-tips：
-
-- 指针自更新移动（a=a.next; / a=a.next.next; ...）时需要注意当前自更新指针指向的节点在之前的程序执行中是否有其他指针指向此节点且已经改变了链表的顺序：防止空指针异常，且保证自更新指针的正常移动；
-- 时间复杂度：O(n)
-- 空间复杂度：O(1)
+使用递归解法的链表题目。一般链表题目都需要使用指针或者更新某节点的成员变量（next），使用递归或者迭代两种解法都可以解题：迭代实现思路简单，但是细节问题多；而**递归实现则比较简洁**。递归操作链表并不高效，和迭代解法相比，虽然时间复杂度都是 O(n)，但是迭代解法的空间复杂度是 O(1)，而递归解法需要堆栈，空间复杂度是 O(N)。
 
 ### 21. [Merge Two Sorted Lists](https://leetcode-cn.com/problems/merge-two-sorted-lists/) 合并两个有序链表
 
@@ -323,6 +92,307 @@ tips：
 - 对于迭代，方法传入的参数 l1 与 l2 链表的头节点，在返回值的时候用不到，故可以直接将头节点 l1 和 l2 当作遍历两个升序链表的指针；
 - 时间复杂度：O(m+n)，递归；O(m+n)，迭代；无论递归还是迭代，执行次数都不会超过两链表长度之和
 - 空间复杂度：O(m+n)，递归；O(1)，迭代
+
+### 206. [Reverse Linked List](https://leetcode-cn.com/problems/reverse-linked-list/) 反转链表
+
+给你单链表的头节点 `head` ，请你反转链表，并返回反转后的链表。链表中节点的数目范围是 [0, 5000]。  
+示例：  
+输入：head = [1,2,3,4,5]  
+输出：[5,4,3,2,1]
+
+思路：  
+迭代：使用指针指向链表的当前节点及其前一节点和后一节点，反转链表cur,next=pre;，后移三个指针完成遍历。  
+递归：递归到原链表的最后一个节点时返回原链表最后一个节点（递归的结束条件），回溯过程中进行链表的反转。
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+
+// 递归
+ class Solution {
+    public ListNode reverseList(ListNode head) {
+        if (head == null || head.next == null) return head; // head==null用于判断当原链表长度为0时返回null，head.next==null用于判断当原链表递归到最后一个节点（递归结束条件）
+        ListNode newHead = reverseList(head.next); // 用于保存反转后链表的头节点，即原链表的最后一个节点（第一次回溯时返回的值）
+        head.next.next = head; // 反转
+        head.next = null; // 用于当递归回溯到原链表的头节点（也即反转链表的最后一个节点）时，其next应指向null，否则其next还指向原链表的next节点，会使得反转后的链表产生循环
+        return newHead;
+    }
+}
+
+// 迭代
+/*class Solution {
+    public ListNode reverseList(ListNode head) {
+        ListNode pre = null; // 当前节点的前一节点指针
+        ListNode cur = head; // 当前节点的指针
+        while (cur != null) { // 当前节点cur指针不为空时再求其next指针
+            ListNode next = cur.next; // 当前节点的下一节点指针
+            cur.next = pre; // 反转
+            pre = cur; // pre指针后移
+            cur = next; // 当前节点cur指针后移
+        }
+        return pre; // 迭代结束cur指针指向原链表最后一个节点的下一个null引用，而pre指针则为原链表中最后一个节点
+    }
+}*/
+```
+
+tips：
+
+- 时间复杂度：O(n)，迭代；O(n)，递归
+- 空间复杂度：O(1)，迭代；O(n)，递归，使用栈空间，递归深度达到 n 层
+
+### 24. [Swap Nodes in Pairs](https://leetcode-cn.com/problems/swap-nodes-in-pairs/) 两两交换链表中的节点
+
+给定一个链表，两两交换其中相邻的节点，并返回交换后的链表。你不能只是单纯的改变节点内部的值，而是需要实际的进行节点交换。链表中节点的数目在范围 [0, 100] 内。  
+示例：  
+输入：head = [1,2,3,4,5]  
+输出：[2,1,4,3,5]
+
+思路：  
+1）递归：  
+递归函数：node1.next = swap(node2.next)。给上一层递归的值应该是已经交换完成后的子链表；对于本级递归，这个链表也即三个节点：head、head.next、已处理完的链表部分，而本级递归的任务就是交换这3个节点中的前两个节点。  
+递归边界条件：链表中没有节点，或者链表中只有一个节点，此时无法进行交换。  
+![](/images/2021-04-30-list-algorithm/24.png)  
+2）迭代：维护4个指针，pre指针指向需要相邻两两交换的节点的前一节点，node1和node2指针指向两需要对调的节点，next指针指向两需要对调的节点的下一节点。
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+
+// 递归
+class Solution {
+    public ListNode swapPairs(ListNode head) { // 在回溯过程中两两反转链表
+        if (head == null || head.next == null) return head; // 递归结束条件，第一次返回的为原链表最后一个节点（链表长度为奇数）或链表末尾的null（链表长度为偶数）
+        ListNode node2 = head.next; // 对调前：head总为node1节点，其下一节点则为node2节点
+        head.next = swapPairs(node2.next); // 将node1节点的下一节点更新为两两反转节点的后继节点
+        node2.next = head; // 将node2节点的下一节点更新为node1节点
+        return node2; // 返回值总为当前两两反转节点的头节点（node2位置被对调到node1的位置，为下一待两两反转节点的后继结点）
+    }
+}
+
+// 迭代
+/*class Solution {
+    public ListNode swapPairs(ListNode head) {
+        ListNode dummyHead = new ListNode();
+        dummyHead.next = head;
+        ListNode pre = dummyHead; // 前驱指针：指向需要相邻两两交换的节点的前一节点
+        while (pre.next != null && pre.next.next != null) { // pre指针一定不为空
+            ListNode node1 = pre.next;
+            ListNode node2 = node1.next;
+            ListNode next = node2.next; // 后继指针：两需要对调的节点的下一节点
+            node2.next = node1;
+            node1.next = next;
+            pre.next = node2;
+            pre = node1; // 更新pre指针
+        }
+        return dummyHead.next;
+    }
+}*/
+```
+
+tips：
+
+- 思路与206题相似（迭代/递归）；
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)，递归；O(1)，迭代
+
+### 19. [Remove Nth Node From End of List](https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/) 删除链表的倒数第 N 个结点
+
+给你一个链表，删除链表的倒数第 n 个结点，并且返回链表的头结点。使用一趟扫描实现。  
+示例：  
+输入：head = [1,2,3,4,5], n = 2  
+输出：[1,2,3,5]
+
+思路：  
+1）双指针，滑动窗口：迭代。定义pre指针为需删除节点的前一节点，end指针为链表的末尾null，pre指针与end指针间的距离为n+1，故可以将pre指针和end指针都初始化为虚拟头节点dummyHead，先向右平移n+1位将end指针与pre指针的距离固定到n+1，之后同时平移pre指针和end指针直到end指针指向链表末尾null（滑动窗口），则代表找到需删除节点的前一节点pre的正确位置，删除其下一节点。  
+![](/images/2021-04-30-list-algorithm/19.png)  
+2）递归：  
+递归函数：  
+执行任务：当前层递归参数的next为上一层递归的返回值；  
+返回值：当前层递归的返回值为当前层递归参数的下一节点或当前层递归参数。  
+递归边界条件：当递归参数head为空即到达链表末尾时。
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+
+// 双指针，滑动窗口：迭代
+class Solution {
+    public ListNode removeNthFromEnd(ListNode head, int n) {
+        ListNode dummyHead = new ListNode();
+        dummyHead.next = head;
+        ListNode pre = dummyHead, end = dummyHead;
+        for (int i = 0; i < n + 1; i++) end = end.next;
+        while (end != null) {
+            pre = pre.next;
+            end = end.next;
+        }
+        pre.next = pre.next.next;
+        return dummyHead.next;
+    }
+}
+
+// 递归
+/*class Solution {
+    int count = 0; // 成员变量
+    public ListNode removeNthFromEnd(ListNode head, int n) { // 回溯的过程中拼接链表，只是在倒数第n个位置时舍去了原链表中本应拼接的下一节点而拼接了后一个节点
+        if (head == null) return null; 
+        head.next = removeNthFromEnd(head.next, n);
+        return ++count == n ? head.next : head;
+    }
+}*/
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)，双指针，滑动窗口：迭代；O(n)，递归
+
+## Ⅱ Pointers 指针
+
+对于引用类型（eg：链表中的节点）：  
+指针即代表一种引用（对象/引用类型的引用），**指向引用对象的地址值**，**用于操作指向（引用）对象的成员变量**。eg：ListNode removed = point.next; point.next = point.next.next;，removed 即为一指针：指向 point 的成员变量 next 也即 point 的下一节点（point 的下一节点对象的引用/地址）；而 point.next 并非指针，代表 point 对象的成员变量 next 也即 point 的下一节点，point.next = point.next.next 为将 point 对象的成员变量 next 更新为 point.next.next，即将 point 的下一节点更新为 point 的后一节点。
+
+### 143. [Reorder List](https://leetcode-cn.com/problems/reorder-list/) 重排链表
+
+给定一个单链表 L：L0→L1→…→Ln-1→Ln ，将其重新排列后变为： L0→Ln→L1→Ln-1→L2→Ln-2→… 。你不能只是单纯的改变节点内部的值，而是需要实际的进行节点交换。  
+示例：  
+输入：1->2->3->4->5  
+输出：1->5->2->4->3
+
+思路：  
+双指针。**使用快慢指针寻找链表的中点**。将链表的后半部分反转，然后和前半部分进行分别各取一个节点逐一拼接。
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public void reorderList(ListNode head) {
+
+        // 1) 使用快慢指针寻找链表的中点
+        ListNode slow = head, fast = head.next;
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        } // 退出循环后：当链表长度为奇数时slow指针位于链表中间节点，当链表长度为偶数时slow指针位于链表前半部分的末尾
+
+        // 2) 将链表后半部分进行反转
+        ListNode pre = null, cur = slow.next;
+        slow.next = null; // 将链表前半部分末尾置空（与后半部分链表断开）
+        while (cur != null) {
+            ListNode next = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = next;
+        } // 退出循环后pre指针即为后半部分反转链表的新头节点
+
+        // 3) 将原链表的前半部分和反转后的后半部分分别各取一个节点逐一拼接在一起
+        ListNode cur1 = head, cur2 = pre; // cur1和cur2指针分别指向原链表的前半部分和反转后的后半部分的当前遍历节点（初始值都为两个子链表的头节点）
+        while (cur2 != null) {
+            ListNode next = cur2.next; // 需要先保存原链表反转后的后半部分当前节点的下一节点
+            cur2.next = cur1.next;
+            cur1.next = cur2;
+            cur1 = cur1.next.next;
+            cur2 = next;
+        }
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
+### 234. [Palindrome Linked List](https://leetcode-cn.com/problems/palindrome-linked-list/) 回文链表
+
+请判断一个链表是否为回文链表。用 O(n) 时间复杂度和 O(1) 空间复杂度解决此题。  
+示例：  
+输入：1->2->1  
+输出：true
+
+思路：  
+双指针。cur指针用于反转链表。**使用快慢指针寻找链表的中点**。将链表的前半部分反转，然后和后半部分进行比较。
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public boolean isPalindrome(ListNode head) {
+        ListNode cur = head, pre = null; // cur指针用于反转链表（更新其成员变量next），pre指针总是指向cur指针指向节点的前一节点
+        ListNode slow = head, fast = head; // 快慢指针，用于辅助cur和pre指针反转链表（仅引用地址，并未更新其成员变量next，即未进行链表操作）
+        while (fast != null && fast.next != null) {
+            cur = slow; // 更新cur指针指向slow（当前反转的节点）
+            slow = slow.next; // 自更新，每次后移一位，**需要在反转操作前更新**（否则影响指针的正常后移）
+            fast = fast.next.next; // 自更新，每次后移两位，**需要在反转操作前更新**（否则影响指针的正常后移）
+            cur.next = pre; // 反转前半部分链表（是由cur指针操作的）
+            pre = cur; // 更新pre指针指向当前反转的节点
+        } // 退出循环后slow指针指向链表的中间节点（总是指向前半部分反转链表后的第一个节点，即后半未反转链表的第一个节点：因为slow和fast指针在每次循环中分别各自移动一位和两位），则pre指针总是指向前半部分反转链表的最后一个节点，fast指针指向链表的末尾节点（链表长度为奇数时）或末尾节点的next空引用（链表长度为偶数时）
+        if (fast != null) slow = slow.next; // 链表的长度为奇数时将slow指针移向用于比较的后半部分链表的起始节点
+        while (pre != null || slow != null) {
+            if (pre.val != slow.val) return false;
+            pre = pre.next;
+            slow = slow.next;
+        }
+        return true; // 当传入的参数head=null或head.next=null也成立（不会进入上述循环）
+    }
+}
+```
+
+tips：
+
+- 指针自更新移动（a=a.next; / a=a.next.next; ...）时需要注意当前自更新指针指向的节点在之前的程序执行中是否有其他指针指向此节点且已经改变了链表的顺序：防止空指针异常，且保证自更新指针的正常移动；
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
 
 ### 2. [Add Two Numbers](https://leetcode-cn.com/problems/add-two-numbers/) 两数相加
 
@@ -567,68 +637,6 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
 
-### 19. [Remove Nth Node From End of List](https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/) 删除链表的倒数第 N 个结点
-
-给你一个链表，删除链表的倒数第 n 个结点，并且返回链表的头结点。使用一趟扫描实现。  
-示例：  
-输入：head = [1,2,3,4,5], n = 2  
-输出：[1,2,3,5]
-
-思路：  
-1）双指针，滑动窗口：迭代。定义pre指针为需删除节点的前一节点，end指针为链表的末尾null，pre指针与end指针间的距离为n+1，故可以将pre指针和end指针都初始化为虚拟头节点dummyHead，先向右平移n+1位将end指针与pre指针的距离固定到n+1，之后同时平移pre指针和end指针直到end指针指向链表末尾null（滑动窗口），则代表找到需删除节点的前一节点pre的正确位置，删除其下一节点。  
-![](/images/2021-04-30-list-algorithm/19.png)  
-2）递归：  
-递归函数：  
-执行任务：当前层递归参数的next为上一层递归的返回值；  
-返回值：当前层递归的返回值为当前层递归参数的下一节点或当前层递归参数。  
-递归边界条件：当递归参数head为空即到达链表末尾时。
-
-题解：
-
-```java
-/**
- * Definition for singly-linked list.
- * public class ListNode {
- *     int val;
- *     ListNode next;
- *     ListNode() {}
- *     ListNode(int val) { this.val = val; }
- *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
- * }
- */
-
-// 双指针，滑动窗口：迭代
-class Solution {
-    public ListNode removeNthFromEnd(ListNode head, int n) {
-        ListNode dummyHead = new ListNode();
-        dummyHead.next = head;
-        ListNode pre = dummyHead, end = dummyHead;
-        for (int i = 0; i < n + 1; i++) end = end.next;
-        while (end != null) {
-            pre = pre.next;
-            end = end.next;
-        }
-        pre.next = pre.next.next;
-        return dummyHead.next;
-    }
-}
-
-// 递归
-/*class Solution {
-    int count = 0; // 成员变量
-    public ListNode removeNthFromEnd(ListNode head, int n) { // 回溯的过程中拼接链表，只是在倒数第n个位置时舍去了原链表中本应拼接的下一节点而拼接了后一个节点
-        if (head == null) return null; 
-        head.next = removeNthFromEnd(head.next, n);
-        return ++count == n ? head.next : head;
-    }
-}*/
-```
-
-tips：
-
-- 时间复杂度：O(n)
-- 空间复杂度：O(1)，双指针，滑动窗口：迭代；O(n)，递归
-
 ### 61. [Rotate List](https://leetcode-cn.com/problems/rotate-list/) 旋转链表
 
 给你一个链表的头节点 `head` ，旋转链表，将链表每个节点向右移动 `k` 个位置。链表中节点的数目在范围 [0, 500] 内。  
@@ -678,7 +686,7 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
 
-## Ⅱ Insertion Method 插入法
+## Ⅲ Insertion Method 插入法
 
 使用插入法的相关链表题目，头插法属于插入法。  
 对于插入法，一般都会使用到 **哨兵**，用于删除节点。
@@ -988,7 +996,7 @@ tips：
 - 时间复杂度：O(n^2)
 - 空间复杂度：O(1)
 
-## Ⅲ Merge Sort 归并排序
+## Ⅳ Merge Sort 归并排序
 
 利用归并的思想，采用分治策略（将问题分成一些小的问题然后递归求解，而治的阶段则将分的阶段得到的各答案“修补”在一起，即分而治之）。分阶段为递归拆分子序列的过程（不进行任何排序操作），治阶段需要将两个已经有序的子序列合并成一个有序序列。编写递归函数，每一次都一分为二拆分序列的子区间，然后在方法栈弹出的时候，一步一步合并两个有序序列，最后完成排序工作。「合并两个有序序列」的步骤利用了序列的部分有序性。
 
@@ -1171,7 +1179,7 @@ tips：
 - 时间复杂度：O(nlogn)
 - 空间复杂度：O(logn)，归并排序；O(1)，迭代：模拟归并排序递归过程
 
-## Ⅳ General - Linked List & Math 常规 - 链表和数学
+## Ⅴ General - Linked List & Math 常规 - 链表和数学
 
 常规链表题目。以及使用到指针的数学题。
 
