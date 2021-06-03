@@ -5,9 +5,13 @@ description: 剑指 Offer - 第 2 版
 category: 技术
 ---
 
-### introduction 
+## introduction 
 剑指 Offer - 第 2 版  
 标星* 题目 代表使用了相关算法板块未涉及的 解法分类。
+
+## Ⅰ Array and String 数组及字符串
+
+数组结构以及字符串相关的算法题目。
 
 ### 03. [数组中重复的数字](https://leetcode-cn.com/problems/shu-zu-zhong-zhong-fu-de-shu-zi-lcof/)
 
@@ -164,109 +168,6 @@ tips：
 
 - 时间复杂度：O(1)，每个元素只会「至多被插入和弹出 stack2 一次」，因此均摊下来每个元素被删除的时间复杂度仍为 O(1)
 - 空间复杂度：O(n)
-
-### 10- I. [斐波那契数列](https://leetcode-cn.com/problems/fei-bo-na-qi-shu-lie-lcof/)
-
-写一个函数，输入 n ，求斐波那契（Fibonacci）数列的第 n 项（即 F(N)）。斐波那契数列的定义如下：F(0) = 0,   F(1) = 1,   F(N) = F(N - 1) + F(N - 2),   其中 N > 1。斐波那契数列由 0 和 1 开始，之后的斐波那契数就是由之前的两数相加而得出。答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。0 <= n <= 100。  
-示例：  
-输入：n = 5  
-输出：5
-
-思路：  
-**动态规划**。利用斐波那契数列性质 f(n) = f(n - 1) + f(n - 2) 来进行迭代求解。  
-动态规划：将每次前两数之和存起来，便于下次直接使用。将 f(n - 1) 和 f(n - 2) 定义为局部变量 preOne 和 preTwo，迭代的一次求和后，下一个 preOne 则等于 preTwo，下一个 preTwo 则等于 sum。  
-借助数组进行迭代求解：fibArray[i] = (fibArray[i - 1] + fibArray[i - 2])。  
-递归：return fib(n - 1) + fib(n - 2); ，超时。  
-递归优化（记忆化递归）：使用数组存储已求解过的值进行优化。
-
-题解：
-
-```java
-// 动态规划求法 tc：O(n)    sc：O(1)
-class Solution {
-    public int fib(int n) {
-        if (n < 2) return n;
-        int preOne = 0, preTwo = 1;
-        int sum = 0;
-        for (int i = 2; i <= n; i++) {
-            sum = (preOne + preTwo) % 1000000007;
-            preOne = preTwo;
-            preTwo = sum;
-        }
-        return sum;
-    }
-}
-
-// 数组常规迭代求法 tc：O(n)    sc：O(n)
-/*class Solution {
-    public int fib(int n) {
-        if (n < 2) return n;
-        int[] fibArray = new int[n + 1];
-        fibArray[0] = 0;
-        fibArray[1] = 1;
-        for (int i = 2; i <= n; i++) {
-            fibArray[i] = (fibArray[i - 1] + fibArray[i - 2]) % 1000000007;
-        }
-        return fibArray[n];
-    }
-}*/
-
-// 递归求法 tc：O(2^n)    sc：O(n)（超时，重复求解已求解过的值）
-/*class Solution {public int fib(int n) {
-    public int fib(int n) {
-        if (n < 2) return n;
-        return (fib(n - 1) + fib(n - 2)) % 1000000007;
-    }
-}*/
-
-// 递归求法优化（记忆化递归） tc：O(n)    sc：O(max(n))
-/*class Solution {
-    int[] fibArray = new int[101];
-    public int fib(int n) {
-        if (n < 2) return n;
-        if (fibArray[n] == 0) fibArray[n] = (fib(n - 2) + fib(n - 1)) % 1000000007;
-        return fibArray[n];
-    }
-}*/
-```
-
-tips：
-
-- 适合于用动态规划求解的问题，经分解得到子问题往往不是互相独立的 (即下一个子阶段的求解是建立在上一个子阶段的解的基础上，进行进一步的求解)；
-- 时间复杂度：O(n)
-- 空间复杂度：O(1) 动态规划；O(n) 迭代；O(max(n)) 记忆化递归
-
-### 10- II. [青蛙跳台阶问题](https://leetcode-cn.com/problems/qing-wa-tiao-tai-jie-wen-ti-lcof/)
-
-一只青蛙一次可以跳上1级台阶，也可以跳上2级台阶。求该青蛙跳上一个 n 级的台阶总共有多少种跳法。答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。  
-示例：  
-输入：n = 2 ㅤ ㅤ | ㅤn = 0  
-输出：2 (n = 2)ㅤ | ㅤ1 (n = 0)
-
-思路：  
-**动态规划+数学（斐波那契数列）**。设跳上 n 级台阶有 f(n) 种跳法。在所有跳法中，青蛙的最后一步只有两种情况：跳上 1 级或 2 级台阶。当为 1 级台阶： 剩 n−1 个台阶，此情况共有 f(n−1) 种跳法；当为 2 级台阶： 剩 n−2 个台阶，此情况共有 f(n−2) 种跳法。f(n) 为以上两种情况之和，即 f(n)=f(n−1)+f(n−2) ，以上递推性质为斐波那契数列。故本题可转化为 求斐波那契数列第 n+1 项的值（青蛙跳台阶问题：f(0)=1 , f(1)=1 , f(2)=2；斐波那契数列问题： f(0)=0 , f(1)=1 , f(2)=1，前者序列为后者序列后移一位，故应求解斐波那契数列第 n+1 项的值）。
-
-题解：
-
-```java
-class Solution {
-    public int numWays(int n) {
-        int preOne = 0, preTwo = 1;
-        int sum = 1; // n = 0时则返回1
-        for (int i = 1; i <= n; i++) { // 多计算一个，sum计算的总为F(i+1)，迭代结束sum为斐波那契数列的第n+1项即F(n+1)
-            sum = (preOne + preTwo) % 1000000007;
-            preOne = preTwo;
-            preTwo = sum;
-        }
-        return sum;
-    }
-}
-```
-
-tips：
-
-- 时间复杂度：O(n)
-- 空间复杂度：O(1)
 
 ### 15. [二进制中1的个数](https://leetcode-cn.com/problems/er-jin-zhi-zhong-1de-ge-shu-lcof/)
 
@@ -778,38 +679,6 @@ tips：
 - 使用 PriorityQueue (Comparator<? super E> comparator) 创建具有默认初始容量的 PriorityQueue ，并根据指定的比较器对其元素进行排序。来实例化此优先级队列（JDK 1.8新特性）；
 - 时间复杂度：O(1)，findMedian方法；O(logn)，addNum方法，堆的插入和弹出操作使用 O(logn) 时间
 - 空间复杂度：O(n)
-
-### 42. [连续子数组的最大和](https://leetcode-cn.com/problems/lian-xu-zi-shu-zu-de-zui-da-he-lcof/)
-
-输入一个整型数组，数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。要求时间复杂度为O(n)。  
-示例：  
-输入：nums = [-2,1,-3,4,-1,2,1,-5,4]  
-输出：6  
-解释：连续子数组 [4,-1,2,1] 的和最大，为 6
-
-思路：  
-**动态规划**。定义动态规划数组 dp[]，dp[i] 代表以元素 nums[i] 为结尾的连续子数组最大和（最大和数组 dp[i] 中必须包含元素 nums[i]：保证 dp[i] 递推到 dp[i+1] 的正确性，如果不包含 nums[i]，递推时则不满足连续子数组要求）。转移方程（若 dp[i−1]≤0，说明 dp[i - 1] 对 dp[i] 产生负贡献，即 dp[i-1] + nums[i] 还不如 nums[i] 本身大）：当 dp[i−1]>0 时执行 dp[i] = dp[i-1] + nums[i] ，当 dp[i−1]≤0 时执行 dp[i]=nums[i]。初始状态：dp[0] = nums[0]，即以 nums[0] 结尾的连续子数组最大和为 nums[0] 。返回值：返回 dp[] 数组中的最大值即代表全局最大值（所有子数组的和的最大值）。  
-由于 dp[i] 只与 dp[i-1] 和 nums[i] 有关，故可以将原数组 nums 用作 dp[] 数组，即直接在原数组 nums 上修改。
-
-题解：
-
-```java
-class Solution {
-    public int maxSubArray(int[] nums) {
-        int result = nums[0];
-        for (int i = 1; i < nums.length; i++) {
-            nums[i] += Math.max(nums[i - 1], 0); // 以上一元素结尾的子数组最大和nums[i - 1]为正才对以当前元素结尾的子数组最大和有贡献
-            result = Math.max(result, nums[i]); // 以各个元素结尾的子数组最大和的最大值即为所有子数组的和的最大值
-        }
-        return result;
-    }
-}
-```
-
-tips：
-
-- 时间复杂度：O(n)
-- 空间复杂度：O(1)
 
 ### 43. [1～n 整数中 1 出现的次数](https://leetcode-cn.com/problems/1nzheng-shu-zhong-1chu-xian-de-ci-shu-lcof/)
 
@@ -1506,55 +1375,6 @@ tips：
 - 时间复杂度：O(1)
 - 空间复杂度：O(1)
 
-### 62. [圆圈中最后剩下的数字](https://leetcode-cn.com/problems/yuan-quan-zhong-zui-hou-sheng-xia-de-shu-zi-lcof/)
-
-0,1,···,n-1这n个数字排成一个圆圈，从数字0开始，每次从这个圆圈里删除第m个数字（删除后从下一个数字开始计数）。求出这个圆圈里剩下的最后一个数字。1 <= n <= 10^5，1 <= m <= 10^6。  
-示例：  
-输入：n = 5, m = 3  
-输出：3  
-解释：0、1、2、3、4这5个数字组成一个圆圈，从数字0开始每次删除第3个数字，则删除的前4个数字依次是2、0、4、1，因此最后剩下的数字是3。
-
-思路：  
-**数据结构 / 动态规划+数学**。  
-1) 使用ArrayList\<Integer>模拟单向环形链表的解法：  
-对于单纯使用链表（单向环形链表的实现）的情况，时间复杂度为O(nm)，超时。使用ArrayList\<Integer>模拟单向环形链表，时间复杂度则为O(n^2)（ArrayList 类 remove 方法的时间复杂度为O(n)），**单纯使用链表（单向环形链表的实现）即暴力解法**：每次找到需删除的数字，需要 O(m) 的时间复杂度，然后删除了 n-1 次（时间复杂度为O(nm)）；而对于集合模拟链表，可以直接找到下一个要删除的位置（O(1)）：假设当前删除的位置是 index（同时为下一轮计数的起始索引），则下一个删除的数字的位置应为 index + m - 1，由于计数到末尾会从头继续计数，所以需要再对集合大小取模，即为 (index + m − 1) % n。遍历 n 次将元素添加到集合形成初始圆圈，迭代 n-1 次每轮计数结束将元素总数（集合大小）n 减一，最终集合 0 索引位置元素即为圆圈里剩下的最后一个数字。  
-2) 约瑟夫（Josephu）问题的动态规划解法（过程中使用了数学推导）：  
-从最终只剩一个元素的索引反推（迭代）：上一轮index = (当前index + m) mod 上一轮剩余数字的个数。  
-![](/images/2021-04-14-coding-interviews/62.png)
-
-题解：
-
-```java
-// 单向环形链表（使用ArrayList<Integer>模拟）
-class Solution {
-    public int lastRemaining(int n, int m) {
-        List<Integer> circleList = new ArrayList<>(n);
-        for (int i = 0; i < n; i++) circleList.add(i);
-        int beginOrRemove = 0; // 每轮次开始计数的起始索引，因由其计算得此轮次应删除元素的索引同时又为下一轮开始计数的起始索引，故使其进行自更新（当删除元素为当前轮次的最后一个元素(索引为n-1)时，下一轮开始计数的起始索引应为0而不是n-1(下一轮数组的最大索引为n-2)，但是下一轮(数组元素个数变为n-1)使用迭代公式更新应删除元素的索引时，其对n-1取模，起始索引就会自动更新为0，故当删除元素为当前轮次的最后一个元素时下一轮开始计数的起始索引使用n-1也正确）
-        while (n > 1) { // n为每轮次的元素总数（ArrayLsit集合的大小）
-            beginOrRemove = (beginOrRemove + m - 1) % n;
-            circleList.remove(beginOrRemove);
-            n--;
-        }
-        return circleList.get(0);
-    }
-}
-
-// 数学解法
-/*class Solution {
-    public int lastRemaining(int n, int m) {
-        int result = 0;
-        for (int i = 2; i <= n; i++) result = (result + m) % i;
-        return result;
-    }
-}*/
-```
-
-tips：
-
-- 时间复杂度：O(n^2)，数据结构；O(n)，动态规划+数学
-- 空间复杂度：O(n)，数据结构；O(1)，动态规划+数学
-
 ### 63. [股票的最大利润](https://leetcode-cn.com/problems/gu-piao-de-zui-da-li-run-lcof/)
 
 假设把某股票的价格按照时间先后顺序存储在数组中，请问买卖该股票一次可能获得的最大利润是多少？0 <= 数组长度 <= 10^5。  
@@ -1589,7 +1409,7 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
 
-### 64. [求1+2+…+n](https://leetcode-cn.com/problems/qiu-12n-lcof/)
+### 64. [求1+2+…+n*](https://leetcode-cn.com/problems/qiu-12n-lcof/)
 
 求 `1+2+...+n` ，要求不能使用乘除法、for、while、if、else、switch、case等关键字及条件判断语句（A?B:C）。  
 示例：  
@@ -1646,43 +1466,7 @@ tips：
 
 - 对于负数也适用（使用补码计算）。在计算机系统中，数值一律用 补码 来表示和存储：加减法可以统一处理；
 - 时间复杂度：O(1)，最差情况下（eg：a=-1, b=1 时）需循环 32 次使用 O(1) 时间，每轮中的常数次位操作使用 O(1) 时间
-- 空间复杂度：O(1) 
-
-### 66. [构建乘积数组](https://leetcode-cn.com/problems/gou-jian-cheng-ji-shu-zu-lcof/)
-
-给定一个数组 A[0,1,…,n-1]，请构建一个数组 B[0,1,…,n-1]，其中 B[i] 的值是数组 A 中除了下标 i 以外的元素的积, 即 B[i]=A[0]×A[1]×…×A[i-1]×A[i+1]×…×A[n-1]。不能使用除法。  
-示例：  
-输入：[1,2,3,4,5]  
-输出：[120,60,40,30,24]
-
-思路：  
-**动态规划**。output[i] 表示的乘积 = 当前数 i 左边的乘积 * 当前数 i 右边的乘积。使用两次循环来分别求解左边的乘积和右边的乘积。
-
-题解：
-
-```java
-class Solution {
-    public int[] constructArr(int[] a) {
-        int len = a.length; // len > 1
-        int[] result = new int[len];
-        int l = 1, r = 1; // l为当前索引左边元素的乘积，r为当前索引右边元素的乘积
-        for (int i = 0; i < len; i++) { // result[i] = nums[0,...,i-1]中元素的乘积
-            result[i] = l;
-            l *= a[i];
-        }
-        for (int i = len - 1; i >= 0; i--) { // result[i] *= nums[i+1,...,end]中元素的乘积
-            result[i] *= r; // 这里为 *=
-            r *= a[i];
-        }
-        return result;
-    }
-}
-```
-
-tips：
-
-- 时间复杂度：O(n)
-- 空间复杂度：O(1)，输出数组不被视为额外空间
+- 空间复杂度：O(1)
 
 ### 67. [把字符串转换成整数](https://leetcode-cn.com/problems/ba-zi-fu-chuan-zhuan-huan-cheng-zheng-shu-lcof/)
 
@@ -1723,3 +1507,572 @@ tips：
 - **可以将一个具有多种条件判断的迭代/遍历/循环拆分成多个功能独立（只判断某些条件）的（迭代/遍历/循环）部分**（一般需要将索引定义为单独的局部变量）。将字符串的整体遍历按功能拆开成多个独立的遍历部分，每个独立遍历部分实现单一的功能（判断）。并非总要将所有功能集成到一个循环（遍历）内；
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
+
+## Ⅱ Linked List 链表
+
+链表相关的算法题目。
+
+对于链表相关题目，无论使用哪种思路解题，大都有会使用到 **虚拟头节点 dummyHead** 的思路，用于返回结果链表的头节点，以及在原链表需要删除的元素可能为头节点的情况下为了便于删除节点，或者便于在新结果链表中添加元素/节点。
+与此同时，链表相关题目都会使用到指针。
+
+### 6. [从尾到头打印链表](https://leetcode-cn.com/problems/cong-wei-dao-tou-da-yin-lian-biao-lcof/)
+
+输入一个链表的头节点，从尾到头反过来返回每个节点的值（用数组返回）。0 <= 链表长度 <= 10000。  
+示例：  
+输入：head = [1,3,2]  
+输出：[2,3,1]
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public int[] reversePrint(ListNode head) {
+        ListNode cur = head; // 用于统计链表的长度
+        int len = 0; // 链表长度
+        while (cur != null) {
+            len++;
+            cur = cur.next;
+        }
+        int[] result = new int[len];
+        for (int i = len - 1; i >= 0; i--) {
+            result[i] = head.val;
+            head = head.next;
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- **指针**。遍历链表使用cur指针统计链表的长度len，建立长度为链表长度len的数组，再次遍历链表，将链表节点的值倒序存储到数组中；
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
+### 18. [删除链表的节点](https://leetcode-cn.com/problems/shan-chu-lian-biao-de-jie-dian-lcof/)
+
+给定单向链表的头指针和一个要删除的节点的值，定义一个函数删除该节点。返回删除后的链表的头节点。题目保证链表中节点的值互不相同。  
+示例：  
+输入：head = [4,5,1,9], val = 5  
+输出：[4,1,9]
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public ListNode deleteNode(ListNode head, int val) {
+        ListNode dummyHead = new ListNode();
+        dummyHead.next = head;
+        ListNode cur = dummyHead;
+        while (cur.next.val != val) cur = cur.next;
+        cur.next = cur.next.next;
+        return dummyHead.next;
+    }
+}
+```
+
+tips：
+
+- **指针**。使用cur指针删除值为 val 的节点；
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
+### 22. [链表中倒数第k个节点](https://leetcode-cn.com/problems/lian-biao-zhong-dao-shu-di-kge-jie-dian-lcof/)
+
+输入一个链表，输出该链表中倒数第k个节点。本题从1开始计数，即链表的尾节点是倒数第1个节点。  
+示例：  
+输入：1->2->3->4->5，k = 2  
+输出：4->5
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public ListNode getKthFromEnd(ListNode head, int k) {
+        ListNode cur = head, end = head;
+        for (int i = 0; i < k; i++) end = end.next;
+        while (end != null) {
+            cur = cur.next;
+            end = end.next;
+        }
+        return cur;
+    }
+}
+```
+
+tips：
+
+- **指针**。思路与19题相同；
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
+### 24. [反转链表](https://leetcode-cn.com/problems/fan-zhuan-lian-biao-lcof/)
+
+定义一个函数，输入一个链表的头节点，反转该链表并输出反转后链表的头节点。0 <= 节点个数 <= 5000。  
+示例：  
+输入：1->2->3->4->5->NULL  
+输出：5->4->3->2->1->NULL
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+
+// 递归
+class Solution {
+    public ListNode reverseList(ListNode head) {
+        if (head == null || head.next == null) return head; // head==null用于判断当原链表长度为0时返回null，head.next==null用于判断当原链表递归到最后一个节点（递归结束条件）
+        ListNode newHead = reverseList(head.next); // 用于保存反转后链表的头节点，即原链表的最后一个节点（第一次回溯时返回的值）
+        head.next.next = head; // 反转
+        head.next = null; // 用于当递归回溯到原链表的头节点（也即反转链表的最后一个节点）时，其next应指向null，否则其next还指向原链表的next节点，会使得反转后的链表产生循环
+        return newHead;
+    }
+}
+
+// 迭代
+/*class Solution {
+    public ListNode reverseList(ListNode head) {
+        ListNode pre = null, cur = head;
+        while (cur != null) {
+            ListNode next = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = next;
+        }
+        return pre;
+    }
+}*/
+```
+
+tips：
+
+- **递归**。思路与206题相同；
+- 时间复杂度：O(n)，迭代；O(n)，递归
+- 空间复杂度：O(1)，迭代；O(n)，递归，使用栈空间，递归深度达到 n 层
+
+### 25. [合并两个排序的链表](https://leetcode-cn.com/problems/he-bing-liang-ge-pai-xu-de-lian-biao-lcof/)
+
+输入两个递增排序的链表，合并这两个链表并使新链表中的节点仍然是递增排序的。  
+示例：  
+输入：1->2->4, 1->3->4  
+输出：1->1->2->3->4->4
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+
+// 递归
+class Solution {
+    public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+        if (l1 == null || l2 == null) return l1 == null ? l2 : l1; // 递归结束条件
+        if (l1.val < l2.val) {
+            l1.next = mergeTwoLists(l1.next, l2);
+            return l1;
+        } else {
+            l2.next = mergeTwoLists(l1, l2.next);
+            return l2;
+        }
+    }
+}
+
+// 迭代
+/*class Solution {
+    public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+        ListNode dummyHead = new ListNode();
+        ListNode cur = dummyHead;
+        while (l1 != null && l2 != null) {
+            if (l1.val < l2.val) {
+                cur.next = l1;
+                l1 = l1.next;
+            } else {
+                cur.next = l2;
+                l2 = l2.next;
+            }
+            cur = cur.next;
+        }
+        cur.next = l1 == null ? l2 : l1;
+        return dummyHead.next;
+    }
+}*/
+```
+
+tips：
+
+- **递归**。思路与21题相同；
+- 时间复杂度：O(m+n)，递归；O(m+n)，迭代；无论递归还是迭代，执行次数都不会超过两链表长度之和
+- 空间复杂度：O(m+n)，递归；O(1)，迭代
+
+### 35. [复杂链表的复制](https://leetcode-cn.com/problems/fu-za-lian-biao-de-fu-zhi-lcof/)
+
+请实现 copyRandomList 函数，复制一个复杂链表。在复杂链表中，每个节点除了有一个 next 指针指向下一个节点，还有一个 random 指针指向链表中的任意节点或者 null。节点数目不超过 1000 且大于等于 0。  
+示例：  
+输入：head = [[7,null],[13,0],[11,4],[10,2],[1,0]]  
+![](/images/2021-04-14-coding-interviews/35.png)  
+输出：[[7,null],[13,0],[11,4],[10,2],[1,0]]
+
+思路：  
+**指针**。由原链表节点的值构建 原节点 1 -> 新节点 1 -> 原节点 2 -> 新节点 2 -> …… 的拼接链表（新节点即为复制的链表），在访问原节点的 random 指向节点的同时找到对应复制节点的 random 指向节点：访问原节点 cur 的随机指向节点 cur.random 时，对应复制节点 cur.next 的随机指向节点为 cur.random.next 。复制链表构建完成后还需要将拼接链表进行拆分。
+
+题解：
+
+```java
+/*
+// Definition for a Node.
+class Node {
+    int val;
+    Node next;
+    Node random;
+
+    public Node(int val) {
+        this.val = val;
+        this.next = null;
+        this.random = null;
+    }
+}
+*/
+class Solution {
+    public Node copyRandomList(Node head) {
+        if (head == null) return null;
+        Node cur = head; // 指向原链表中的节点
+        while (cur != null) {
+            Node node = new Node(cur.val); // 由原链表节点的值复制节点
+            node.next = cur.next;
+            cur.next = node;
+            cur = cur.next.next;
+        }
+        cur = head;
+        while (cur != null) {
+            if (cur.random != null) cur.next.random = cur.random.next; // 成员变量random可能为null
+            cur = cur.next.next;
+        }
+        Node copyHead = head.next; // 复制链表的头节点
+        cur = head;
+        Node copyCur = head.next; // 指向复制链表中的节点
+        while (copyCur.next != null) { // 拆分两个链表：复制原链表同时，原链表需要保持不变（即原链表的成员变量next不能改变）
+            cur.next = cur.next.next;
+            copyCur.next = copyCur.next.next;
+            cur = cur.next;
+            copyCur = copyCur.next;
+        }
+        cur.next = null; // 将原链表的末尾节点的next置空（原来指向复制链表的末尾节点）
+        return copyHead;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)，遍历了三次链表
+- 空间复杂度：O(1)
+
+### 52. [两个链表的第一个公共节点](https://leetcode-cn.com/problems/liang-ge-lian-biao-de-di-yi-ge-gong-gong-jie-dian-lcof/)
+
+输入两个链表，找出它们的第一个公共节点。如果两个链表没有交点，返回 null。在返回结果后，两个链表仍须保持原有的结构。可假定整个链表结构中没有循环。程序尽量满足 O(n) 时间复杂度，且仅用 O(1) 内存。  
+示例：  
+输入：intersectVal = 8, listA = [4,1,8,4,5], listB = [5,0,1,8,4,5], skipA = 2, skipB = 3  
+![](/images/2021-04-14-coding-interviews/52.png)  
+输出：Reference of the node with value = 8  
+解释：相交节点的值为 8 （如果两个列表相交则不能为 0）。从各自的表头开始算起，链表 A 为 [4,1,8,4,5]，链表 B 为 [5,0,1,8,4,5]。在 A 中，相交节点前有 2 个节点；在 B 中，相交节点前有 3 个节点。
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) {
+ *         val = x;
+ *         next = null;
+ *     }
+ * }
+ */
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        if (headA == null || headB == null) return null; // 优化
+        ListNode cur = headA, cur2 = headB;
+        while (cur != cur2) {
+            cur = cur == null ? headB : cur.next;
+            cur2 = cur2 == null ? headA : cur2.next;
+        }
+        return cur;
+    }
+}
+```
+
+tips：
+
+- **常规链表题目+数学**。思路与160题相同；
+- 时间复杂度：O(a+b)，a和b分别为两链表的长度
+- 空间复杂度：O(1)
+
+## Ⅲ Tree 树
+
+树相关的算法题目。
+
+## Ⅳ Dynamic Programming 动态规划
+
+动态规划相关的算法题目。
+
+将大问题划分为小问题进行解决，从而一步步获取最优解的处理算法。动态规划算法与分治算法类似，其基本思想也是将待求解问题分解成若干个子问题，先求解子问题，然后从这些子问题的解得到原问题的解。  
+**与分治算法不同的是，适合于用动态规划求解的问题，经分解得到子问题往往不是互相独立的 ( 即下一个子阶段的求解是建立在上一个子阶段的解的基础上，进行进一步的求解 )**。若用分治算法来解这类问题，则分解得到的子问题数目太多，有些子问题被重复计算了很多次。如果我们能够保存已解决的子问题的答案，而在需要时再找出已求得的答案，这样就可以避免大量的重复计算，节省时间。可以用一个表来记录所有已解的子问题的答案。不管该子问题以后是否被用到，只要它被计算过，就将其结果填入表中。这就是动态规划法的基本思路。
+
+### 10- I. [斐波那契数列](https://leetcode-cn.com/problems/fei-bo-na-qi-shu-lie-lcof/)
+
+写一个函数，输入 n ，求斐波那契（Fibonacci）数列的第 n 项（即 F(N)）。斐波那契数列的定义如下：F(0) = 0,   F(1) = 1,   F(N) = F(N - 1) + F(N - 2),   其中 N > 1。斐波那契数列由 0 和 1 开始，之后的斐波那契数就是由之前的两数相加而得出。答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。0 <= n <= 100。  
+示例：  
+输入：n = 5  
+输出：5
+
+思路：  
+**动态规划**。利用斐波那契数列性质 f(n) = f(n - 1) + f(n - 2) 来进行迭代求解。  
+动态规划：将每次前两数之和存起来，便于下次直接使用。将 f(n - 1) 和 f(n - 2) 定义为局部变量 preOne 和 preTwo，迭代的一次求和后，下一个 preOne 则等于 preTwo，下一个 preTwo 则等于 sum。  
+借助数组进行迭代求解：fibArray[i] = (fibArray[i - 1] + fibArray[i - 2])。  
+递归：return fib(n - 1) + fib(n - 2); ，超时。  
+递归优化（记忆化递归）：使用数组存储已求解过的值进行优化。
+
+题解：
+
+```java
+// 动态规划求法 tc：O(n)    sc：O(1)
+class Solution {
+    public int fib(int n) {
+        if (n < 2) return n;
+        int preOne = 0, preTwo = 1;
+        int sum = 0;
+        for (int i = 2; i <= n; i++) {
+            sum = (preOne + preTwo) % 1000000007;
+            preOne = preTwo;
+            preTwo = sum;
+        }
+        return sum;
+    }
+}
+
+// 数组常规迭代求法 tc：O(n)    sc：O(n)
+/*class Solution {
+    public int fib(int n) {
+        if (n < 2) return n;
+        int[] fibArray = new int[n + 1];
+        fibArray[0] = 0;
+        fibArray[1] = 1;
+        for (int i = 2; i <= n; i++) {
+            fibArray[i] = (fibArray[i - 1] + fibArray[i - 2]) % 1000000007;
+        }
+        return fibArray[n];
+    }
+}*/
+
+// 递归求法 tc：O(2^n)    sc：O(n)（超时，重复求解已求解过的值）
+/*class Solution {public int fib(int n) {
+    public int fib(int n) {
+        if (n < 2) return n;
+        return (fib(n - 1) + fib(n - 2)) % 1000000007;
+    }
+}*/
+
+// 递归求法优化（记忆化递归） tc：O(n)    sc：O(max(n))
+/*class Solution {
+    int[] fibArray = new int[101];
+    public int fib(int n) {
+        if (n < 2) return n;
+        if (fibArray[n] == 0) fibArray[n] = (fib(n - 2) + fib(n - 1)) % 1000000007;
+        return fibArray[n];
+    }
+}*/
+```
+
+tips：
+
+- 适合于用动态规划求解的问题，经分解得到子问题往往不是互相独立的 (即下一个子阶段的求解是建立在上一个子阶段的解的基础上，进行进一步的求解)；
+- 时间复杂度：O(n)
+- 空间复杂度：O(1) 动态规划；O(n) 迭代；O(max(n)) 记忆化递归
+
+### 10- II. [青蛙跳台阶问题](https://leetcode-cn.com/problems/qing-wa-tiao-tai-jie-wen-ti-lcof/)
+
+一只青蛙一次可以跳上1级台阶，也可以跳上2级台阶。求该青蛙跳上一个 n 级的台阶总共有多少种跳法。答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。  
+示例：  
+输入：n = 2 ㅤ ㅤ | ㅤn = 0  
+输出：2 (n = 2)ㅤ | ㅤ1 (n = 0)
+
+思路：  
+**动态规划+数学（斐波那契数列）**。设跳上 n 级台阶有 f(n) 种跳法。在所有跳法中，青蛙的最后一步只有两种情况：跳上 1 级或 2 级台阶。当为 1 级台阶： 剩 n−1 个台阶，此情况共有 f(n−1) 种跳法；当为 2 级台阶： 剩 n−2 个台阶，此情况共有 f(n−2) 种跳法。f(n) 为以上两种情况之和，即 f(n)=f(n−1)+f(n−2) ，以上递推性质为斐波那契数列。故本题可转化为 求斐波那契数列第 n+1 项的值（青蛙跳台阶问题：f(0)=1 , f(1)=1 , f(2)=2；斐波那契数列问题： f(0)=0 , f(1)=1 , f(2)=1，前者序列为后者序列后移一位，故应求解斐波那契数列第 n+1 项的值）。
+
+题解：
+
+```java
+class Solution {
+    public int numWays(int n) {
+        int preOne = 0, preTwo = 1;
+        int sum = 1; // n = 0时则返回1
+        for (int i = 1; i <= n; i++) { // 多计算一个，sum计算的总为F(i+1)，迭代结束sum为斐波那契数列的第n+1项即F(n+1)
+            sum = (preOne + preTwo) % 1000000007;
+            preOne = preTwo;
+            preTwo = sum;
+        }
+        return sum;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
+### 42. [连续子数组的最大和](https://leetcode-cn.com/problems/lian-xu-zi-shu-zu-de-zui-da-he-lcof/)
+
+输入一个整型数组，数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。要求时间复杂度为O(n)。  
+示例：  
+输入：nums = [-2,1,-3,4,-1,2,1,-5,4]  
+输出：6  
+解释：连续子数组 [4,-1,2,1] 的和最大，为 6
+
+思路：  
+**动态规划**。定义动态规划数组 dp[]，dp[i] 代表以元素 nums[i] 为结尾的连续子数组最大和（最大和数组 dp[i] 中必须包含元素 nums[i]：保证 dp[i] 递推到 dp[i+1] 的正确性，如果不包含 nums[i]，递推时则不满足连续子数组要求）。转移方程（若 dp[i−1]≤0，说明 dp[i - 1] 对 dp[i] 产生负贡献，即 dp[i-1] + nums[i] 还不如 nums[i] 本身大）：当 dp[i−1]>0 时执行 dp[i] = dp[i-1] + nums[i] ，当 dp[i−1]≤0 时执行 dp[i]=nums[i]。初始状态：dp[0] = nums[0]，即以 nums[0] 结尾的连续子数组最大和为 nums[0] 。返回值：返回 dp[] 数组中的最大值即代表全局最大值（所有子数组的和的最大值）。  
+由于 dp[i] 只与 dp[i-1] 和 nums[i] 有关，故可以将原数组 nums 用作 dp[] 数组，即直接在原数组 nums 上修改。
+
+题解：
+
+```java
+class Solution {
+    public int maxSubArray(int[] nums) {
+        int result = nums[0];
+        for (int i = 1; i < nums.length; i++) {
+            nums[i] += Math.max(nums[i - 1], 0); // 以上一元素结尾的子数组最大和nums[i - 1]为正才对以当前元素结尾的子数组最大和有贡献
+            result = Math.max(result, nums[i]); // 以各个元素结尾的子数组最大和的最大值即为所有子数组的和的最大值
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
+### 62. [圆圈中最后剩下的数字](https://leetcode-cn.com/problems/yuan-quan-zhong-zui-hou-sheng-xia-de-shu-zi-lcof/)
+
+0,1,···,n-1这n个数字排成一个圆圈，从数字0开始，每次从这个圆圈里删除第m个数字（删除后从下一个数字开始计数）。求出这个圆圈里剩下的最后一个数字。1 <= n <= 10^5，1 <= m <= 10^6。  
+示例：  
+输入：n = 5, m = 3  
+输出：3  
+解释：0、1、2、3、4这5个数字组成一个圆圈，从数字0开始每次删除第3个数字，则删除的前4个数字依次是2、0、4、1，因此最后剩下的数字是3。
+
+思路：  
+**数据结构 / 动态规划+数学**。  
+1) 使用ArrayList\<Integer>模拟单向环形链表的解法：  
+对于单纯使用链表（单向环形链表的实现）的情况，时间复杂度为O(nm)，超时。使用ArrayList\<Integer>模拟单向环形链表，时间复杂度则为O(n^2)（ArrayList 类 remove 方法的时间复杂度为O(n)），**单纯使用链表（单向环形链表的实现）即暴力解法**：每次找到需删除的数字，需要 O(m) 的时间复杂度，然后删除了 n-1 次（时间复杂度为O(nm)）；而对于集合模拟链表，可以直接找到下一个要删除的位置（O(1)）：假设当前删除的位置是 index（同时为下一轮计数的起始索引），则下一个删除的数字的位置应为 index + m - 1，由于计数到末尾会从头继续计数，所以需要再对集合大小取模，即为 (index + m − 1) % n。遍历 n 次将元素添加到集合形成初始圆圈，迭代 n-1 次每轮计数结束将元素总数（集合大小）n 减一，最终集合 0 索引位置元素即为圆圈里剩下的最后一个数字。  
+2) 约瑟夫（Josephu）问题的动态规划解法（过程中使用了数学推导）：  
+从最终只剩一个元素的索引反推（迭代）：上一轮index = (当前index + m) mod 上一轮剩余数字的个数。  
+![](/images/2021-04-14-coding-interviews/62.png)
+
+题解：
+
+```java
+// 单向环形链表（使用ArrayList<Integer>模拟）
+class Solution {
+    public int lastRemaining(int n, int m) {
+        List<Integer> circleList = new ArrayList<>(n);
+        for (int i = 0; i < n; i++) circleList.add(i);
+        int beginOrRemove = 0; // 每轮次开始计数的起始索引，因由其计算得此轮次应删除元素的索引同时又为下一轮开始计数的起始索引，故使其进行自更新（当删除元素为当前轮次的最后一个元素(索引为n-1)时，下一轮开始计数的起始索引应为0而不是n-1(下一轮数组的最大索引为n-2)，但是下一轮(数组元素个数变为n-1)使用迭代公式更新应删除元素的索引时，其对n-1取模，起始索引就会自动更新为0，故当删除元素为当前轮次的最后一个元素时下一轮开始计数的起始索引使用n-1也正确）
+        while (n > 1) { // n为每轮次的元素总数（ArrayLsit集合的大小）
+            beginOrRemove = (beginOrRemove + m - 1) % n;
+            circleList.remove(beginOrRemove);
+            n--;
+        }
+        return circleList.get(0);
+    }
+}
+
+// 数学解法
+/*class Solution {
+    public int lastRemaining(int n, int m) {
+        int result = 0;
+        for (int i = 2; i <= n; i++) result = (result + m) % i;
+        return result;
+    }
+}*/
+```
+
+tips：
+
+- 时间复杂度：O(n^2)，数据结构；O(n)，动态规划+数学
+- 空间复杂度：O(n)，数据结构；O(1)，动态规划+数学
+
+### 66. [构建乘积数组](https://leetcode-cn.com/problems/gou-jian-cheng-ji-shu-zu-lcof/)
+
+给定一个数组 A[0,1,…,n-1]，请构建一个数组 B[0,1,…,n-1]，其中 B[i] 的值是数组 A 中除了下标 i 以外的元素的积, 即 B[i]=A[0]×A[1]×…×A[i-1]×A[i+1]×…×A[n-1]。不能使用除法。  
+示例：  
+输入：[1,2,3,4,5]  
+输出：[120,60,40,30,24]
+
+思路：  
+**动态规划**。output[i] 表示的乘积 = 当前数 i 左边的乘积 * 当前数 i 右边的乘积。使用两次循环来分别求解左边的乘积和右边的乘积。
+
+题解：
+
+```java
+class Solution {
+    public int[] constructArr(int[] a) {
+        int len = a.length; // len > 1
+        int[] result = new int[len];
+        int l = 1, r = 1; // l为当前索引左边元素的乘积，r为当前索引右边元素的乘积
+        for (int i = 0; i < len; i++) { // result[i] = nums[0,...,i-1]中元素的乘积
+            result[i] = l;
+            l *= a[i];
+        }
+        for (int i = len - 1; i >= 0; i--) { // result[i] *= nums[i+1,...,end]中元素的乘积
+            result[i] *= r; // 这里为 *=
+            r *= a[i];
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)，输出数组不被视为额外空间
