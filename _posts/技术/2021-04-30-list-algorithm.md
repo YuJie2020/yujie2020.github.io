@@ -1171,12 +1171,155 @@ tips：
 - 时间复杂度：O(nlogn)
 - 空间复杂度：O(logn)，归并排序；O(1)，迭代：模拟归并排序递归过程
 
-## Ⅳ General 常规
+## Ⅳ General - Linked List & Math 常规 - 链表和数学
 
-常规链表题目。
+常规链表题目。以及使用到指针的数学题。
 
-时间复杂度：O(1)  
-空间复杂度：O(1)
+### 141. [Linked List Cycle](https://leetcode-cn.com/problems/linked-list-cycle/) 环形链表
+
+给定一个链表，判断链表中是否有环。如果链表中有某个节点，可以通过连续跟踪 next 指针再次到达，则链表中存在环。 为了表示给定链表中的环，我们使用整数 pos 来表示链表尾连接到链表中的位置（索引从 0 开始）。 如果 pos 是 -1，则在该链表中没有环。pos 不作为参数进行传递，仅仅是为了标识链表的实际情况。如果链表中存在环，则返回 true 。否则，返回 false 。使用 O(1)（即，常量）内存解决此问题。链表中节点的数目范围是 [0, 104]。  
+示例：  
+输入：head = [3,2,0,-4], pos = 1  
+![](/images/2021-04-30-list-algorithm/141-title.png)  
+输出：true  
+解释：链表中有一个环，其尾部连接到第二个节点。
+
+思路：  
+数学+双指针。定义快慢指针，其初始值都为链表头节点，快指针每次走两步，慢指针每次走一步，快慢指针同时移动，当快慢都走了 t 次后相遇则代表链表为环形链表（当链表为环形链表时，t 为环中节点个数的倍数时快慢指针就会相遇，故对环形链表其快慢指针总会相遇）。  
+![](/images/2021-04-30-list-algorithm/141-answer.png)
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) {
+ *         val = x;
+ *         next = null;
+ *     }
+ * }
+ */
+public class Solution {
+    public boolean hasCycle(ListNode head) {
+        ListNode slow = head, fast = head;
+        while (fast != null) {
+            if (fast.next == null) return false; // 遍历到链表末尾（非环形奇数长度链表）则返回false
+            fast = fast.next.next;
+            slow = slow.next;
+            if (fast == slow) return true; // 比较两节点的地址值而不是比较两节点的值
+        }
+        return false; // 遍历到链表末尾（非环形偶数长度链表）则返回false
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
+### 142. [Linked List Cycle II](https://leetcode-cn.com/problems/linked-list-cycle-ii/) 环形链表 II
+
+给定一个链表，返回链表开始入环的第一个节点。 如果链表无环，则返回 null。为了表示给定链表中的环，我们使用整数 pos 来表示链表尾连接到链表中的位置（索引从 0 开始）。 如果 pos 是 -1，则在该链表中没有环。pos 仅仅是用于标识环的情况，并不会作为参数传递到函数中。不允许修改给定的链表。使用 O(1) 空间解决此题。  
+示例：  
+输入：head = [3,2,0,-4], pos = 1  
+![](/images/2021-04-30-list-algorithm/142.png)  
+输出：返回索引为 1 的链表节点  
+解释：链表中有一个环，其尾部连接到第二个节点。
+
+思路：  
+数学+双指针。定义快慢指针，其初始值都为链表头节点，快指针每次走两步，慢指针每次走一步，快慢指针同时移动，当快慢都走了 t 次后相遇则代表链表为环形链表（当链表为环形链表时，t 为环中节点个数的倍数时快慢指针就会相遇，故对环形链表其快慢指针总会相遇）。  
+当快慢指针第一次相遇后：设链表共有 a+b 个节点，其中链表头部到链表环入口 有 a 个节点（不计链表环入口节点）， 链表环 有 b 个节点（a 和 b 是未知数），设两指针分别走了 f，s 步，则 fast 指针走的步数是 slow 指针走的步数的 2 倍，即 f=2s，fast 比 slow 多走了 n 个环的长度，即 f=s+nb（双指针都走过 a 步，然后在环内绕圈直到重合，重合时 fast 比 slow 多走环的长度整数倍），将以上两式相减得 s=nb，故 f=2nb，即 fast 和 slow 指针分别走了 2n，n 个环的周长（n 为未知数，不同链表的情况不同）。  
+将指针从链表头部一直向前走并统计步数 k，则所有走到链表环入口节点时的步数为 k=a+nb（先走 a 步到达链表环入口节点，之后每绕 1 圈环即 b 步都会再次到入口节点）。因为当前 slow 指针走过的步数为 nb 步，只要让 slow 指针再走 a 步停下来，就可以到环的入口。  
+使用双指针法，构建一个指针，此指针和 slow 指针同时向前走 a 步后，两者在链表环入口节点重合。从链表头部 head 走到链表环入口节点需要 a 步，故将 fast 指针重复利用，将其重新定义为上述构建的指针：将 fast 指针重新指向链表头部节点 head。  
+slow 指针的位置不变，将 fast 指针（重定义后的指针）和 slow 指针同时向前移动一步（此时 f=0，s=nb），当 fast 指针走到 f=a 步时，slow 指针走到 s=a+nb 步，此时两指针重合（即对于环链表，此两指针一定会相遇）并同时指向链表环入口，返回 slow 指针指向的节点。
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) {
+ *         val = x;
+ *         next = null;
+ *     }
+ * }
+ */
+public class Solution {
+    public ListNode detectCycle(ListNode head) {
+        ListNode slow = head, fast = head; // 快慢指针
+        while (fast != null) {
+            if (fast.next == null) return null; // 遍历到链表末尾（非环形奇数长度链表）则返回null
+            fast = fast.next.next;
+            slow = slow.next;
+            if (fast == slow) break;
+        }
+        if (fast == null) return null; // 遍历到链表末尾（非环形偶数长度链表）则返回null
+        fast = head; // 链表为环形链表，将fast指针重置指向头节点
+        while (fast != slow) {
+            fast = fast.next;
+            slow = slow.next;
+        }
+        return slow;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
+### 160. [Intersection of Two Linked Lists](https://leetcode-cn.com/problems/intersection-of-two-linked-lists/) 相交链表
+
+编写一个程序，找到两个单链表相交的起始节点。如果两个链表没有交点，返回 null。在返回结果后，两个链表仍须保持原有的结构。可假定整个链表结构中没有循环。程序需满足 O(n) 时间复杂度，且仅用 O(1) 内存。  
+示例：  
+输入：intersectVal = 8, listA = [4,1,8,4,5], listB = [5,0,1,8,4,5], skipA = 2, skipB = 3  
+![](/images/2021-04-30-list-algorithm/160-title.png)  
+输出：Reference of the node with value = 8  
+解释：相交节点的值为 8 。从各自的表头开始算起，链表 A 为 [4,1,8,4,5]，链表 B 为 [5,0,1,8,4,5]。在 A 中，相交节点前有 2 个节点；在 B 中，相交节点前有 3 个节点。
+
+思路：  
+设「第一个公共节点」为 node，「链表 headA」的节点数为 a，「链表 headB」的节点数为 b，「两链表的公共尾部」的节点数为 c，则有：头节点 headA 到 node 前，共有 a−c 个节点，头节点 headB 到 node 前，共有 b−c 个节点。构建两个节点指针 cur，cur2 分别指向两链表头节点 headA，headB，指针 cur 先遍历完链表 headA ，再开始遍历链表 headB，当走到 node 时，共走步数为 a+(b−c)，指针 cur2 先遍历完链表 headB ，再开始遍历链表 headA，当走到 node 时，共走步数为 b+(a−c)，此时指针 cur，cur2 重合（ a+(b−c) = b+(a−c) ），并有两种情况：若两链表有公共尾部 (即 c>0 ) ，指针 cur，cur2 同时指向「第一个公共节点」node；若两链表无公共尾部 (即 c=0 ) ，指针 cur，cur2 同时指向 null。返回 cur 指针指向的节点即可。  
+![](/images/2021-04-30-list-algorithm/160-answer.png)
+
+题解：
+
+```java
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) {
+ *         val = x;
+ *         next = null;
+ *     }
+ * }
+ */
+public class Solution {
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        if (headA == null || headB == null) return null; // 优化
+        ListNode cur = headA, cur2 = headB;
+        while (cur != cur2) {
+            cur = cur != null ? cur.next : headB;
+            cur2 = cur2 != null ? cur2.next : headA;
+        }
+        return cur;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(a+b)，a和b分别为两链表的长度
+- 空间复杂度：O(1)
 
 ### 237. [Delete Node in a Linked List](https://leetcode-cn.com/problems/delete-node-in-a-linked-list/) 删除链表中的节点
 
@@ -1204,3 +1347,8 @@ class Solution {
     }
 }
 ```
+
+tips：
+
+- 时间复杂度：O(1)
+- 空间复杂度：O(1)
