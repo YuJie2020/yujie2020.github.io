@@ -2066,6 +2066,200 @@ tips：
 - 时间复杂度：O(n)；
 - 空间复杂度：O(k)，新增最大长度为k的双端队列。
 
+### 150. [Evaluate Reverse Polish Notation](https://leetcode-cn.com/problems/evaluate-reverse-polish-notation/) 逆波兰表达式求值
+
+根据 逆波兰表示法，求表达式的值。有效的算符包括 +、-、*、/ 。每个运算对象可以是整数，也可以是另一个逆波兰表达式。整数除法只保留整数部分。给定逆波兰表达式总是有效的。  
+示例：  
+输入：tokens = ["4","13","5","/","+"]  
+输出：6  
+解释：该算式转化为常见的中缀算术表达式为：(4 + (13 / 5)) = 6
+
+思路：  
+使用栈结构辅助计算。逆波兰表达式即后缀表达式，运算符位于操作数之后。逆波兰表达式的计算求值：从左至右扫描表达式，遇到数字时将数字压入堆栈，遇到运算符时弹出栈顶的两个数，用运算符对它们做相应的计算（次顶元素 和 栈顶元素），并将结果入栈，重复上述过程直到表达式最右端，最后运算得出的值（栈中最后的一个元素）即为表达式的结果。
+
+题解：
+
+```java
+class Solution {
+    public int evalRPN(String[] tokens) {
+        Stack<Integer> numStack = new Stack<>();
+        for (String str : tokens) {
+            if (str.length() == 1 && (str.charAt(0) < '0' || str.charAt(0) > '9')) { // 为运算符：弹出栈顶元素两次进行运算
+                int ele1 = numStack.pop(); // 一次运算的主动数（后者参与运算的数，eg：8-2的2 或 6/3的3）
+                int ele2 = numStack.pop(); // 一次运算的被动数（前者参与运算的数，eg：8-2的8 或 6/3的6）
+                switch (str.charAt(0)) {
+                    case '+':
+                        numStack.push(ele2 + ele1);
+                        break;
+                    case '-':
+                        numStack.push(ele2 - ele1);
+                        break;
+                    case '*':
+                        numStack.push(ele2 * ele1);
+                        break;
+                    default: // 运算符为除号
+                        numStack.push(ele2 / ele1);
+                        break;
+                }
+            } else numStack.push(Integer.parseInt(str)); // 为一数字：直接入栈
+        }
+        return numStack.pop();
+    }
+}
+```
+
+tips：  
+对于 switch 语句：
+
+- 多个case后面的数值不可以重复；
+- switch后面的小括号当中只能是下列数据类型：基本数据类型：byte/short/char/int，引用数据类型：String字符串/enum枚举；
+- switch语句格式可以很灵活：前后顺序可以颠倒，而且break语句还可以省略（匹配哪一个case就从哪一个位置向下执行，直到遇到了break或者整体结束为止：当程序判断某个case的条件为真后，它将在执行该case所带的的语句块（此语句块无 break 语句）之后，不再对后面的case的条件进行判断而直接执行）；
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)，栈中元素的个数不会超过逆波兰表达式的长度n
+
+### 224. [Basic Calculator](https://leetcode-cn.com/problems/basic-calculator/) 基本计算器
+
+给你一个字符串表达式 s ，请你实现一个基本计算器来计算并返回它的值。s 由数字、'+'、'-'、'('、')'、和 ' ' 组成。  
+示例：  
+输入："+48 + -48"ㅤ \|ㅤ "(1)" ㅤ\|ㅤ "-(-1 - -1)"ㅤ \| ㅤ"(1+(4+5+2)-3)+(6+8)"  
+输出：ㅤㅤ 0ㅤ ㅤㅤ \|ㅤ ㅤ 1 ㅤ \| ㅤ ㅤ2ㅤㅤ ㅤ \| ㅤㅤㅤㅤㅤ23
+
+思路：  
+利用辅助栈解决括号问题。将一个表达式分为左边的表达式、运算符和右边的表达式三部分，左边或者右边的表达式可以是一个数字也可以是一个对括号包起来的表达式，运算符可以是加减。对于一个只包含加减和括号的表达式，可以从左到右计算，遇到括号就先计算括号里的，即先计算左边的表达式，然后将左边表达式的结果和运算符保存起来，再计算右边表达式，最后计算总的结果：左边表达式的结果由中间运算符和右边表达式的结果的结果。  
+这里表达式的结果是：有一个数字（右边的表达式计算的结果）取其前面的符号（中间的运算符）累加到已有结果（左边的表达式计算的结果）中（使用加号为 1 减号为 -1 乘以当前数字）；或者有一个右括号取出栈中的符号即与此右括号匹配的左括号的左边的符号（中间的运算符），并将当前数字更新为此括号内计算出来的结果（右边的表达式计算的结果），取出栈中的数字即此括号前的计算结果（左边的表达式计算的结果）。  
+当表达式出现括号则用栈保存括号前的左边的表达式计算的结果和中间的运算符，符号与左边表达式的结果都置为默认值以计算右边表达式的结果（出现括号但是符号变量和结果变量都需要置默认，只能将之前的符号和结果存储与栈中）。  
+对于多层嵌套括号的情况：栈顶保留的是最里层嵌套的运算，弹出栈的时候，正好先算的是最里面括号的，再算外边括号的。eg：对于 (1 + (2 + (3 + 4)))，栈里面保存的是 ["1", "+", "2", "+"]，然后遇到 3，此时计算的是 0 + 3，然后算 3 + 4，再算 2 + 7，再算 1 + 9。
+
+题解：
+
+```java
+class Solution {
+    public int calculate(String s) {
+        int res = 0; // 左边表达式除去栈内保存元素的计算结果（括号外的部分计算结果或者括号内的计算结果），默认值为0
+        int num = 0; // 当前遇到的数字（右边表达式的结果），会产生运算并将结果更新到 res 中
+        int sign = 1; // 中间的运算符：加号为1减号为-1，默认值为1
+        Stack<Integer> stack = new Stack<>(); // 用于存储括号外的结果
+        char[] chs = s.toCharArray();
+        for (int i = 0; i < chs.length; i++) {
+            if (chs[i] == ' ') continue; // 跳过空格
+            if (chs[i] >= '0' && chs[i] <= '9') {
+                num = num * 10 + chs[i] - '0'; // 多位数则需要累加
+                if (i + 1 < chs.length && chs[i + 1] >= '0' && chs[i + 1] <= '9') continue; // 数字可能不止一位数，当下一字符不为数字则产生运算
+            } else if (chs[i] == '+' || chs[i] == '-') {
+                num = 0; // 需要将 num 置0，以存放当前符号之后的数字（同时遍历到符号不应产生运算）
+                sign = chs[i] == '+' ? 1 : -1;
+            } else if (chs[i] == '(') {
+                stack.push(res); // 将左括号之前的临时结果入栈（即左边表达式的计算结果）
+                stack.push(sign); // 将左括号左边的运算符入栈（即中间的运算符）
+                res = 0; // 将 res 置0，以保存括号中的计算结果（即右边表达式的计算结果）
+                sign = 1; // 将符号置为默认值
+            } else { // 当前字符为右括号')'
+                sign = stack.pop(); // 将此右括号对应的左括号左边的运算符弹出（即中间的运算符）
+                num = res; // 将num更新为括号中的计算结果（即右边表达式的计算结果）：更新num值应在更新res值之前，因为num值引用了：原来res的值
+                res = stack.pop(); // 更新res的值（此右括号对应的左括号左边的左边表达式的计算结果）：新的res的值
+            }
+            res += sign * num; // 运算
+        }
+        return res;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+### 227. [Basic Calculator II](https://leetcode-cn.com/problems/basic-calculator-ii/) 基本计算器 II
+
+给你一个字符串表达式 s ，请你实现一个基本计算器来计算并返回它的值。整数除法仅保留整数部分。s 由整数和算符 ('+', '-', '*', '/') 组成，中间由一些空格隔开。表达式中的所有整数都是非负整数，且在范围 [0, 2^31 - 1] 内。  
+示例：  
+输入：s = " 3+5 / 2 "  
+输出：5
+
+思路：  
+使用辅助栈存储加减运算的结果（乘除运算则先取出栈顶元素计算完再入栈）。由于乘除优先于加减计算，先进行所有乘除运算，并将这些乘除运算后的整数值放回原表达式的相应位置，则随后整个表达式的值就等于一系列整数加减后的值。使用一个栈保存 进行乘除运算后的 整数的值。  
+使用一个变量 preSign 记录每个数字之前的运算符，每次遍历到数字末尾时由 preSign 决定计算方式：加号则数字压入栈，减号则将数字取反压入栈，乘除号则计算数字与栈顶元素（先弹出）的结果压入栈。  
+遍历完字符串表达式 s 后，将栈中元素累加即为该字符串表达式的值。
+
+题解：
+
+```java
+class Solution {
+    public int calculate(String s) {
+        Stack<Integer> stack = new Stack<>(); // 存储加减运算的结果（乘除运算则先取出栈顶元素计算完再入栈）
+        char preSign = '+'; // 产生运算时的前一个运算符（数字前面的运算符），默认值为 '+'
+        int num = 0; // 当前数字
+        char[] chs = s.toCharArray();
+        for (int i = 0; i < chs.length; i++) {
+            if (Character.isDigit(chs[i])) num = num * 10 + chs[i] - '0'; // 为一数字则继续累加到当前数字
+            if (!Character.isDigit(chs[i]) && chs[i] != ' ' || i == chs.length - 1) { // 为一运算符（不为空格也不为数字）或者遍历到字符串表达式的末尾：表示当前数字累加完需要进行运算入栈或者直接入栈
+                switch (preSign) { // 这里判断的符号因为产生运算时的前一个运算符（数字前面的运算符）而不是当前的运算符
+                    case '+':
+                        stack.push(num);
+                        break;
+                    case '-':
+                        stack.push(-num);
+                        break;
+                    case '*':
+                        stack.push(stack.pop() * num);
+                        break;
+                    default: // 运算符为除号
+                        stack.push(stack.pop() / num);
+                        break;
+                }
+                preSign = chs[i]; // 更新 preSign 的值：即为下一次运算的运算符
+                num = 0; // 当前数字计算完之后需要置0（因为 num 是累加求值）
+            } // 空格则不满足上述两个 if 判断而跳过
+        }
+        int result = 0;
+        while (!stack.empty()) result += stack.pop();
+        return result;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+### 71. [Simplify Path](https://leetcode-cn.com/problems/simplify-path/) 简化路径
+
+给你一个字符串 path ，表示指向某一文件或目录的 Unix 风格 绝对路径 （以 '/' 开头），请你将其转化为更加简洁的规范路径。在 Unix 风格的文件系统中，一个点（.）表示当前目录本身；此外，两个点 （..） 表示将目录切换到上一级（指向父目录）；两者都可以是复杂相对路径的组成部分。任意多个连续的斜杠（即，'//'）都被视为单个斜杠 '/' 。 对于此问题，任何其他格式的点（例如，'...'）均被视为文件/目录名称。返回的 规范路径 必须遵循下述格式：始终以斜杠 '/' 开头；两个目录名之间必须只有一个斜杠 '/' ；最后一个目录名（如果存在）不能 以 '/' 结尾；此外，路径仅包含从根目录到目标文件或目录的路径上的目录（即，不含 '.' 或 '..'）。返回简化后得到的 规范路径 。path 由英文字母，数字，'.'，'/' 或 '_' 组成。path 是一个有效的 Unix 风格绝对路径。  
+示例：  
+输入：path = "/a/./b/../../c/"  
+输出："/c"
+
+思路：  
+使用双端队列存储路径的简化目录结构。由 ”/“ 拆分原路径字符串得到每级目录的名称，遍历目录名称数组，当目录名称为 "." （表示为当前目录）或 "" （表示原两级目录之间使用了 // 来分隔）时则跳过，为 ".." （表示返回上级目录）则删除双端队列的末尾元素，为其他字符串则表示其为一个有效的目录名称，将其添加到双端队列的末尾。按顺序弹出双端队列的首元素并拼接目录层级分隔符 ”/“添加到结果中，即为简化后的路径。
+
+题解：
+
+```java
+class Solution {
+    public String simplifyPath(String path) {
+        Deque<String> deque = new LinkedList<>();
+        String[] dirs = path.split("/");
+        for (int i = 0; i < dirs.length; i++) {
+            if (dirs[i].equals(".") || dirs[i].equals("")) continue;
+            if (dirs[i].equals("..")) {
+                deque.pollLast(); // 无需判断双端队列是否为空，pollLast() 方法在双端队列为空时返回 null
+            } else deque.offer(dirs[i]);
+        }
+        StringBuilder result = new StringBuilder();
+        while (!deque.isEmpty()) result.append("/").append(deque.pollFirst());
+        return result.toString().equals("") ? "/" : result.toString(); // 可能结果为根目录但是字符串为空则需要以 '/' 表示
+    }
+}
+```
+
+tips：
+
+- 对于 java.lang.String 类中的 String[] split(String regex) 方法，根据给定正则表达式的匹配拆分此字符串。eg："h//a/f///d".split("/") 会将字符串拆分为 \["h", "", "a", "f", "", "", "d"]，会出现空字符串；
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
 ## Ⅸ General - Array & Math 常规 - 数组和数学
 
 常规数组题目，遍历，条件判断，... 。以及数学题。
