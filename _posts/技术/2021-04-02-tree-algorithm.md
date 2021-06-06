@@ -1,12 +1,12 @@
 ---
 layout: post
 title: 树结构-相关算法
-description: 抽出LeetCode题库中树结构相关的算法题目，再以相似类型的题目进行分类归纳总结题解。
+description: 抽出LeetCode以及牛客题库中树结构相关的算法题目，再以相似类型的题目进行分类归纳总结题解。
 category: 技术
 ---
 
 ## introduction 
-抽出LeetCode题库中树结构相关的算法题目，再以相似类型的题目进行分类归纳总结题解。  
+抽出LeetCode以及牛客题库中树结构相关的算法题目，再以相似类型的题目进行分类归纳总结题解。  
 并非每道题目的解法都是它的最优写法，只是在尽量保证代码执行高效性的前提下，为了归纳总结便于记忆而给定的解法，故这里每道题的题解也都只列出了一种写法。
 
 ## Ⅰ Use Both Children and Return One 子节点用二返一
@@ -331,5 +331,56 @@ class Solution {
 
 tips：
 
-- 时间复杂度：O(n^2)，因为递归用函数中有迭代的while循环。
+- 时间复杂度：O(n^2)，因为递归用函数中有迭代的while循环
+- 空间复杂度：O(n)
+
+## Ⅲ Greedy Algorithm 贪心算法
+
+贪心算法即在对问题进行求解时，在每一步选择中都采取最好或者最优(即最有利)的选择，从而希望能够导致结果是最好或者最优的算法。对于大部分题目结果为最优解，但也有个别题目的结果不一定是最优的结果（有时候会是最优解），但是都是相对近似（接近）最优解的结果。
+
+### KY188. [Huffman Tree](https://www.nowcoder.com/practice/162753046d5f47c7aac01a5b2fcda155) 哈夫曼树
+
+哈夫曼树，第一行输入一个数n，表示叶结点的个数。需要用这些叶结点生成哈夫曼树，根据哈夫曼树的概念，这些结点有权值，即weight，题目需要输出此哈夫曼树的带权路径长度（WPL）。  
+示例：  
+输入：  
+ㅤㅤㅤ5  
+ㅤㅤㅤ1 2 2 5 9  
+输出：37
+
+思路：  
+将所有叶子节点的权添加到小顶堆中（使用java.util.PriorityQueue实现）：权最小的候选项（节点）放在堆的顶部，从堆中每次弹出两个权最小的节点组成组成一颗新的二叉树，并将当前二叉树的带权路径长度累加到结果中（每个新二叉树的带权路径长度是不断累加到最后形成的赫夫曼树的带权路径长度，而不是最后一步形成赫夫曼树时根节点的带权路径长度）。  
+构造赫夫曼树的步骤：从小到大进行排序，将每一个数据都看作是一个节点，每个节点可以看成是一颗最简单的二叉树；取出根节点权值最小的两颗二叉树，组成一颗新的二叉树，该新的二叉树的根节点的权值是前面两颗二叉树根节点权值的和；再将这颗新的二叉树以根节点的权值大小再次排序，不断重复之前的步骤直到数列中所有的数据都被处理，就得到一颗赫夫曼树。  
+给定n个权值作为n个叶子结点，构造一棵二叉树，若该树的带权路径长度(WPL)达到最小，称这样的二叉树为最优二叉树，也称为哈夫曼树。赫夫曼树是带权路径长度最短的树，权值较大的结点离根较近。  
+若将树中结点赋给一个有着某种含义的数值，则这个数值称为该结点的权。结点的带权路径长度为：从根结点到该结点之间的路径长度与该结点的权的乘积。树的带权路径长度规定为所有叶子结点的带权路径长度之和，权值越大的结点离根结点越近的二叉树即最优二叉树（赫夫曼树）。
+
+题解：
+
+```java
+import java.util.Scanner;
+import java.util.PriorityQueue;
+
+public class Main{
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        while (sc.hasNext()) {
+            int nodeCount = sc.nextInt();
+            int result = 0;
+            PriorityQueue<Integer> heap = new PriorityQueue<>();
+            for (int i = 0; i < nodeCount; i++) heap.offer(sc.nextInt());
+            while (heap.size() > 1) {
+                int sum = heap.poll() + heap.poll();
+                result += sum;
+                heap.offer(sum);
+            }
+            System.out.println(result);
+        }
+    }
+}
+```
+
+tips：
+
+- java.util.PriorityQueue类是一个基于优先级堆的无界优先级队列。优先级队列的元素按照其自然顺序进行排序，或者根据构造队列时提供的 Comparator 进行排序，具体取决于所使用的构造方法。优先级队列不允许使用 null 元素。依靠自然顺序的优先级队列还不允许插入不可比较的对象（可能导致 ClassCastException）。 此队列的头是按指定排序方式确定的最小元素。如果多个元素都是最小值，则头是其中一个元素（选择方法是任意的）。队列获取操作 poll、remove、peek 和 element 访问处于队列头的元素。此实现不是同步的，此实现为排队和出队方法（offer、poll、remove() 和 add）提供 O(log(n)) 时间，为 remove(Object) 和 contains(Object) 方法提供线性时间；为获取方法（peek、element 和 size）提供固定时间。此题使用PriorityQueue类来实现小顶堆的功能；
+- 对PriorityQueue实现使用的offer及poll方法，都为接口 Queue中的方法，不使用add方法是由于offer方法通常要优于 add(E)，后者可能无法插入元素而只是抛出一个异常；
+- 时间复杂度：O(nlogn)，使用O(n) 的时间统计每个叶子节点，然后将 n 个叶子节点权值添加到堆中，添加每个权值的时间为 O(logn)
 - 空间复杂度：O(n)

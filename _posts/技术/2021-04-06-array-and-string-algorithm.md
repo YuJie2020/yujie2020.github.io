@@ -1340,7 +1340,7 @@ tips：
 解释："i" 和 "love" 为出现次数最多的两个单词，均为2次。按字母顺序 "i" 在 "love" 之前。
 
 思路：  
-使用Map集合存储字符串数组中每个单词的频率，然后将其添加到存储到大小为 k 的小顶堆中（使用java.util.PriorityQueue<E>实现）。将频率最小的候选项放在堆的顶部，从堆中弹出 k 次并反转结果，就可以得到前 k 个高频单词。
+使用Map集合存储字符串数组中每个单词的频率，然后将其添加到大小为 k 的小顶堆中（使用java.util.PriorityQueue<E>实现）。将频率最小的候选项放在堆的顶部，从堆中弹出 k 次并反转结果，就可以得到前 k 个高频单词。
 
 题解：
 
@@ -1375,7 +1375,7 @@ tips：
 - java.util.PriorityQueue<E>类是一个基于优先级堆的无界优先级队列。优先级队列的元素按照其自然顺序进行排序，或者根据构造队列时提供的 Comparator 进行排序，具体取决于所使用的构造方法。优先级队列不允许使用 null 元素。依靠自然顺序的优先级队列还不允许插入不可比较的对象（可能导致 ClassCastException）。 此队列的头是按指定排序方式确定的最小元素。如果多个元素都是最小值，则头是其中一个元素（选择方法是任意的）。队列获取操作 poll、remove、peek 和 element 访问处于队列头的元素。此实现不是同步的，此实现为排队和出队方法（offer、poll、remove() 和 add）提供 O(log(n)) 时间，为 remove(Object) 和 contains(Object) 方法提供线性时间；为获取方法（peek、element 和 size）提供固定时间。此题使用PriorityQueue<E>类来实现小顶堆的功能；
 - 使用 PriorityQueue (Comparator<? super E> comparator) 创建具有默认初始容量的 PriorityQueue ，并根据指定的比较器对其元素进行排序。来实例化此优先级队列（JDK 1.8新特性）；
 - 使用java.lang.String类的 int compareTo(String anotherString) 方法，按字典顺序比较两个字符串（如果参数字符串等于此字符串则返回值 0，如果此字符串按字典顺序小于字符串参数则返回一个小于 0 的值，如果此字符串按字典顺序大于字符串参数则返回一个大于 0 的值）。 所以当单词出现相同的频率按字母顺序排序，需要调用s2.compareTo(s1)，因为当s1字典序小于s2时返回值为负（应为正值）；
-- 对PriorityQueue实现使用的offer及poll方法，都为接口 Queue<E>中的方法，不使用add和remove方法是由于offer方法通常要优于 add(E)，后者可能无法插入元素而只是抛出一个异常，与此同时如果队列为空poll方法返回 null 而remove方法抛出异常；
+- 对PriorityQueue实现使用的offer及poll方法，都为接口 Queue中的方法，不使用add方法是由于offer方法通常要优于 add(E)，后者可能无法插入元素而只是抛出一个异常；
 - 时间复杂度：O(nlogk)。其中 n 是 words 的长度，使用O(n) 的时间计算每个单词的频率，然后将 n 个单词添加到堆中，添加每个单词的时间为 O(logk) ；
 - 空间复杂度：O(n)
 
