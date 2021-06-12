@@ -386,9 +386,10 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(logn)，递归栈的深度为O(logn)
 
-## Ⅲ Preorder Inorder or Postorder Traversal
+## Ⅲ Depth First Search (Preorder Inorder or Postorder Traversal) 深度优先搜索（前序中序或后序遍历）
 
-本质上为二叉树的前序、中序或后序遍历的相关题目。
+本质上为二叉树的前序、中序或后序遍历的相关题目。  
+**对于树，深度优先搜索（DFS）即为树的 前序/中序/后续 遍历；广度优先搜索（BFS）即为树的 层序遍历（逐层从上到下扫描整棵树）**。
 
 ### 144. [Binary Tree Preorder Traversal](https://leetcode-cn.com/problems/binary-tree-preorder-traversal/) 二叉树的前序遍历
 
@@ -835,7 +836,6 @@ class Solution {
 
 tips：
 
-- **对于树，深度优先搜索（DFS）即为树的 前序/中序/后续 遍历；广度优先搜索（BFS）为逐层从上到下扫描整棵树**；
 - 时间复杂度：O(n)
 - 空间复杂度：O(n)
 
@@ -907,7 +907,620 @@ tips：
 - 时间复杂度：O(1)，初始化需要 O(n) 的时间，随后每次调用只需要 O(1) 的时间
 - 空间复杂度：O(n)，保存中序遍历的全部结果
 
-## Ⅳ Greedy Algorithm 贪心算法
+## Ⅳ Broad First Search (Level Order Traversal) 广度优先搜索（层序遍历）
+
+本质上为二叉树的层序遍历的相关题目。  
+**对于树，深度优先搜索（DFS）即为树的 前序/中序/后续 遍历；广度优先搜索（BFS）即为树的 层序遍历（逐层从上到下扫描整棵树）**。
+
+### 102. [Binary Tree Level Order Traversal](https://leetcode-cn.com/problems/binary-tree-level-order-traversal/) 二叉树的层序遍历
+
+给你一个二叉树，请你返回其按 层序遍历 得到的节点值。（即逐层地，从左到右访问所有节点）  
+示例：  
+输入：[3,9,20,null,null,15,7]
+
+```
+    3
+   / \
+  9  20
+    /  \
+   15   7
+```
+
+输出：
+
+```
+[
+  [3],
+  [9,20],
+  [15,7]
+]
+```
+
+思路：  
+广度优先遍历，利用队列数据结构（以保持访问过的结点的顺序，以便按这个顺序来访问这些结点的邻接结点）实现。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (root == null) return result;
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            int count = queue.size(); // 当前层级的节点个数
+            List<Integer> level = new ArrayList<>();
+            while (count != 0) {
+                TreeNode node = queue.poll();
+                level.add(node.val);
+                if (node.left != null) queue.offer(node.left); // 添加当前层级节点的邻接节点
+                if (node.right != null) queue.offer(node.right); // 添加当前层级节点的邻接节点
+                count--;
+            }
+            result.add(level);
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)，每个节点进队出队各一次，渐进时间复杂度为 O(n)
+- 空间复杂度：O(n)
+
+### 107. [Binary Tree Level Order Traversal II](https://leetcode-cn.com/problems/binary-tree-level-order-traversal-ii/) 二叉树的层序遍历 II
+
+给定一个二叉树，返回其节点值自底向上的层序遍历。 （即按从叶子节点所在层到根节点所在的层，逐层从左向右遍历）  
+示例：  
+输入：[3,9,20,null,null,15,7]
+
+```
+    3
+   / \
+  9  20
+    /  \
+   15   7
+```
+
+输出：
+
+```
+[
+  [15,7],
+  [9,20],
+  [3]
+]
+```
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public List<List<Integer>> levelOrderBottom(TreeNode root) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (root == null) return result;
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            int count = queue.size(); // 当前层级的节点个数
+            List<Integer> level = new ArrayList<>();
+            while (count != 0) {
+                TreeNode node = queue.poll();
+                level.add(node.val);
+                if (node.left != null) queue.offer(node.left); // 添加当前层级节点的邻接节点
+                if (node.right != null) queue.offer(node.right); // 添加当前层级节点的邻接节点
+                count--;
+            }
+            result.add(0, level); // 总是将当前层级所有节点值的列表插入结果集合的头部
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 思路与102题相同；
+- 使用 java.util.ArrayList<E> 类中的  void add(int index, E element) 方法，将指定的元素插入此列表中的指定位置，向右移动当前位于该位置的元素（如果有）以及所有后续元素（将其索引加 1）。调用 add(0, level) 以进行倒序插入；
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+### 103. [Binary Tree Zigzag Level Order Traversal](https://leetcode-cn.com/problems/binary-tree-zigzag-level-order-traversal/) 二叉树的锯齿形层序遍历
+
+给定一个二叉树，返回其节点值的锯齿形层序遍历。（即先从左往右，再从右往左进行下一层遍历，以此类推，层与层之间交替进行）  
+示例：  
+输入：[3,9,20,null,null,15,7]
+
+```
+    3
+   / \
+  9  20
+    /  \
+   15   7
+```
+
+输出：
+
+```
+[
+  [3],
+  [20,9],
+  [15,7]
+]
+```
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (root == null) return result;
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        boolean isReverse = false; // 当前层级是否需要逆序（需要从右往左遍历的层级），初始值为 false
+        while (!queue.isEmpty()) {
+            int count = queue.size(); // 当前层级的节点个数
+            List<Integer> level = new ArrayList();
+            while (count != 0) {
+                TreeNode node = queue.poll();
+                if (isReverse) { // 需要从右往左遍历的层级进行倒序插入
+                    level.add(0, node.val);
+                } else level.add(node.val);
+                if (node.left != null) queue.offer(node.left); // 添加当前层级节点的邻接节点（总是按照从左往右的顺序添加）
+                if (node.right != null) queue.offer(node.right); // 添加当前层级节点的邻接节点（总是按照从左往右的顺序添加）
+                count--;
+            }
+            result.add(level);
+            isReverse = !isReverse; // 将 isReverse 取反（下一层的遍历状态不同）
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 思路与102题相同；
+- 使用 java.util.ArrayList<E> 类中的  void add(int index, E element) 方法，将指定的元素插入此列表中的指定位置，向右移动当前位于该位置的元素（如果有）以及所有后续元素（将其索引加 1）。调用 add(0, node.val) 以在需要从右往左遍历的层级进行倒序插入；
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+### 637. [Average of Levels in Binary Tree](https://leetcode-cn.com/problems/average-of-levels-in-binary-tree/) 二叉树的层平均值
+
+给定一个非空二叉树, 返回一个由每层节点平均值组成的数组。节点值的范围在32位有符号整数范围内。  
+示例：  
+输入：
+
+```
+    3
+   / \
+  9  20
+    /  \
+   15   7
+```
+
+输出：[3, 14.5, 11]
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public List<Double> averageOfLevels(TreeNode root) {
+        List<Double> result = new ArrayList<>();
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            double levelSum = 0; // 当前层级所有节点的和（变量类型定义为 double）
+            int size = queue.size(); // 当前层级的节点个数
+            for (int i = 0; i < size; i++) {
+                TreeNode node = queue.poll();
+                levelSum += node.val;
+                if (node.left != null) queue.offer(node.left); // 添加当前层级节点的邻接节点
+                if (node.right != null) queue.offer(node.right); // 添加当前层级节点的邻接节点
+            }
+            result.add(levelSum / size);
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 思路与102题相似；
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+### 429. [N-ary Tree Level Order Traversal](https://leetcode-cn.com/problems/n-ary-tree-level-order-traversal/) N 叉树的层序遍历
+
+给定一个 N 叉树，返回其节点值的层序遍历。（即从左到右，逐层遍历）。树的序列化输入是用层序遍历，每组子节点都由 null 值分隔。树的节点总数在 [0, 10^4] 之间。  
+示例：  
+输入：root = [1,null,2,3,4,5,null,null,6,7,null,8,null,9,10,null,null,11,null,12,null,13,null,null,14]  
+![](/images/2021-04-02-tree-algorithm/429.png)  
+输出：[[1],[2,3,4,5],[6,7,8,9,10],[11,12,13],[14]]
+
+题解：
+
+```java
+/*
+// Definition for a Node.
+class Node {
+    public int val;
+    public List<Node> children;
+
+    public Node() {}
+
+    public Node(int _val) {
+        val = _val;
+    }
+
+    public Node(int _val, List<Node> _children) {
+        val = _val;
+        children = _children;
+    }
+};
+*/
+
+class Solution {
+    public List<List<Integer>> levelOrder(Node root) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (root == null) return result;
+        Queue<Node> queue = new LinkedList<>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            int count = queue.size(); // 当前层级的节点个数
+            List<Integer> level = new ArrayList<>();
+            while (count != 0) {
+                Node node = queue.poll();
+                level.add(node.val);
+                if (node.children != null) queue.addAll(node.children); // 添加当前层级节点的邻接节点
+                count--;
+            }
+            result.add(level);
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 思路与102题相似；
+- 使用 java.util.Queue<E> extends Collection<E> 类中的 boolean addAll(Collection<? extends E> c) 方法，将指定 collection 中的所有元素都添加到此 collection 中；
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+### 199. [Binary Tree Right Side View](https://leetcode-cn.com/problems/binary-tree-right-side-view/) 二叉树的右视图
+
+给定一棵二叉树，想象自己站在它的右侧，按照从顶部到底部的顺序，返回从右侧所能看到的节点值。  
+示例：  
+输入：[1,2,3,null,5,null,4]
+
+```
+   1            <---
+ /   \
+2     3         <---
+ \     \
+  5     4       <---
+```
+
+输出：[1, 3, 4]
+
+思路：  
+1) 深度优先搜索：递归（前序遍历的变种：先输出父节点，再遍历右子树和左子树）。思路与144题递归方式相似。  
+2) 广度优先搜索：思路与102题相似，同时使用到了指针。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+
+// 深度优先搜索（DFS）
+class Solution {
+
+    List<Integer> result = new ArrayList<>(); // 成员变量
+
+    public List<Integer> rightSideView(TreeNode root) {
+        dfs(root, 0);
+        return result;
+    }
+
+    private void dfs(TreeNode root, int level) { // 参数 level 为二叉树的层数，从 0 开始（**回溯以及递归过程中，对于参数 root 节点总是在二叉树的 level 层**）
+        if (root != null) {
+            if (result.size() == level) result.add(root.val); // 当 result.size() == level 成立时：第一次访问到 level 层的节点（回溯过程中，前者将大于后者），故只有第一次访问到某层级的节点（此层第一次访问到的节点也即此层最右侧的节点）才添加到结果中
+            dfs(root.right, level + 1); // 右子节点的访问优先级高于左子节点
+            dfs(root.left, level + 1);
+        }
+    } // 所有二叉树中的节点都会被遍历（访问）一次：最终方法会回溯到最终第一次调用处（即访问头节点处）
+}
+
+// 广度优先搜索（BFS）
+/*class Solution {
+    public List<Integer> rightSideView(TreeNode root) {
+        List<Integer> result = new ArrayList<>();
+        if (root == null) return result;
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            int count = queue.size(); // 当前层级的节点个数
+            TreeNode node = null; // 节点指针
+            while (count != 0) {
+                node = queue.poll();
+                if (node.left != null) queue.offer(node.left); // 添加当前层级节点的邻接节点
+                if (node.right != null) queue.offer(node.right); // 添加当前层级节点的邻接节点
+                count--;
+            } // 退出循环后 node 指针指向当前层级的最后一个节点（即从右侧能看到的节点）
+            result.add(node.val);
+        }
+        return result;
+    }
+}*/
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+### 116. [Populating Next Right Pointers in Each Node](https://leetcode-cn.com/problems/populating-next-right-pointers-in-each-node/) 填充每个节点的下一个右侧节点指针
+
+给定一个 完美二叉树 ，其所有叶子节点都在同一层，每个父节点都有两个子节点。二叉树定义如下：  
+struct Node {  
+	int val;  
+	Node *left;  
+	Node *right;  
+	Node *next;  
+}  
+填充它的每个 next 指针，让这个指针指向其下一个右侧节点。如果找不到下一个右侧节点，则将 next 指针设置为 NULL。初始状态下，所有 next 指针都被设置为 NULL。只能使用常量级额外空间。使用递归解题也符合要求，本题中递归程序占用的栈空间不算做额外的空间复杂度。树中节点的数量少于 4096。  
+示例：  
+输入：root = [1,2,3,4,5,6,7]  
+![](/images/2021-04-02-tree-algorithm/116.png)  
+输出：[1,#,2,3,#,4,5,6,7,#]  
+解释：序列化的输出按层序遍历排列，同一层节点由 next 指针连接，'#' 标志着每一层的结束。
+
+思路：  
+1) 深度优先搜索：递归（前序遍历）。满二叉树（完美二叉树）：所有叶子节点都在同一层，每个父节点都有两个子节点。利用上一层级已建立的 next 指针建立下一层级的 next 指针。  
+2) 广度优先搜索：思路与102题相似，同时使用到了指针。
+
+题解：
+
+```java
+/*
+// Definition for a Node.
+class Node {
+    public int val;
+    public Node left;
+    public Node right;
+    public Node next;
+
+    public Node() {}
+    
+    public Node(int _val) {
+        val = _val;
+    }
+
+    public Node(int _val, Node _left, Node _right, Node _next) {
+        val = _val;
+        left = _left;
+        right = _right;
+        next = _next;
+    }
+};
+*/
+
+// 深度优先遍历：前序遍历
+class Solution {
+    public Node connect(Node root) {
+        if (root == null || root.left == null) return root; // 递归到最后一层无需建立下一层级的 next 指针则直接退出方法
+        root.left.next = root.right; // 连接当前节点的左子节点与右子节点
+        if (root.next != null) root.right.next = root.next.left; // 利用当前root节点的 next 成员变量（即利用上一层级已建立的 next 指针）连接其右子节点与同层级的下一节点（层序遍历的下一节点）：**连接此层的节点时，root节点与其next节点相对上一层级为前一层级某节点的左子节点与右子节点**
+        connect(root.left);
+        connect(root.right);
+        return root; // 在递归的过程中，返回值并未被使用，其作用仅为方法回溯到第一次调用方法（访问根节点）时返回原二叉树的根节点
+    }
+}
+
+// 广度优先遍历
+/*class Solution {
+    public Node connect(Node root) {
+        if (root == null) return root;
+        Queue<Node> queue = new LinkedList<>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            int count = queue.size();
+            Node pre = null, cur = null; // 指针
+            while (count != 0) {
+                cur = queue.poll();
+                if (pre != null) pre.next = cur;
+                if (cur.left != null) queue.offer(cur.left);
+                if (cur.right != null) queue.offer(cur.right);
+                pre = cur;
+                count--;
+            }
+        }
+        return root;
+    }
+}*/
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+### 117. [Populating Next Right Pointers in Each Node II](https://leetcode-cn.com/problems/populating-next-right-pointers-in-each-node-ii/) 填充每个节点的下一个右侧节点指针 II
+
+给定一个二叉树  
+struct Node {  
+	int val;  
+	Node *left;  
+	Node *right;  
+	Node *next;  
+}  
+填充它的每个 next 指针，让这个指针指向其下一个右侧节点。如果找不到下一个右侧节点，则将 next 指针设置为 NULL。初始状态下，所有 next 指针都被设置为 NULL。只能使用常量级额外空间。使用递归解题也符合要求，本题中递归程序占用的栈空间不算做额外的空间复杂度。树中的节点数小于 6000。  
+示例：  
+输入：root = [1,2,3,4,5,null,7]  
+![](/images/2021-04-02-tree-algorithm/117.png)  
+输出：[1,#,2,3,#,4,5,7,#]  
+解释：序列化输出按层序遍历顺序（由 next 指针连接），'#' 表示每层的末尾。
+
+思路：  
+1) 深度优先搜索：递归（前序遍历的变种：先输出父节点，再遍历右子树和左子树）。利用上一层级已建立的 next 指针建立下一层级的 next 指针。  
+2) 广度优先搜索：思路与102题相似，同时使用到了指针。
+
+题解：
+
+```java
+/*
+// Definition for a Node.
+class Node {
+    public int val;
+    public Node left;
+    public Node right;
+    public Node next;
+
+    public Node() {}
+    
+    public Node(int _val) {
+        val = _val;
+    }
+
+    public Node(int _val, Node _left, Node _right, Node _next) {
+        val = _val;
+        left = _left;
+        right = _right;
+        next = _next;
+    }
+};
+*/
+
+// 深度优先遍历
+class Solution {
+    public Node connect(Node root) { // 拼接当前节点子节点 next 指针的方法
+        if (root == null) return root; // 当前节点为空则无需拼接其子节点的 next 指针
+        if (root.left != null && root.right != null) root.left.next = root.right; // 左右子节点都不为空：先拼接左子节点的 next 指针
+        if (root.left != null && root.right == null) root.left.next = searchNext(root.next); // 左子节点不为空右子节点为空：寻找下一 next 指针（查找当前节点的 next 指针的左右子节点，即利用上一层级已建立的 next 指针）
+        if (root.right != null) root.right.next = searchNext(root.next); // 右子节点不为空（无论左子节点是否为空）：左子节点不为空则前面已拼接当前右子节点，右子节点还需要再拼接其 next 指针
+        connect(root.right); // 需要优先访问右子节点：在给当前节点左右子节点的 next 指针赋值时，需要当前节点的所有 next 连接都是完备的
+        connect(root.left);
+        return root;
+    }
+
+    private Node searchNext(Node root) { // 寻找下一 next 指针
+        if (root == null) return root; // 父节点的 next 指针不存在：待拼接 next 指针的节点已到其所在层级的末尾
+        if (root.left != null) return root.left;
+        if (root.right != null) return root.right;
+        if (root.next != null) return searchNext(root.next); // 查找下一 next 节点是否存在左右子节点
+        return null; // 左子节点右子节点以及next指针都为空：待拼接 next 指针的节点已到其所在层级的末尾
+    }
+}
+
+// 广度优先遍历
+/*class Solution {
+    public Node connect(Node root) {
+        if (root == null) return root;
+        Queue<Node> queue = new LinkedList<>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            int count = queue.size();
+            Node pre = null, cur = null; // 指针
+            while (count != 0) {
+                cur = queue.poll();
+                if (pre != null) pre.next = cur;
+                if (cur.left != null) queue.offer(cur.left);
+                if (cur.right != null) queue.offer(cur.right);
+                pre = cur;
+                count--;
+            }
+        }
+        return root;
+    }
+}*/
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+## Ⅴ Greedy Algorithm 贪心算法
 
 贪心算法即在对问题进行求解时，在每一步选择中都采取最好或者最优(即最有利)的选择，从而希望能够导致结果是最好或者最优的算法。对于大部分题目结果为最优解，但也有个别题目的结果不一定是最优的结果（有时候会是最优解），但是都是相对近似（接近）最优解的结果。
 
@@ -958,7 +1571,7 @@ tips：
 - 时间复杂度：O(nlogn)，使用O(n) 的时间统计每个叶子节点，然后将 n 个叶子节点权值添加到堆中，添加每个权值的时间为 O(logn)
 - 空间复杂度：O(n)
 
-## Ⅴ General - Tree & Recursive 常规 - 树和递归
+## Ⅵ General - Tree & Recursive 常规 - 树和递归
 
 常规树结构题目，对于树结构的算法一般都会使用到递归。
 
