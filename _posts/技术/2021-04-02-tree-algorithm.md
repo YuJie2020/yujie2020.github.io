@@ -1520,6 +1520,129 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(n)
 
+### 279. [Perfect Squares](https://leetcode-cn.com/problems/perfect-squares/) 完全平方数
+
+给定正整数 n，找到若干个完全平方数（比如 1, 4, 9, 16, ...）使得它们的和等于 n。你需要让组成和的完全平方数的个数最少。给你一个整数 n ，返回和为 n 的完全平方数的 最少数量 。1 <= n <= 10^4。完全平方数 是一个整数，其值等于另一个整数的平方；换句话说，其值等于一个整数自乘的积。例如，1、4、9 和 16 都是完全平方数，而 3 和 11 不是。  
+示例：  
+输入：n = 12  
+输出：3  
+解释：12 = 4 + 4 + 4 279_1.png
+
+思路：  
+1) 图的广度优先遍历。将 0 ～ n 的值转化为一有向无权图（多叉树）中的节点，且相同值的节点唯一，对于任意节点其可以与其他节点相连接，连接的条件为两节点值的差为一完全平方数，并且总是由值较大的节点指向值较小的节点。  
+![](/images/2021-04-02-tree-algorithm/279_1.png)  
+对于和为 n 的完全平方数的最少数量即：图中从值为 n 的节点到达值为 0 的节点的最短路径（任意两连通节点的差值总为一完全平方数）。  
+![](/images/2021-04-02-tree-algorithm/279_2.jpg)  
+2) 动态规划。状态表达式：dp[i] 表示最少需要多少个数的平方和来表示整数 i ，这些数必然落在区间 [1, sqrt(n)] 。枚举这些数，假设当前枚举到 j，则还需要取若干数的平方，构成 i−j^2 。此时该子问题和原问题类似，只是规模变小了，这符合了动态规划的要求，于是可以得到状态转移方程：  
+*dp*[*i*] = 1 + min*dp*[*i* - *j*^2]，其中 *j* ∈ [1, *sqtr(i)*]  
+dp[0] = 0 为边界条件，实际上无法表示数字 0，只是为了保证状态转移过程中遇到 j 恰为 sqtr(i) 的情况合法。同时计算 dp[i] 时所需要用到的状态仅有 dp[i-j^2]，**其必然小于 i （和为 i 的平方和数 dp[i] 前面已计算得到结果）**，因此只需要从小到大地枚举 i 来计算 dp[i] 即可。
+
+题解：
+
+```java
+// 广度优先遍历
+class Solution {
+    public int numSquares(int n) {
+        Queue<Integer> queue = new LinkedList<>();
+        queue.offer(n);
+        boolean[] isVisited = new boolean[n + 1]; // 记录某一节点是否被访问过：图中不同数字的节点唯一，即不会出现两个值重复的节点；与此同时，在某条路径下较少的步数访问到了某个值的节点，在后面的步数中再次访问到此节点时此路径下最后到达0的步数一定比前者多，故需要舍去
+        isVisited[n] = true; // 将值为 n 的节点置为已访问
+        int result = 0; // 图中从 n 节点到达 0 节点的步数
+        while (!queue.isEmpty()) {
+            int count = queue.size(); // 当前层（步数）下的节点数：当前步数可以到达的数值节点
+            result++;
+            while (count != 0) {
+                int cur = queue.poll();
+                for (int i = 1; ; i++) { // 从 1、4、9... 开始：枚举当前节点可以到达的下一节点
+                    int next = cur - i * i; // 下一节点的值
+                    if (next < 0) break; // 小于 0 代表枚举结束
+                    if (next == 0) return result; // 找到最短路径：方法直接返回
+                    if (!isVisited[next]) {
+                        queue.offer(next); // 将有效的下一节点（下一步可以到达的节点）存入队列
+                        isVisited[next] = true; // 将此下一节点标记为已访问
+                    }
+                }
+                count--;
+            }
+        }
+        return result;
+    }
+}
+
+// 动态规划
+/*class Solution {
+    public int numSquares(int n) {
+        int[] dp = new int[n + 1]; // 状态表达式：和为整数 i 的完全平方数的最少数量为 dp[i]
+        for (int i = 1; i < n + 1; i++) { // 从小到大枚举计算每一个整数的平方和最小个数（前面计算得到的结果后面可能会用到）
+            int minStep = Integer.MAX_VALUE; // 所需完全平方数的最少数量，即 min{dp[i - j^2]}
+            for (int j = 1; j * j <= i; j++) minStep = Math.min(minStep, dp[i - j * j]); // 求解 min{dp[i - j^2]}
+            dp[i] = minStep + 1; // 状态转移方程
+        }
+        return dp[n];
+    }
+}*/
+```
+
+tips：
+
+- 时间复杂度：O(n * sqrt(n))，由四平方和定理：任意一个正整数都可以被表示为至多四个正整数的平方和，三层循环中最外层最多循环四次，中间层循环最多n次，最内层循环至多 sqrt(n) 次，广度优先遍历；状态转移方程的时间复杂度为 O(sqrt(n))，共需要计算 n 个状态（数值），因此总时间复杂度为 O(n * sqrt(n))，动态规划
+- 空间复杂度：O(n)
+
+### 127. Word Ladder 单词接龙
+
+字典 wordList 中从单词 beginWord 和 endWord 的 转换序列 是一个按下述规格形成的序列：序列中第一个单词是 beginWord ；序列中最后一个单词是 endWord ；每次转换只能改变一个字母；转换过程中的中间单词必须是字典 wordList 中的单词。给你两个单词 beginWord 和 endWord 和一个字典 wordList ，找到从 beginWord 到 endWord 的 最短转换序列 中的 单词数目 。如果不存在这样的转换序列，返回 0。endWord.length == beginWord.length == wordList[i].length，beginWord、endWord 和 wordList[i] 由小写英文字母组成， beginWord != endWord，wordList 中的所有字符串 互不相同。  
+示例：  
+输入：beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]  
+输出：5  
+解释：一个最短转换序列是 "hit" -> "hot" -> "dot" -> "dog" -> "cog", 返回它的长度 5
+
+思路：  
+思路与279相似。图的广度优先遍历。将字典 wordList 中的单词转化为一有向无权图（多叉树）中的节点，且相同单词的节点唯一，对于任意节点其可以与其他节点相连接，连接的条件为两节点只相差一个字母（一条连接的路径代表一次有效的转换：每次转换只能改变一个字母），并且总是由算法执行过程中当前未被访问的节点指向已被访问的节点。  
+![](/images/2021-04-02-tree-algorithm/127.png)  
+对于从 beginWord 到 endWord 的最短转换序列中的单词数目即：图中从 beginWord 节点（不一定在创建的图中）到达 endWord 节点的最短路径上节点的数量。
+
+
+题解：
+
+```java
+class Solution {
+    public int ladderLength(String beginWord, String endWord, List<String> wordList) {
+        Queue<String> queue = new LinkedList<>();
+        queue.offer(beginWord);
+        int len = wordList.size();
+        boolean[] isVisited = new boolean[wordList.size()]; // 记录某一节点是否被访问过：图中不同单词的节点唯一
+        int result = 1; // 最短转换序列中的单词数目，初始值为1（因为 beginWord 也算作最短转换序列中的单词）
+        while (!queue.isEmpty()) {
+            int count = queue.size();
+            result++;
+            while (count != 0) {
+                String cur = queue.poll();
+                for (int i = 0; i < len; i++) {
+                    if (isVisited[i]) continue; // 优化：已被访问过的节点则跳过（再次访问到总步数只会增加）
+                    String word = wordList.get(i);
+                    int difCount = 0;
+                    for (int j = 0; j < cur.length(); j++) {
+                        if (cur.charAt(j) != word.charAt(j)) difCount++;
+                    }
+                    if (difCount == 1) { // 字典中单词 word 为一次有效的转换：只改变一个字母
+                        if (word.equals(endWord)) return result;
+                        queue.offer(word);
+                        isVisited[i] = true;
+                    }
+                }
+                count--;
+            }
+        }
+        return 0;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n * l)，其中 n 为 wordList 的长度，l 为字典集合中单词的长度，每个单词最多入栈出栈一次
+- 空间复杂度：O(n)
+
 ## Ⅴ Greedy Algorithm 贪心算法
 
 贪心算法即在对问题进行求解时，在每一步选择中都采取最好或者最优(即最有利)的选择，从而希望能够导致结果是最好或者最优的算法。对于大部分题目结果为最优解，但也有个别题目的结果不一定是最优的结果（有时候会是最优解），但是都是相对近似（接近）最优解的结果。
