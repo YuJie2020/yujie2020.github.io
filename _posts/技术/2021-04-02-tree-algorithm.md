@@ -391,6 +391,14 @@ tips：
 本质上为二叉树的前序、中序或后序遍历的相关题目。  
 **对于树，深度优先搜索（DFS）即为树的 前序/中序/后续 遍历；广度优先搜索（BFS）即为树的 层序遍历（逐层从上到下扫描整棵树）**。
 
+**深度优先搜索一般都使用递归的方式**。
+
+递归是一个反复调用自身的过程，这就说明它每一级/层的功能都是一样的，**因此只需要关注一级/层递归的解决过程即可**。**递归不要进入到递归中看其执行流程（压栈与返回值），而是利用明确的定义来实现算法逻辑**。
+
+递归：由递归模型建模，**递归模型由递归函数与递归边界条件（递归结束条件）组成**。递归函数则由在这一层的递归中应该完成什么任务和返回值（即应该给上一层递归返回什么值）组成；边界条件即不再调用递归函数而直接返回某值所需的条件。
+
+使用递归的二叉树树题目。一般递归函数（方法）的参数都为一个二叉树中的节点，只需将关注点落在对于当前递归层级的参数节点需要实现什么功能，递归边界条件一般都为访问到null节点，故一般在方法回溯的过程（**对于二叉树为自底向上**）中不断累加中间计算结果，对于每一层级的递归函数（方法）只需关注对于当前层级遍历到的节点其子树的中间计算结果是什么。
+
 ### 144. [Binary Tree Preorder Traversal](https://leetcode-cn.com/problems/binary-tree-preorder-traversal/) 二叉树的前序遍历
 
 给你二叉树的根节点 `root` ，返回它节点值的 前序 遍历。树中节点数目在范围 [0, 100] 内。通过迭代算法完成。  
@@ -726,6 +734,70 @@ tips：
 
 - 时间复杂度：O(n)
 - 空间复杂度：O(n)
+
+### 226. [Invert Binary Tree](https://leetcode-cn.com/problems/invert-binary-tree/) 翻转二叉树
+
+翻转一棵二叉树。  
+示例：  
+输入：
+
+```
+     4
+   /   \
+  2     7
+ / \   / \
+1   3 6   9		
+```
+
+输出：
+
+```
+     4
+   /   \
+  7     2
+ / \   / \
+9   6 3   1
+```
+
+思路：  
+递归：后序遍历。后序遍历树中的所有节点，所有节点都会被访问一次，回溯的过程中翻转二叉树。  
+递归模型：  
+递归函数：每一层的递归中访问到的节点将其左右子树（节点）进行翻转，返回值（即应该给上一层递归返回什么值）为当前翻转左右子树（节点）后的根节点；  
+递归边界条件：遍历到null节点则直接返回null节点不再自身调用方法（递归）。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public TreeNode invertTree(TreeNode root) {
+        if (root == null) return root; // 递归边界条件
+        TreeNode temp = root.right; // 指针：交换当前节点的两个子节点，需要使用临时变量保存首先被重定向的待交换节点
+        root.right = invertTree(root.left); // 当前节点的右子树（节点）指向其原来的左子树（节点）
+        root.left = invertTree(temp); // 当前节点的左子树（节点）指向其原来的右子树（节点）
+        return root; // 返回当前翻转左右子树（节点）后的根（当前）节点
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(h)，h为二叉树的高度
 
 ### 104. [Maximum Depth of Binary Tree](https://leetcode-cn.com/problems/maximum-depth-of-binary-tree/) 二叉树的最大深度
 
@@ -1199,6 +1271,8 @@ tips：
 
 本质上为二叉树的层序遍历的相关题目。  
 **对于树，深度优先搜索（DFS）即为树的 前序/中序/后续 遍历；广度优先搜索（BFS）即为树的 层序遍历（逐层从上到下扫描整棵树）**。
+
+**广度优先搜索一般都借助队列数据结构并使用迭代的方式**。
 
 ### 102. [Binary Tree Level Order Traversal](https://leetcode-cn.com/problems/binary-tree-level-order-traversal/) 二叉树的层序遍历
 
@@ -1885,7 +1959,7 @@ tips：
 示例：  
 输入：n = 12  
 输出：3  
-解释：12 = 4 + 4 + 4 279_1.png
+解释：12 = 4 + 4 + 4
 
 思路：  
 1) 图的广度优先遍历。将 0 ～ n 的值转化为一有向无权图（多叉树）中的节点，且相同值的节点唯一，对于任意节点其可以与其他节点相连接，连接的条件为两节点值的差为一完全平方数，并且总是由值较大的节点指向值较小的节点。  
@@ -2053,9 +2127,9 @@ tips：
 - 时间复杂度：O(nlogn)，使用O(n) 的时间统计每个叶子节点，然后将 n 个叶子节点权值添加到堆中，添加每个权值的时间为 O(logn)
 - 空间复杂度：O(n)
 
-## Ⅵ General - Tree & Recursive 常规 - 树和递归
+## Ⅵ General - Tree & Recursive & Math 常规 - 树和递归以及数学
 
-常规树结构题目，对于树结构的算法一般都会使用到递归。
+常规树结构题目，对于树结构的算法一般都会使用到递归。部分题目涉及到数学计算。
 
 时间复杂度：O(h)，h 为树的高度  
 空间复杂度：O(h)
@@ -2181,3 +2255,61 @@ class Solution {
     }
 }
 ```
+
+### 222. [Count Complete Tree Nodes](https://leetcode-cn.com/problems/count-complete-tree-nodes/) 完全二叉树的节点个数
+
+给你一棵 完全二叉树 的根节点 root ，求出该树的节点个数。完全二叉树 的定义如下：在完全二叉树中，除了最底层节点可能没填满外，其余每层节点数都达到最大值，并且最下面一层的节点都集中在该层最左边的若干位置。若最底层为第 h 层，则该层包含 1~ 2^h 个节点。树中节点的数目范围是[0, 5 * 10^4]。要求时间复杂度小于O(n)。  
+示例：  
+输入：root = [1,2,3,4,5,6]  
+![](/images/2021-04-02-tree-algorithm/222.jpg)  
+输出：6
+
+思路：  
+递归：自顶向下（并非等同一般的二叉树前/中/后序遍历）+位运算。每次递归都能舍去当前递归子树的一半（使用数学公式计算其节点数），对于子树的另一半递归调用计算节点数。计算满二叉树的节点数时使用位运算简化2的n次幂计算。  
+递归模型：  
+递归函数：每一层的递归中求解访问到的节点将作为根节点的子树节点数，返回值（即应该给上一层递归返回什么值）为当前根节点子树的节点数；  
+递归边界条件：遍历到null节点则直接返回0不再自身调用方法（递归）。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public int countNodes(TreeNode root) { // 求解当前递归层级遍历到的节点（树）的节点个数：自顶向下
+        if (root == null) return 0; // 递归的边界条件
+        int leftHeight = getHeight(root.left); // 左子树的高度
+        int rightHeight = getHeight(root.right); // 右子树的高度
+        if (leftHeight == rightHeight) { // 当前节点的左右子树高度相同：左子树为一满二叉树（节点个数为2^h - 1），加上当前节点为2^h（等于1<<h）个，对右子树进行递归统计节点数累加到当前节点为根节点的子树节点数
+            return (1 << leftHeight) + countNodes(root.right);
+        } else return (1 << rightHeight) + countNodes(root.left); // 当前节点的左右子树高度不同：右子树为一满二叉树，加上当前节点为2^h（等于1<<h）个，对左子树进行递归统计节点数累加到当前节点为根节点的子树节点数
+    }
+
+    private int getHeight(TreeNode root) { // 计算以root为根节点的二叉树的高度（从1开始计数）
+        int height = 0;
+        while (root != null) {
+            height++;
+            root = root.left; // 将参数root当作指针，因为二叉树为完全二叉树，其每一层级都左连续
+        }
+        return height;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(log^2n)，也即O(h^2)，因为对于完全二叉树其高度h为logn，递归求解二叉树的节点数每次舍去当前递归子树的一半，故递归调用次数为O(h)，每次递归调用需要求解左右子树高度，其时间代价为O(h)，故总的时间复杂度为O(h^2)
+- 空间复杂度：O(logn)
