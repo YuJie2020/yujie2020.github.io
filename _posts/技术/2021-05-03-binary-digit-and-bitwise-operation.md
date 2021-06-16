@@ -234,3 +234,10 @@ System.out.println(a &= 3); // 1
 [剑指 Offer 16. 数值的整数次方](https://leetcode-cn.com/problems/shu-zhi-de-zheng-shu-ci-fang-lcof/)ㅤㅤ[数值的整数次方](https://yujie2020.github.io/2021-04-14-coding-interviews.html)  
 [剑指 Offer 56 - I. 数组中数字出现的次数](https://leetcode-cn.com/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-lcof/)ㅤㅤ[数组中数字出现的次数](https://yujie2020.github.io/2021-04-14-coding-interviews.html)  
 [剑指 Offer 56 - II. 数组中数字出现的次数 II](https://leetcode-cn.com/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-ii-lcof/)ㅤㅤ[数组中数字出现的次数 II](https://yujie2020.github.io/2021-04-14-coding-interviews.html)
+
+### 3. count 2^n 计算2的n次方
+
+1 << n = 2^n，对于1左移n位后的二进制数表达，只有第n位上为1其余位上都为0，故其值为2^n。
+
+应用：使用左移运算简化（加快）2的n次方计算。例如：  
+[222. Count Complete Tree Nodes](https://leetcode-cn.com/problems/count-complete-tree-nodes/)ㅤㅤ[完全二叉树的节点个数](https://yujie2020.github.io/2021-04-02-tree-algorithm.html)
