@@ -727,6 +727,294 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(n)
 
+### 104. [Maximum Depth of Binary Tree](https://leetcode-cn.com/problems/maximum-depth-of-binary-tree/) 二叉树的最大深度
+
+给定一个二叉树，找出其最大深度。二叉树的深度为根节点到最远叶子节点的最长路径上的节点数。叶子节点是指没有子节点的节点。  
+示例：  
+输入：[3,9,20,null,null,15,7]
+
+```
+    3
+   / \
+  9  20
+    /  \
+   15   7			
+```
+
+输出：3
+
+思路：  
+递归：后序遍历。每个节点都会被访问一次。将 null 节点也看作为一颗子二叉树（递归结束条件），在回溯的过程中累加二叉树的深度。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public int maxDepth(TreeNode root) {
+        if (root == null) return 0; // 递归的边界条件
+        return Math.max(maxDepth(root.left), maxDepth(root.right)) + 1;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)，每个节点在递归中只被遍历一次
+- 空间复杂度：O(h)，h 为二叉树的高度。递归函数需要栈空间，而栈空间取决于递归的深度，故空间复杂度等价于二叉树的高度
+
+### 110. [Balanced Binary Tree](https://leetcode-cn.com/problems/balanced-binary-tree/) 平衡二叉树
+
+给定一个二叉树，判断它是否是高度平衡的二叉树。本题中一棵高度平衡二叉树定义为：一个二叉树每个节点 的左右两个子树的高度差的绝对值不超过 1 。树中的节点数在范围 [0, 5000] 内。  
+示例：  
+输入：root = [1,2,2,3,3,null,null,4,4]  
+![](/images/2021-04-02-tree-algorithm/110.jpg)  
+输出：false
+
+思路：  
+思路与104相同，在成员变量位置定义 boolean 变量 flag 标记是否为一平衡二叉树。递归调用计算二叉树的最大深度方法，当二叉树中某一节点的左右子树高度差大于1时则将 flag 置为false。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+
+    private boolean flag; // 是否为一高度平衡的二叉树：每个节点的左右两个子树的高度差的绝对值不超过 1
+
+    public boolean isBalanced(TreeNode root) {
+        this.flag = true; // 初始值为true
+        countHeight(root);
+        return this.flag;
+    }
+
+    private int countHeight(TreeNode root) { // 计算某一节点左右子树的高度
+        if (root == null) return 0; // 递归的边界条件
+        int leftHeight = countHeight(root.left);
+        int rightHeight = countHeight(root.right);
+        if (Math.abs(leftHeight - rightHeight) > 1) flag = false; // 当存在一个节点的左右子树高度高度差大于1则置为false
+        return Math.max(leftHeight, rightHeight) + 1; // 返回左右子树高度中最大的一支作为当前节点二叉树的高度
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(h)，h 为二叉树的高度
+
+### 100. [Same Tree](https://leetcode-cn.com/problems/same-tree/) 相同的树
+
+给你两棵二叉树的根节点 `p` 和 `q` ，编写一个函数来检验这两棵树是否相同。如果两个树在结构上相同，并且节点具有相同的值，则认为它们是相同的。两棵树上的节点数目都在范围 [0, 100] 内。  
+示例：  
+输入：p = [1,2], q = [1,null,2]  
+输出：false
+
+思路：  
+递归：前序遍历。思路与98题相似，以同样的递归方式深度（前序）遍历两颗二叉树，递归遍历过程中当前两节点满足要求需要继续递归检查下去，**只有在某一个节点不符合要求时方法不断回溯返回 false**。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public boolean isSameTree(TreeNode p, TreeNode q) { // 以同样的递归方式深度（前序）遍历两颗二叉树
+        if (p == null && q == null) return true; // 当前遍历的两节点都为空：符合要求
+        if (p == null || q == null) return false; // 当前遍历的两节点其中一个节点为空另一个不为空：两颗二叉树不同（两颗二叉树p和q的结构就不同）
+        if (p.val != q.val) return false; // 当前遍历的两节点值不相等：两颗二叉树不同
+        if (!isSameTree(p.left, q.left)) return false; // 当前两节点的左子节点相等（满足要求）需要继续递归检查下去
+        return isSameTree(p.right, q.right); // 访问右子节点
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+### 572. [Subtree of Another Tree](https://leetcode-cn.com/problems/subtree-of-another-tree/) 另一个树的子树
+
+给定两个非空二叉树 s 和 t，检验 s 中是否包含和 t 具有相同结构和节点值的子树。s 的一个子树包括 s 的一个节点和这个节点的所有子孙。s 也可以看做它自身的一棵子树。  
+示例：  
+输入：
+
+```
+给定的树 s：			给定的树 t：
+     3					 4
+    / \					/ \
+   4   5			   1   2
+  / \					
+ 1   2					
+```
+
+输出：true  
+解释： t 与 s 的一个子树拥有相同的结构和节点值
+
+思路：  
+递归：后序遍历&前序遍历。前序遍历用于判断 root 中的某一子树是否和 subRoot 相同，思路与100题相同。后序遍历中用于判断 root 中是否包含和 subRoot 具有相同结构和节点值的子树。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public boolean isSubtree(TreeNode root, TreeNode subRoot) { // 递归：后序遍历
+        if (root == null) return false; // 递归边界条件
+        return isSubtree(root.left, subRoot) || isSubtree(root.right, subRoot) || isSameTree(root, subRoot); // 当其中一个条件判断为true时就不断回溯返回true
+    }
+
+    private boolean isSameTree(TreeNode p, TreeNode q) { // 检验两棵树是否相同：前序遍历
+        if (p == null && q == null) return true; // 当前遍历的两节点都为空：符合要求
+        if (p == null || q == null) return false; // 两颗二叉树p和q的结构就不同
+        if (p.val != q.val) return false; // 当前遍历的两节点值不相等：两颗二叉树不同
+        if (!isSameTree(p.left, q.left)) return false; // 当前两节点的左子节点相等（满足要求）需要继续递归检查下去
+        return isSameTree(p.right, q.right); // 访问右子节点
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(∣root∣×∣subRoot∣)，∣root∣为二叉树 root 的节点数，∣subRoot∣为二叉树∣subRoot∣的节点数，对于每一个二叉树 root 上的节点，都需要做一次深度优先搜索来和 subRoot 匹配，匹配一次的时间代价是 O(∣subRoot∣)，则总的时间代价为 O(∣root∣×∣subRoot∣)
+- 空间复杂度：O(max(rootHeight,subRootHeight))，rootHeight为二叉树root的高度，subRootHeight为二叉树subRoot的高度，任意时刻栈空间的最大使用代价是O(max(rootHeight,subRootHeight))
+
+### 101. [Symmetric Tree](https://leetcode-cn.com/problems/symmetric-tree/) 对称二叉树
+
+给定一个二叉树，检查它是否是镜像对称的。运用递归和迭代两种方法解决这个问题。  
+示例：  
+输入：[1,2,2,3,4,4,3]
+
+```
+    1
+   / \
+  2   2
+ / \ / \
+3  4 4  3
+```
+
+输出：true
+
+思路：  
+1) 深度优先遍历：递归。思路与100题相似，**将需要判断的二叉树复制一份，以相反的递归方式深度遍历两颗二叉树**：对于原二叉树即为前序遍历（先访问当前节点再访问左子节点和右子节点），对于复制的二叉树即为先访问当前节点再访问右子节点和左子节点。对于对称二叉树，**其在结构上对称**，并且对称的节点具有相同的值。递归遍历过程中当前两节点满足要求需要继续递归检查下去，**只有在某一个节点不符合要求时方法不断回溯返回 false**。
+2) 广度优先遍历：迭代。层序遍历。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+
+// 深度优先遍历：递归
+class Solution {
+    public boolean isSymmetric(TreeNode root) {
+        return check(root, root);
+    }
+
+    private boolean check(TreeNode p, TreeNode q) { // 以相反的递归方式深度遍历两颗二叉树
+        if (p == null && q == null) return true; // 当前遍历的两镜像对称节点都为空：符合要求
+        if (p == null || q == null) return false; // 当前遍历的两镜像对称节点其中一个节点为空另一个不为空：两颗二叉树不对称
+        if (p.val != q.val) return false; // 当前遍历的两镜像对称节点值不相等：两颗二叉树不对称
+        if (!check(p.left, q.right)) return false; // 当前两镜像对称节点的一对镜像对称子节点相等（满足要求）需要继续递归检查下去
+        return check(p.right, q.left); // 访问另一对镜像对称子节点
+    }
+}
+
+// 广度优先遍历：迭代
+/*class Solution {
+    public boolean isSymmetric(TreeNode root) { // 按层级遍历，对于相同层级中的节点：访问顺序总是成对访问相同层级中的两结构对称的节点
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root); // 因为总是成对的访问同层级中的对称节点，故初始条件下需要添加两次根节点
+        queue.offer(root);
+        while (!queue.isEmpty()) { // 成对的访问同层级中的结构对称节点
+            TreeNode p = queue.poll(); // 同层级中一对镜像对称节点之一
+            TreeNode q = queue.poll(); // 同层级中一对镜像对称节点之一
+            if (p == null && q == null) continue; // 都为 null 则符合条件（对称）跳出此次循环
+            if (p == null || q == null || p.val != q.val) return false; // 当同层级中一对镜像对称节点其中一个为 null 另一个不为 null 时或者此两节点的值不相等：两颗二叉树不对称，直接返回 false
+            queue.offer(p.left); // 成对的添加下一层级中的结构对称节点
+            queue.offer(q.right);
+            queue.offer(p.right);
+            queue.offer(q.left);
+        }
+        return true;
+    }
+}*/
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
 ### 530. [Minimum Absolute Difference in BST](https://leetcode-cn.com/problems/minimum-absolute-difference-in-bst/) 二叉搜索树的最小绝对差
 
 给你一棵所有节点为非负值的二叉搜索树，请你计算树中任意两节点的差的绝对值的最小值。树中至少有 2 个节点。  
