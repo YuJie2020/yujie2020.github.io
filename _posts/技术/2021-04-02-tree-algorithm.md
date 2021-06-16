@@ -1194,6 +1194,77 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(n)
 
+### 111. [Minimum Depth of Binary Tree](https://leetcode-cn.com/problems/minimum-depth-of-binary-tree/) 二叉树的最小深度
+
+给定一个二叉树，找出其最小深度。最小深度是从根节点到最近叶子节点的最短路径上的节点数量。叶子节点是指没有子节点的节点。树中节点数的范围在 [0, 105] 内。  
+示例：  
+输入：root = [3,9,20,null,null,15,7]ㅤ|ㅤroot = [2,null,3,null,4,null,5,null,6]  
+![](/images/2021-04-02-tree-algorithm/111.jpg)  
+输出：2ㅤ|ㅤ5
+
+思路：  
+1) 广度优先遍历：思路与102题相似。定义局部变量result记录当前层序遍历的深度，当遍历到叶子节点时则返回结果。  
+2) 深度优先遍历：后序遍历（递归）。思路与104题相似，递归过程中计算以当前节点为根节点的子树的最小深度时：**当其左右某一子树为空时则应返回其中不为空子树的最小高度**（左右子树都为空时，返回的即为0+1，符合叶子节点的情形）。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+
+// 广度优先遍历
+class Solution {
+    public int minDepth(TreeNode root) {
+        if (root == null) return 0;
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        int result = 1; // 二叉树的最小深度，初始值为1（深度的定义为从根节点到最近叶子节点的最短路径上的节点数量，根节点包括在路径的节点内）
+        while (!queue.isEmpty()) {
+            int count = queue.size(); // 当前层级的节点个数
+            while (count != 0) {
+                TreeNode node = queue.poll();
+                if (node.left == null && node.right == null) return result; // 当前层级存在一节点为叶子节点，则返回当前的层级（二叉树的层级从1开始计数）
+                if (node.left != null) queue.offer(node.left); // 添加当前层级**非叶子节点**的邻接节点
+                if (node.right != null) queue.offer(node.right); // 添加当前层级**非叶子节点**的邻接节点
+                count--;
+            }
+            result++; // 二叉树的层级加一：进行下一层的检索（是否有叶子节点）
+        }
+        return result;
+    }
+}
+
+// 深度优先遍历：后序遍历
+/*class Solution {
+    public int minDepth(TreeNode root) {
+        if (root == null) return 0; // 递归的边界条件
+        int leftHeight = minDepth(root.left);
+        int rightHeight = minDepth(root.right);
+        if (leftHeight == 0) return rightHeight + 1; // 当前root节点的左子节点为空，则返回右子树的最小高度（右子节点可能为空）
+        if (rightHeight == 0) return leftHeight + 1; // 当前root节点的右子节点为空，则返回左子树的最小高度（左子节点可能为空）
+        return Math.min(leftHeight, rightHeight) + 1; // 左右子节点都不为空时，返回高度较小子树的高度
+    }
+}*/
+```
+
+tips：
+
+- 时间复杂度：O(n)，每个节点在递归中只被遍历一次，但是所有节点都会被访问一次，深度优先遍历；每个节点最多进队出队各一次，但是并非所有节点都会被访问，遍历到第一个叶子节点方法提前结束，广度优先遍历
+- 空间复杂度：O(h)，h 为二叉树的高度，深度优先遍历；O(n)，方法可以提前结束，广度优先遍历
+
 ### 429. [N-ary Tree Level Order Traversal](https://leetcode-cn.com/problems/n-ary-tree-level-order-traversal/) N 叉树的层序遍历
 
 给定一个 N 叉树，返回其节点值的层序遍历。（即从左到右，逐层遍历）。树的序列化输入是用层序遍历，每组子节点都由 null 值分隔。树的节点总数在 [0, 10^4] 之间。  
