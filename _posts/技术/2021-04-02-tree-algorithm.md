@@ -2660,3 +2660,41 @@ tips：
 
 - 时间复杂度：O(log^2n)，也即O(h^2)，因为对于完全二叉树其高度h为logn，递归求解二叉树的节点数每次舍去当前递归子树的一半，故递归调用次数为O(h)，每次递归调用需要求解左右子树高度，其时间代价为O(h)，故总的时间复杂度为O(h^2)
 - 空间复杂度：O(logn)
+
+### 235. [Lowest Common Ancestor of a Binary Search Tree](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-search-tree/) 二叉搜索树的最近公共祖先
+
+给定一个二叉搜索树, 找到该树中两个指定节点的最近公共祖先。最近公共祖先的定义为：“对于有根树 T 的两个结点 p、q，最近公共祖先表示为一个结点 x，满足 x 是 p、q 的祖先且 x 的深度尽可能大（一个节点也可以是它自己的祖先）。”所有节点的值都是唯一的。p、q 为不同节点且均存在于给定的二叉搜索树中。  
+示例：  
+输入：root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8ㅤ|ㅤroot = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4  
+![](/images/2021-04-02-tree-algorithm/235.png)  
+输出：6ㅤ|ㅤ2
+
+思路：  
+题目保证有解，当p、q两节点都小于当前节点，则递归访问左子节点；当p、q两节点都大于当前节点，则递归访问右子节点；对与第三种情况即：p、q两节点中有一节点等于当前访问（p、q两节点中有一个为公共祖先）或者p、q两节点分别大于或小于当前访问节点（当前访问节点为公共祖先）。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+
+class Solution {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        if (p.val < root.val && q.val < root.val) return lowestCommonAncestor(root.left, p, q);
+        if (p.val > root.val && q.val > root.val) return lowestCommonAncestor(root.right, p, q);
+        return root;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
