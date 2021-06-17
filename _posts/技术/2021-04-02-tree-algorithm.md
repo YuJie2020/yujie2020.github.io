@@ -796,6 +796,45 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(h)，h为二叉树的高度
 
+### 236. [Lowest Common Ancestor of a Binary Tree](https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-tree/) 二叉树的最近公共祖先
+
+给定一个二叉树, 找到该树中两个指定节点的最近公共祖先。最近公共祖先的定义为：“对于有根树 T 的两个节点 p、q，最近公共祖先表示为一个节点 x，满足 x 是 p、q 的祖先且 x 的深度尽可能大（一个节点也可以是它自己的祖先）。”。树中节点数目在范围 [2, 105] 内。所有 Node.val 互不相同 。p != q。p 和 q 均存在于给定的二叉树中。  
+示例：  
+输入：root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1ㅤ|ㅤroot = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4  
+![](/images/2021-04-02-tree-algorithm/236.png)  
+输出：3ㅤ|ㅤ5
+
+思路：  
+递归：前序遍历。若 root 是 p,q 的 最近公共祖先则只能为以下情况：p 和 q 在 root 的子树中，且分列 root 的 异侧（即分别在左、右子树中）；p=root ，且 q 在 root 的（左或右）子树中；q=root ，且 p 在 root 的（左或右）子树中。通过递归对二叉树进行前序遍历，当遇到节点 p 或 q 时返回，自底向上回溯，当节点 p,q 在节点 root 的异侧时，节点 root 即为最近公共祖先，则向上返回 root ；当节点 p,q 在节点 root 的同侧时，节点 root 的左/右子节点中等于 p或q 的即为最近公共祖先，则向上返回此 root 的左/右子节点。对于递归函数，四种情形如代码 1) - 4) 。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) { // 前序遍历：深度搜索递归找到p/q节点或未找到则不断回溯返回不再深度递归当前子树
+        if (root == null || root == p || root == q) return root; // 当前递归层级访问节点为null节点或者p、q节点则直接返回：无需再深度搜索访问（递归边界条件）
+        TreeNode left = lowestCommonAncestor(root.left, p, q); // 访问左子节点
+        TreeNode right = lowestCommonAncestor(root.right, p, q); // 访问右子节点
+        if (left == null || right == null) return left == null ? right : left; // 1) 当前root节点的子树（左/右都）不包含p/q节点返回null（还未搜索到p/q）；2) 在左/右子树已找到最近公共祖先（此子树中包含p和q节点，同时另一子树的返回结果只能为null）应继续返回此结果；// 3) 特定左/右子树的根节点（root.left/root.right）为特定p/q，且另一子树未搜索到另一p/q（即另一p/q在此特定左/右子树中），返回此特定p/q（即最近公共祖先为p/q中的一个，p和q为直接父子关系）
+        return root; // 4) 当前root节点的左右子树分别包括p和q节点（left == null && right == null），则此root节点即为最近公共祖先
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
 ### 226. [Invert Binary Tree](https://leetcode-cn.com/problems/invert-binary-tree/) 翻转二叉树
 
 翻转一棵二叉树。  
