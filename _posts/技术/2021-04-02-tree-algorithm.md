@@ -735,6 +735,67 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(n)
 
+### 404. [Sum of Left Leaves](https://leetcode-cn.com/problems/sum-of-left-leaves/) 左叶子之和
+
+计算给定二叉树的所有左叶子之和。  
+示例：  
+输入：
+
+```
+    3
+   / \
+  9  20
+    /  \
+   15   7
+```
+
+输出：24  
+解释：在这个二叉树中，有两个左叶子，分别是 9 和 15，9 + 15 = 24
+
+思路：  
+递归：前序遍历。定义成员变量 result 为左叶子之和，前序遍历二叉树中的所有节点，递归边界条件为当前递归层级遍历的节点为叶子节点，递归方法中的参数 isLeft 为是否访问的二叉树中的左节点。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+
+    int result;
+
+    public int sumOfLeftLeaves(TreeNode root) {
+        result = 0;
+        countSum(root, false);
+        return result;
+    }
+
+    private void countSum(TreeNode root, boolean isLeft) {
+        if (root.left == null && root.right == null && isLeft) result += root.val; // 当前递归层级遍历的节点为左叶子节点
+        if (root.left != null) countSum(root.left, true);
+        if (root.right != null) countSum(root.right, false);
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(h)，h为二叉树的高度
+
 ### 226. [Invert Binary Tree](https://leetcode-cn.com/problems/invert-binary-tree/) 翻转二叉树
 
 翻转一棵二叉树。  
@@ -798,6 +859,65 @@ tips：
 
 - 时间复杂度：O(n)
 - 空间复杂度：O(h)，h为二叉树的高度
+
+### 257. [Binary Tree Paths](https://leetcode-cn.com/problems/binary-tree-paths/) 二叉树的所有路径
+
+给定一个二叉树，返回所有从根节点到叶子节点的路径。  
+示例：  
+输入：
+
+```
+   1
+ /   \
+2     3
+ \
+  5
+```
+
+输出：  
+["1->2->5", "1->3"]  
+思路：  
+递归：后序遍历。思路类似226题，**每级递归都为返回处理了左右子树后的当前递归层级访问节点**。在回溯的过程中拼接字符串路径并添加到当前的结果中。当递归层级访问到空节点或者叶子节点则结束递归，分别返回空集合和只有一个叶子节点路径的集合。递归函数即对于当前递归层级访问的节点拼接其所有左右子树的路径情况，返回值为对于以当前递归访问的节点为根节点的子树到叶子节点的所有可能的路径。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public List<String> binaryTreePaths(TreeNode root) {
+        List<String> result = new ArrayList<>();
+        if (root == null) return result;
+        if (root.left == null && root.right == null) {
+            result.add(String.valueOf(root.val));
+            return result;
+        }
+        List<String> leftPaths = binaryTreePaths(root.left);
+        for (int i = 0; i < leftPaths.size(); i++) result.add(root.val + "->" + leftPaths.get(i));
+        List<String> rightPaths = binaryTreePaths(root.right);
+        for (int i = 0; i < rightPaths.size(); i++) result.add(root.val + "->" + rightPaths.get(i));
+        return result;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n^2)，在深度优先搜索中每个节点会被访问一次且只会被访问一次，每一次会对 path 变量进行拷贝构造，时间代价为 O(n)，故时间复杂度为 O(n^2)
+- 空间复杂度：O(n^2)
 
 ### 104. [Maximum Depth of Binary Tree](https://leetcode-cn.com/problems/maximum-depth-of-binary-tree/) 二叉树的最大深度
 
@@ -1266,6 +1386,233 @@ tips：
 - 递归：中序遍历；
 - 时间复杂度：O(1)，初始化需要 O(n) 的时间，随后每次调用只需要 O(1) 的时间
 - 空间复杂度：O(n)，保存中序遍历的全部结果
+
+### 112. [Path Sum](https://leetcode-cn.com/problems/path-sum/) 路径总和
+
+给你二叉树的根节点 root 和一个表示目标和的整数 targetSum ，判断该树中是否存在 根节点到叶子节点 的路径，这条路径上所有节点值相加等于目标和 targetSum 。树中节点的数目在范围 [0, 5000] 内。  
+示例：  
+输入：root = [5,4,8,11,null,13,4,7,2,null,null,null,1], targetSum = 22  
+![](/images/2021-04-02-tree-algorithm/112.jpg)  
+输出：true
+
+思路：  
+递归：前序遍历。  
+递归模型：  
+递归函数：每一层的递归中访问到的节点root判断其子树是否存在从当前节点 root 到叶子节点的路径满足其路径和为 targetSum（递归过程中动态更新：是否存在从当前节点的子节点到叶子的路径，满足其路径和为 targetSum - val），返回值（即应该给上一层递归返回什么值）为是否存在当前节点 root 到叶子节点的路径满足其路径和为 sum；  
+递归边界条件：上一递归层级遍历的节点的一子节点为空另一子节点的不为空（非叶子节点）或者当前递归层级遍历的节点为叶子节点。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public boolean hasPathSum(TreeNode root, int targetSum) {
+        if (root == null) return false; // 边界条件1：上一递归层级遍历的节点的一子节点为空另一子节点的不为空（非叶子节点）直接返回 false
+        if (root.left == null && root.right == null) return targetSum == root.val; // 边界条件2：当前递归层级遍历的节点为叶子节点则判断其值是否等于 targetSum
+        return hasPathSum(root.left, targetSum - root.val) || hasPathSum(root.right, targetSum - root.val); // 当前递归层级遍历的节点的左子树或右子树满足子问题等于 targetSum
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)，对每个节点都访问一次
+- 空间复杂度：O(h)，h为树的高度
+
+### 113. [Path Sum II](https://leetcode-cn.com/problems/path-sum-ii/) 路径总和 II
+
+给你二叉树的根节点 `root` 和一个整数目标和 `targetSum` ，找出所有 从根节点到叶子节点 路径总和等于给定目标和的路径。树中节点总数在范围 [0, 5000] 内。  
+示例：  
+输入：root = [5,4,8,11,null,13,4,7,2,null,null,5,1], targetSum = 22  
+![](/images/2021-04-02-tree-algorithm/113.jpg)  
+输出：[[5,4,11,2],[5,8,4,5]]
+
+思路：  
+递归：前序遍历。定义两个成员变量来保存结果和路径节点集合，递归访问每个节点的过程中动态更新路径节点集合 cur。  
+递归模型：  
+递归函数：每一层的递归中访问到的节点root判断其子树是否存在从当前节点 root 到叶子节点的路径满足其路径和为 targetSum（递归过程中动态更新：是否存在从当前节点的子节点到叶子的路径，满足其路径和为 targetSum - val）；  
+递归边界条件：访问到null节点则直接结束方法。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+
+    private List<List<Integer>> result; // 结果集合
+    private List<Integer> cur; // 二叉树前序遍历过程中路径节点的集合
+
+    public List<List<Integer>> pathSum(TreeNode root, int targetSum) {
+        result = new ArrayList<>(); // 成员变量的初始化
+        cur = new ArrayList<>();
+        path(root, targetSum);
+        return result;
+    }
+
+    private void path(TreeNode root, int targetSum) {
+        if (root == null) return; // 递归边界条件：访问到null节点则直接结束方法
+        cur.add(root.val); // 在当前递归层级中进行路径条件判断（递归函数需要执行的任务）前：需要将当前访问的节点添加到遍历过程中路径节点的集合末尾
+        if (root.left == null && root.right == null && root.val == targetSum) result.add(new ArrayList<Integer>(cur)); // 当前递归层级访问到叶子节点且路径满足要求：**拷贝**当前遍历路径节点集合 cur 到结果集合中（无需执行return，方法访问两null子节点后，当前层级递归方法回溯前中将前序遍历路径节点集合中的此叶子节点移除）
+        path(root.left, targetSum - root.val); // 访问左子节点
+        path(root.right, targetSum - root.val); // 访问右子节点
+        cur.remove(cur.size() - 1); // 回溯前：需要在遍历过程中路径节点的集合中移除当前层级访问的节点
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)，对每个节点都访问一次
+- 空间复杂度：O(h^2)，h为树的高度，空间代价由递归深度和路径节点集合决定
+
+### 129. [Sum Root to Leaf Numbers](https://leetcode-cn.com/problems/sum-root-to-leaf-numbers/) 求根节点到叶节点数字之和
+
+给你一个二叉树的根节点 `root` ，树中每个节点都存放有一个 `0` 到 `9` 之间的数字。每条从根节点到叶节点的路径都代表一个数字，计算从根节点到叶节点生成的 所有数字之和 。树中节点的数目在范围 [1, 1000] 内。  
+示例：  
+输入：root = [4,9,0,5,1]  
+![](/images/2021-04-02-tree-algorithm/129.jpg)  
+输出：1026
+解释：从根到叶子节点路径 4->9->5 代表数字 495，4->9->1 代表数字 491，4->0 代表数字 40，数字总和 = 495 + 491 + 40 = 1026
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+
+    int result; // 结果
+    int cur; // 二叉树前序遍历过程中路径代表的数字：在方法递归以及回溯的过程中动态更新
+
+    public int sumNumbers(TreeNode root) {
+        result = 0;
+        cur = 0;
+        path(root);
+        return result;
+    }
+
+    private void path(TreeNode root) {
+        if (root == null) return;
+        cur = cur * 10 + root.val;
+        if (root.left == null && root.right == null) result += cur; // 访问到叶子节点即为一条有效的路径（对于二叉树：有几个叶子节点就有几条从根节点到叶子节点的不同路径，同时每个节点只会被访问一次）
+        path(root.left);
+        path(root.right);
+        cur = cur / 10; // 回溯前：需要将遍历过程中路径代表的数字移除当前访问节点的值
+    }
+}
+```
+
+tips：
+
+- 递归：前序遍历。思路与113题相似；
+- 时间复杂度：O(n)
+- 空间复杂度：O(h)，h为二叉树的高度
+
+### 437. [Path Sum III](https://leetcode-cn.com/problems/path-sum-iii/) 路径总和 III
+
+给定一个二叉树，它的每个结点都存放着一个整数值。找出路径和等于给定数值的路径总数。路径不需要从根节点开始，也不需要在叶子节点结束，但是路径方向必须是向下的（只能从父节点到子节点）。二叉树不超过1000个节点，且节点数值范围是 [-1000000,1000000] 的整数。  
+示例：  
+输入：root = [10,5,-3,3,2,null,11,3,-2,null,1], sum = 8
+
+```
+      10
+     /  \
+    5   -3
+   / \    \
+  3   2   11
+ / \   \
+3  -2   1
+```
+
+输出：3  
+解释：和等于 8 的路径有 5 -> 3、5 -> 2 -> 1 和 -3 -> 11
+
+思路：  
+递归：前序遍历。存在两个递归函数，递归函数 pathSum 处理不包含root节点其和为targetSum的路径个数：对于每层级递归中访问的节点root计算不包含root节点其和为targetSum的路径个数（以root节点的左右子节点为路径起始寻找满足要求的路径）和包含root节点其和为targetSum的路径个数（以root节点为为路径起始寻找满足要求的路径）；返回值为对于当前递归层级访问节点的子树所有满足条件的路径数（不包含当前节点的路径数+包含当前节点的路径数）。递归函数 findPath 处理包含root节点（以root为根节点的二叉树中）其和为targetSum的路径个数。两个递归函数复合起来的本质上就为以二叉树中的每个节点为路径起始搜索满足要求的路径数。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public int pathSum(TreeNode root, int targetSum) { // 处理不包含root节点其和为targetSum的路径个数
+        if (root == null) return 0; // 递归边界条件
+        int result = findPath(root, targetSum); // 处理包含root节点其和为targetSum的路径个数
+        result += pathSum(root.left, targetSum); // 在root的左子树中寻找和为targetSum的路径个数（处理不包含root节点其和为targetSum的路径个数）
+        result += pathSum(root.right, targetSum); // 在root的右子树中寻找和为targetSum的路径个数（处理不包含root节点其和为targetSum的路径个数）
+        return result;
+    }
+
+    private int findPath(TreeNode root, int targetSum) { // 处理包含root节点（以root为根节点的二叉树中）其和为targetSum的路径个数
+        if (root == null) return 0; // 未要求路径的终止节点为叶子节点，可以一直搜索到null节点则直接返回0
+        int result = 0;
+        if (root.val == targetSum) result++; // 以当前节点为终止的路径符合条件，但是不能直接返回1，因为二叉树中存在负数可能后面还有路径满足条件
+        result += findPath(root.left, targetSum - root.val);
+        result += findPath(root.right, targetSum - root.val);
+        return result;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n^2)
+- 空间复杂度：O(n^2)
 
 ## Ⅳ Broad First Search (Level Order Traversal) 广度优先搜索（层序遍历）
 
