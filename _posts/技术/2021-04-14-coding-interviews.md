@@ -169,6 +169,132 @@ tips：
 - 时间复杂度：O(1)，每个元素只会「至多被插入和弹出 stack2 一次」，因此均摊下来每个元素被删除的时间复杂度仍为 O(1)
 - 空间复杂度：O(n)
 
+### 11. [旋转数组的最小数字*](https://leetcode-cn.com/problems/xuan-zhuan-shu-zu-de-zui-xiao-shu-zi-lcof/)
+
+把一个数组最开始的若干个元素搬到数组的末尾，我们称之为数组的旋转。输入一个递增排序的数组的一个旋转，输出旋转数组的最小元素。  
+示例：  
+输入：[3,4,5,1,2]ㅤ|ㅤ[10,5,10,10,10]  
+输出：1ㅤ|ㅤ5
+
+思路：  
+**二分查找**，思路类似33题。题目描述的旋转后的排序数组，二分查找过程中每次将数组一分为二后，其中一定有一部分是有序的，另一个部分可能是有序也能是部分有序。
+
+题解：
+
+```java
+class Solution {
+    public int minArray(int[] numbers) {
+        int left = 0, right = numbers.length - 1;
+        while (left < right) { // 查找旋转数组分界点右边的第一个元素：即为最小元素（**分界点两边的子数组都为升序**，并且左子数组中的值大于等于右子数组中的值）
+            int mid = left + (right - left) / 2;
+            if (numbers[mid] > numbers[right]) { // 右半部分无序：分界点存在于右半部分
+                left = mid + 1; // 中轴值 numbers[mid] 大于最右端元素，故其一定不为最小元素，查找范围的左边界由 mid 加一（舍去 mid）
+            } else if (numbers[mid] < numbers[right]) { // 右半部分有序：分界点存在于左半部分
+                right = mid; // 中轴值 numbers[mid] 小于最右端元素，其可能为最小元素，故查找范围的右边界应包含 mid，eg：88567
+            } else if (numbers[left] > numbers[mid]) { // numbers[mid] == numbers[right] 的情况，无法判断右半部分是否有序，当前半部分无序时（则右半部分一定有序也即有半部分的值全都相等）：分界点存在于左半部分
+                right = mid;
+            } else { // numbers[mid] == numbers[right] == numbers[right] 的情况：无法判断分界点存在于哪半部分（即无法判断哪半部分无序）
+                right--;
+            }
+        } // 退出循环后 left == right
+        return numbers[left];
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(logn)，当数组的元素都不相同时时间代价最优为O(logn)，所有元素都相同时时间代价最差为O(n)
+- 空间复杂度：O(1)
+
+### 12. [矩阵中的路径*](https://leetcode-cn.com/problems/ju-zhen-zhong-de-lu-jing-lcof/)
+
+给定一个 m x n 二维字符网格 board 和一个字符串单词 word 。如果 word 存在于网格中，返回 true ；否则，返回 false 。单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母不允许被重复使用。1 <= board.length <= 200，1 <= board[i].length <= 200，board 和 word 仅由大小写英文字母组成。  
+示例：  
+输入：board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"  
+![](/images/2021-04-14-coding-interviews/12.jpg)  
+输出：true
+
+思路：  
+**深度优先搜索，回溯，剪枝**。使用 '\0' 标记当前已访问过的单元格，其不能再次被访问，但是回溯过程中需要再将其置为原来的值，递归深度优先搜索使用的 || 或的方式，当某一条路行不通时会一个一个的回溯寻找其他可能的路径，但是不会再走之前已经走过的路，因为之前走过的路已经返回 false ，只会去判断下一条路（剪枝）。
+
+题解：
+
+```java
+class Solution {
+    public boolean exist(char[][] board, String word) {
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                if (dfs(board, word.toCharArray(), i, j, 0)) return true; // 起点可以是矩阵中的任意位置（当前起点为找到需要继续寻找下一起点的可能性）
+            }
+        }
+        return false;
+    }
+
+    private boolean dfs(char[][] board, char[] word, int i, int j, int k) { // i 和 j 为当前递归层级访问矩阵中单元格的索引，k 为当前在单词中匹配字母的索引
+        if (i < 0 || i >= board.length || j < 0 || j >= board[0].length || board[i][j] != word[k]) return false; // 当前访问单元格越界或者与下一字母不匹配（也包括当前单元格已访问过的情况）：递归边界条件
+        if (k == word.length - 1) return true; // 整个 word 中的字母匹配完毕，不断回溯返回 true
+        board[i][j] = '\0'; // 将当前匹配的单元格置为空字符，表示已访问过
+        boolean isFound = dfs(board, word, i + 1, j, k + 1) || dfs(board, word, i - 1, j, k + 1) ||
+                          dfs(board, word, i, j + 1, k + 1) || dfs(board, word, i, j - 1, k + 1); // 下上右左的顺序递归深度搜索下一单元格
+        board[i][j] = word[k]; // 回溯前需要将已访过的单元格置为原来的值
+        return isFound;
+    }
+}
+```
+
+tips：
+
+- Java 中 '\0' 表示 char 类型的 null 字符，加了 \ 表示后面的 0 是一个转义字符，要作特殊处理，0 与原来的字符 0 的含义不再一样，当编译器遇到 \0 时会自动将 \0 转化为十进制 0 存储在字符中，十进制 0 对应的 ASCII 码中的字符即为 NULL （空字符）；
+- 时间复杂度：O(3^K * MN)，K为字符串word的长度，M和N为矩阵的行数和列数，最差情况下，需要遍历矩阵中长度为 K 字符串的所有方案，时间复杂度为 O(3^K)，矩阵中共有 MN 个起点，时间复杂度为 O(MN)，故时间复杂度为O(3^K * MN)
+- 空间复杂度：O(K)，搜索过程中的递归深度不超过 K
+
+### 13. [机器人的运动范围*](https://leetcode-cn.com/problems/ji-qi-ren-de-yun-dong-fan-wei-lcof/)
+
+地上有一个m行n列的方格，从坐标 [0,0] 到坐标 [m-1,n-1] 。一个机器人从坐标 [0, 0] 的格子开始移动，它每次可以向左、右、上、下移动一格（不能移动到方格外），也不能进入行坐标和列坐标的数位之和大于k的格子。例如，当k为18时，机器人能够进入方格 [35, 37] ，因为3+5+3+7=18。但它不能进入方格 [35, 38]，因为3+5+3+8=19。请问该机器人能够到达多少个格子？1 <= n,m <= 100，0 <= k <= 20。  
+示例：  
+输入：m = 2, n = 3, k = 1  
+输出：3
+
+思路：  
+**深度优先搜索，回溯，剪枝**。此题规定行列数不大于100，对于99以内的数， 设 x 的数位和为 s(x)，x+1 的数位和为 s(x+1)，当 (x + 1) % 10 = 0 时则 s(x+1) = s(x) - 8，例如 19, 20 的数位和分别为 10, 2；当 (x + 1) % 10 != 0 时则 s(x+1) = s(x) + 1，例如 18, 19 的数位和分别为 9, 10。深度优先搜索时仅通过向右和向下移动即可访问所有可达解：矩阵中满足数位和的解构成的几何形状形如多个等腰直角三角形，每个三角形的直角顶点位于 0, 10, 20, ... 等数位和突变的矩阵索引处，三角形内的解虽然都满足数位和要求，但由于机器人每步只能走一个单元格，而三角形间不一定是连通的，因此机器人不一定能到达，称之为不可达解。  
+![](/images/2021-04-14-coding-interviews/13_1.png)  
+同理可到达的解称为可达解，对于两三角形连通处，若某三角形内的解为可达解，则必与其左边或上边的三角形连通（即相交），即机器人必可从左边或上边走进此三角形。  
+![](/images/2021-04-14-coding-interviews/13_2.png)  
+深度优先搜索过程中：先朝一个方向搜到底，再回溯至上个节点，沿另一个方向搜索，以此类推。  
+剪枝：在搜索中，遇到数位和超出目标值、此元素已访问，则立即返回。
+
+题解：
+
+```java
+class Solution {
+
+    int m; // 成员变量
+    int n;
+    int k;
+    boolean[][] isVisited; // 记录当前单元格是否被访问的二维数组
+
+    public int movingCount(int m, int n, int k) {
+        this.m = m; // 初始化
+        this.n = n;
+        this.k = k;
+        this.isVisited = new boolean[m][n];
+        return dfs(0, 0, 0, 0);
+    }
+
+    private int dfs(int i, int j, int si, int sj) { // i 和 j 为当前递归层级访问单元格的索引，si 和 sj 为索引 i 和 j 的数位和
+        if (i >= m || j >= n || si + sj > k || isVisited[i][j]) return 0; // 当前访问单元格越界或者数位和大于k或者已被访问则返回0：递归边界条件
+        isVisited[i][j] = true; // 标记当前单元格为已访问
+        return 1 + dfs(i + 1, j, (i + 1) % 10 == 0 ? si - 8 : si + 1, sj) + dfs(i, j + 1, si, (j + 1) % 10 == 0 ? sj - 8 : sj + 1); // 下右的顺序递归深度搜索下一单元格，返回 1 + 下方搜索的可达解总数 + 右方搜索的可达解总数
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(MN)，M和N为矩阵的行数和列数，最差情况下，机器人遍历矩阵所有单元格，此时时间复杂度为 O(MN)
+- 空间复杂度：O(MN)
+
 ### 15. [二进制中1的个数](https://leetcode-cn.com/problems/er-jin-zhi-zhong-1de-ge-shu-lcof/)
 
 请实现一个函数，输入一个整数（以二进制串形式），输出该数二进制表示中 1 的个数。例如，把 9 表示成二进制是 1001，有 2 位是 1。因此，如果输入 9，则该函数输出 2。  
@@ -1849,6 +1975,65 @@ tips：
 ## Ⅲ Tree 树
 
 树相关的算法题目。
+
+### 7. [重建二叉树](https://leetcode-cn.com/problems/zhong-jian-er-cha-shu-lcof/)
+
+输入某二叉树的前序遍历和中序遍历的结果，请重建该二叉树。假设输入的前序遍历和中序遍历的结果中都不含重复的数字。0 <= 节点个数 <= 5000。  
+示例：  
+输入：preorder = [3,9,20,15,7]，inorder = [9,3,15,20,7]  
+输出：
+
+```
+    3
+   / \
+  9  20
+    /  \
+   15   7
+```
+
+思路：  
+**由前序中序或后序遍历构造二叉树，使用分治算法，递归，归并排序的思想**。前序遍历数组的第 1 个数一定是当前递归子二叉树的根结点，于是可以在中序遍历中找这个根结点的索引，然后将“前序遍历数组”和“中序遍历数组”分为两个部分，就分别对应当前递归子二叉树的左子树和右子树，再分别递归便可实现要求。还使用到了查找表的思路。  
+![](/images/2021-04-14-coding-interviews/7.png)
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+
+    int[] preorder; // 前序遍历的数组
+    Map<Integer, Integer> indexMap; // 用于获取中序遍历数组中某值对应的索引
+
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        this.preorder = preorder;
+        indexMap = new HashMap<>();
+        for (int i = 0; i < inorder.length; i++) indexMap.put(inorder[i], i);
+        return buildTree(0, preorder.length - 1, 0, inorder.length - 1);
+    }
+
+    private TreeNode buildTree(int preLeft, int preRight, int inLeft, int inRight) { // 方法的重载
+        if (preLeft > preRight || inLeft > inRight) return null; // 递归结束的条件
+        TreeNode root = new TreeNode(preorder[preLeft]);
+        int rootIndex = indexMap.get(preorder[preLeft]); // 每次递归得到的此次根节点的值及其在中序遍历数组中的索引
+        root.left =  buildTree(preLeft + 1, preLeft + rootIndex - inLeft, inLeft, rootIndex - 1);
+        root.right = buildTree(preLeft + rootIndex - inLeft + 1, preRight, rootIndex + 1, inRight);
+        return root;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)，其中 n 是树中的节点个数
+- 空间复杂度：O(n)，需要使用 O(n) 的空间存储哈希表，以及 O(h)（其中 h 是树的高度）的空间表示递归时栈空间。这里 h < n，所以总空间复杂度为 O(n)
 
 ## Ⅳ Dynamic Programming 动态规划
 
