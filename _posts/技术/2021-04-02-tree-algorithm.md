@@ -1520,7 +1520,7 @@ class Solution {
     private void path(TreeNode root, int targetSum) {
         if (root == null) return; // 递归边界条件：访问到null节点则直接结束方法
         cur.add(root.val); // 在当前递归层级中进行路径条件判断（递归函数需要执行的任务）前：需要将当前访问的节点添加到遍历过程中路径节点的集合末尾
-        if (root.left == null && root.right == null && root.val == targetSum) result.add(new ArrayList<Integer>(cur)); // 当前递归层级访问到叶子节点且路径满足要求：**拷贝**当前遍历路径节点集合 cur 到结果集合中（无需执行return，方法访问两null子节点后，当前层级递归方法回溯前中将前序遍历路径节点集合中的此叶子节点移除）
+        if (root.left == null && root.right == null && root.val == targetSum) result.add(new ArrayList<Integer>(cur)); // 当前递归层级访问到叶子节点且路径满足要求：**拷贝**当前遍历路径节点集合 cur 到结果集合中（无需执行return，方法访问两null子节点后，当前层级递归方法回溯前将前序遍历路径节点集合中的此叶子节点移除）
         path(root.left, targetSum - root.val); // 访问左子节点
         path(root.right, targetSum - root.val); // 访问右子节点
         cur.remove(cur.size() - 1); // 回溯前：需要在遍历过程中路径节点的集合中移除当前层级访问的节点
