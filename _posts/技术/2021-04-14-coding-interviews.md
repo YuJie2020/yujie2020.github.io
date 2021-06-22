@@ -2035,6 +2035,832 @@ tips：
 - 时间复杂度：O(n)，其中 n 是树中的节点个数
 - 空间复杂度：O(n)，需要使用 O(n) 的空间存储哈希表，以及 O(h)（其中 h 是树的高度）的空间表示递归时栈空间。这里 h < n，所以总空间复杂度为 O(n)
 
+### 26. [树的子结构](https://leetcode-cn.com/problems/shu-de-zi-jie-gou-lcof/)
+
+输入两棵二叉树A和B，判断B是不是A的子结构(约定空树不是任意一个树的子结构)。B是A的子结构， 即 A中有出现和B相同的结构和节点值。0 <= 节点个数 <= 10000。  
+示例：  
+输入：A = [3,4,5,1,2], B = [4,1]
+
+```
+给定的树 A:				给定的树 B：
+     3						4
+    / \					   /
+   4   5				  1
+  / \
+ 1   2
+```
+
+输出：true
+
+思路：  
+**深度优先搜索**。后序遍历&前序遍历。思路与572题相似。后序遍历 isSubStructure 中用于判断 A 中是否包含 B 这个子结构。前序遍历 isSameTree2 用于判断 A 子树是否和 B 为同根节点，同时 B 是 A 的子结构。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public boolean isSubStructure(TreeNode A, TreeNode B) { // 递归：后序遍历
+        if (A == null || B == null) return false; // 递归边界条件（B == null 仅用于当传入的 B 为空时则一定不为子结构直接返回 false）
+        return isSubStructure(A.left, B) || isSubStructure(A.right, B) || isSameTree2(A, B); // 当其中一个条件判断为 true 时就不断回溯返回 true（剪枝）
+    }
+
+    private boolean isSameTree2(TreeNode A, TreeNode B) { // 递归：前序遍历（以相同的遍历方式访问两颗子树）
+        if (B == null) return true; // 因为并非要求两子树相同（要求B为A的子结构），故当前访问的 B 中的节点为null时满足要求
+        if (A == null || A.val != B.val) return false; // 相同位置处的 A 中节点为 null 但 B 中节点不为 null 或者 都不为空但是值不相等时，则表示 B 不是 A 的子结构
+        if (!isSameTree2(A.left, B.left)) return false; // 当前两节点的左子节点满足要求需要继续递归检查下去
+        return isSameTree2(A.right, B.right); // 访问右子节点
+    } // 当其中一个条件判断为 false 时就不断回溯返回 false（剪枝）
+}
+```
+
+tips：
+
+- 时间复杂度：O(∣A∣×∣B∣)，∣A∣为二叉树 A 的节点数，∣B∣为二叉树∣B∣的节点数，对于每一个二叉树 A 上的节点，都需要做一次深度优先搜索来和 B 匹配，匹配一次的时间代价是 O(∣B∣)，则总的时间代价为 O(∣A∣×∣B∣)
+- 空间复杂度：O(max(AHeight, BHeight))，AHeight 为二叉树 A 的高度，BHeight 为二叉树 B 的高度，任意时刻栈空间的最大使用代价是O(max(AHeight, BHeight))
+
+### 27. [二叉树的镜像](https://leetcode-cn.com/problems/er-cha-shu-de-jing-xiang-lcof/)
+
+请完成一个函数，输入一个二叉树，该函数输出它的镜像。0 <= 节点个数 <= 1000。  
+示例：  
+输入：root = [4,2,7,1,3,6,9]
+
+```
+     4
+   /   \
+  2     7
+ / \   / \
+1   3 6   9
+```
+
+输出：[4,7,2,9,6,3,1]
+
+```
+     4
+   /   \
+  7     2
+ / \   / \
+9   6 3   1
+```
+
+思路：  
+**深度优先搜索**。递归：后序遍历。后序遍历树中的所有节点，所有节点都会被访问一次，回溯的过程中翻转二叉树。  
+递归模型：  
+递归函数：每一层的递归中访问到的节点将其左右子树（节点）进行翻转，返回值（即应该给上一层递归返回什么值）为当前翻转左右子树（节点）后的根节点；  
+递归边界条件：遍历到null节点则直接返回null节点不再自身调用方法（递归）。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public TreeNode mirrorTree(TreeNode root) {
+        if (root == null) return null;
+        TreeNode temp = root.left; // 指针：交换当前节点的两个子节点，需要使用临时变量保存首先被重定向的待交换节点
+        root.left = mirrorTree(root.right);
+        root.right = mirrorTree(temp);
+        return root; // 返回当前翻转左右子树（节点）后的根（当前）节点
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(h)，h为二叉树的高度
+
+### 28. [对称的二叉树](https://leetcode-cn.com/problems/dui-cheng-de-er-cha-shu-lcof/)
+
+请实现一个函数，用来判断一棵二叉树是不是对称的。如果一棵二叉树和它的镜像一样，那么它是对称的。0 <= 节点个数 <= 1000。  
+示例：  
+输入：root = [1,2,2,3,4,4,3]
+
+```
+    1
+   / \
+  2   2
+ / \ / \
+3  4 4  3
+```
+
+输出：true
+
+思路：  
+**深度优先搜索**。思路与100题相似，将需要判断的二叉树复制一份，以相反的递归方式深度遍历两颗二叉树：对于原二叉树即为前序遍历（先访问当前节点再访问左子节点和右子节点），对于复制的二叉树即为先访问当前节点再访问右子节点和左子节点。对于对称二叉树，其在结构上对称，并且对称的节点具有相同的值。递归遍历过程中当前两节点满足要求需要继续递归检查下去，只有在某一个节点不符合要求时方法不断回溯返回 false。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public boolean isSymmetric(TreeNode root) {
+        return check(root, root);
+    }
+
+    private boolean check(TreeNode p, TreeNode q) { // 以相反的递归方式深度遍历两颗二叉树
+        if (p == null && q == null) return true;
+        if (p == null || q == null) return false; // 在结构上不对称
+        if (p.val != q.val) return false;
+        if (!check(p.left, q.right)) return false; // 当前两镜像对称节点的一对镜像对称子节点相等（满足要求）需要继续递归检查下去
+        return check(p.right, q.left); // 访问另一对镜像对称子节点
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+### 32 - I. [从上到下打印二叉树](https://leetcode-cn.com/problems/cong-shang-dao-xia-da-yin-er-cha-shu-lcof/)
+
+从上到下打印出二叉树的每个节点，同一层的节点按照从左到右的顺序打印。  
+示例：  
+输入：[3,9,20,null,null,15,7]
+
+```
+    3
+   / \
+  9  20
+    /  \
+   15   7
+```
+
+输出：[3,9,20,15,7]
+
+思路：  
+**广度优先搜索**。利用队列数据结构（以保持访问过的结点的顺序，以便按这个顺序来访问这些结点的邻接结点）实现。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public int[] levelOrder(TreeNode root) {
+        if (root == null) return new int[0];
+        List<Integer> result = new ArrayList<>();
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            int count = queue.size(); // 当前层级节点的个数
+            while (count != 0) {
+                TreeNode node = queue.poll();
+                result.add(node.val);
+                if (node.left != null) queue.offer(node.left);
+                if (node.right != null) queue.offer(node.right);
+                count--;
+            }
+        }
+        int[] resultArray = new int[result.size()];
+        for (int i = 0; i < result.size(); i++) resultArray[i] = result.get(i);
+        return resultArray;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)，每个节点进队出队各一次，渐进时间复杂度为 O(n)
+- 空间复杂度：O(n)
+
+### 32 - II. [从上到下打印二叉树 II](https://leetcode-cn.com/problems/cong-shang-dao-xia-da-yin-er-cha-shu-ii-lcof/)
+
+从上到下按层打印二叉树，同一层的节点按从左到右的顺序打印，每一层打印到一行。  
+示例：  
+输入：[3,9,20,null,null,15,7]  
+输出：
+
+```
+[
+  [3],
+  [9,20],
+  [15,7]
+]
+```
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (root == null) return result;
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            int count = queue.size();
+            List<Integer> level = new ArrayList<>();
+            while (count != 0) {
+                TreeNode node = queue.poll();
+                level.add(node.val);
+                if (node.left != null) queue.offer(node.left);
+                if (node.right != null) queue.offer(node.right);
+                count--;
+            }
+            result.add(level);
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- **广度优先搜索**；
+- 时间复杂度：O(n)，每个节点进队出队各一次，渐进时间复杂度为 O(n)
+- 空间复杂度：O(n)
+
+### 32 - III. [从上到下打印二叉树 III](https://leetcode-cn.com/problems/cong-shang-dao-xia-da-yin-er-cha-shu-iii-lcof/)
+
+请实现一个函数按照之字形顺序打印二叉树，即第一行按照从左到右的顺序打印，第二层按照从右到左的顺序打印，第三行再按照从左到右的顺序打印，其他行以此类推。  
+示例：  
+输入：[3,9,20,null,null,15,7]  
+输出：
+
+```
+[
+  [3],
+  [20,9],
+  [15,7]
+]
+```
+
+思路：  
+**广度优先搜索**。使用 java.util.ArrayList 类中的 void add(int index, E element) 方法，将指定的元素插入此列表中的指定位置，向右移动当前位于该位置的元素（如果有）以及所有后续元素（将其索引加 1）。调用 add(0, node.val) 以在需要从右往左遍历的层级进行倒序插入。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (root == null) return result;
+        boolean isReverse = false; // 当前层级是否需要逆序（需要从右往左遍历的层级），初始值为 false
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root);
+        while (!queue.isEmpty()) {
+            int count = queue.size();
+            List<Integer> level = new ArrayList<>();
+            while (count != 0) {
+                TreeNode node = queue.poll();
+                if (isReverse) { // 需要从右往左遍历的层级进行倒序插入
+                    level.add(0, node.val);
+                } else {
+                    level.add(node.val);
+                }
+                if (node.left != null) queue.offer(node.left);
+                if (node.right != null) queue.offer(node.right);
+                count--;
+            }
+            result.add(level);
+            isReverse = !isReverse; // 将 isReverse 取反（下一层的遍历状态不同）
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+### 33. [二叉搜索树的后序遍历序列](https://leetcode-cn.com/problems/er-cha-sou-suo-shu-de-hou-xu-bian-li-xu-lie-lcof/)
+
+输入一个整数数组，判断该数组是不是某二叉搜索树的后序遍历结果。如果是则返回 `true`，否则返回 `false`。假设输入的数组的任意两个数字都互不相同。  
+示例：  
+输入：[1,3,2,6,5]
+
+```
+     5
+    / \
+   2   6
+  / \
+ 1   3
+```
+
+输出：true
+
+思路：  
+**由前序中序或后序遍历构造二叉树，使用分治算法，递归，归并排序的思想**。思路类似1008题。后序遍历数组的倒数第 1 个数一定是当前递归子二叉树的根节点，又因为对于二叉搜索树，其左子树的所有节点一定比根节点小，其右子树的所有节点一定比根节点大，于是可以迭代找第一个比当前根节点的值大的节点的索引（划分左右子树），然后将后序遍历数组分为两个部分，前半部分为根节点的左子树，后半部分为根节点的右子树，分别递归判断根节点的左右子树是否满足二叉搜索树的条件。  
+![](/images/2021-04-14-coding-interviews/33.png)  
+对于当前子树（根节点）：也需要判断其是否满足二叉搜索树，即其左子树区间 [left, mid−1] 内的所有节点都应小于 postorder[right] ，而划分左右子树的步骤已经保证左子树区间的正确性，因此只需要判断右子树区间即可；右子树区间 [mid, right−1] 内的所有节点都应大于 postorder[right] ，继续迭代寻找，当遇到小于等于 postorder[right] 的节点记录其索引为 index，当 index == right 时右子树区间正确。  
+每个递归层级的返回值即为 此树是否正确 && 此树的左子树是否正确 && 此树的右子树是否正确。
+
+题解：
+
+```java
+class Solution {
+    public boolean verifyPostorder(int[] postorder) {
+        return check(postorder, 0, postorder.length - 1);
+    }
+
+    private boolean check(int[] postorder, int left, int right) { // left和right为当前递归层级检查子树的后序遍历序列区间的左右索引
+        if (left >= right) return true; // 等于的情况：当前子树仅有一个元素（满足要求）；也可能存在大于的情况：当前子树为空（满足要求）
+        int index = left; // 用于遍历当前子树的后序遍历序列区间的索引
+        while (postorder[index] < postorder[right]) index++; // 查找第一个大于根节点的元素（当前子树的根节点即postorder[right]）
+        int mid = index; // 第一个大于根节点元素的索引：右子树后序遍历序列的起始
+        while (postorder[index] > postorder[right]) index++; // 查找第一个小于等于根节点的元素
+        return index == right && check(postorder, left, mid - 1) && check(postorder, mid, right - 1); // 当有一颗子树不为二叉搜索树返回false后将不断回溯返回false（**逻辑运算符与 && 的短路特性**）
+    }
+}
+```
+
+tips：
+
+- 迭代寻找第一大于/小于根节点的元素，无需再单独设置边界条件，因为其最后一个元素即为根节点；
+- 时间复杂度：O(n^2)
+- 空间复杂度：O(n)
+
+### 34. [二叉树中和为某一值的路径](https://leetcode-cn.com/problems/er-cha-shu-zhong-he-wei-mou-yi-zhi-de-lu-jing-lcof/)
+
+输入一棵二叉树和一个整数，打印出二叉树中节点值的和为输入整数的所有路径。从树的根节点开始往下一直到叶节点所经过的节点形成一条路径。  
+示例：  
+输入：
+
+```
+root：							target = 22
+              5
+             / \
+            4   8
+           /   / \
+          11  13  4
+         /  \    / \
+        7    2  5   1
+```
+
+输出：
+
+```
+[
+   [5,4,11,2],
+   [5,8,4,5]
+]
+```
+
+思路：  
+**深度优先搜索**。递归：前序遍历。定义两个成员变量来保存结果和路径节点集合，递归访问每个节点的过程中动态更新路径节点集合 cur。  
+递归模型：  
+递归函数：每一层的递归中访问到的节点root判断其子树是否存在从当前节点 root 到叶子节点的路径满足其路径和为 targetSum（递归过程中动态更新：是否存在从当前节点的子节点到叶子的路径，满足其路径和为 targetSum - val）；  
+递归边界条件：访问到null节点则直接结束方法。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+
+    private List<List<Integer>> result; // 结果集合
+    private List<Integer> cur; // 二叉树前序遍历过程中路径节点的集合
+
+    public List<List<Integer>> pathSum(TreeNode root, int target) {
+        this.result = new ArrayList<>(); // 成员变量的初始化
+        this.cur = new ArrayList<>();
+        path(root, target);
+        return result;
+    }
+
+    private void path(TreeNode root, int target) {
+        if (root == null) return;
+        cur.add(root.val);
+        if (root.left == null && root.right == null && root.val == target) result.add(new ArrayList<Integer>(cur)); // 当前递归层级访问到叶子节点且路径满足要求：**拷贝**当前遍历路径节点集合 cur 到结果集合中（无需执行return，方法访问两null子节点后，当前层级递归方法回溯前将前序遍历路径节点集合中的此叶子节点移除）
+        path(root.left, target - root.val);
+        path(root.right, target - root.val);
+        cur.remove(cur.size() - 1); // 回溯前：需要在遍历过程中路径节点的集合中移除当前层级访问的节点
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)，对每个节点都访问一次
+- 空间复杂度：O(h)，h为树的高度
+
+### 36. [二叉搜索树与双向链表](https://leetcode-cn.com/problems/er-cha-sou-suo-shu-yu-shuang-xiang-lian-biao-lcof/)
+
+输入一棵二叉搜索树，将该二叉搜索树转换成一个排序的循环双向链表。要求不能创建任何新的节点，只能调整树中节点指针的指向。就地完成转换操作。当转化完成以后，树中节点的左指针需要指向前驱，树中节点的右指针需要指向后继。还需要返回链表中的第一个节点的指针。  
+示例：  
+输入：  
+![](/images/2021-04-14-coding-interviews/36_1.png)  
+输出：  
+![](/images/2021-04-14-coding-interviews/36_2.png)  
+解释：链表中的每个节点都有一个前驱和后继指针。对于双向循环链表，第一个节点的前驱是最后一个节点，最后一个节点的后继是第一个节点。“head” 表示指向链表中有最小元素的节点。
+
+思路：  
+**深度优先搜索+指针**。递归：中序遍历。定义成员变量 pre 指针使其总是指向中序遍历过程中的前一节点，拼接链表时总是执行 pre.right = cur 及 cur.left = pre 。  
+**原地**拼接链表的过程中，不会破坏原二叉树中还未拼接到链表节点的结构：因为对于中序遍历，二叉树中节点的访问顺序为自底向上，拼接当前节点到链表中时仅更新了其 left 指针 cur.left = pre ，**其左子树的所有节点已拼接到链表中不会再次被访问故不影响后续节点的拼接**（其后续待拼接的节点为其右子树，其 right 指针还为原来二叉树中的指向）。
+
+题解：
+
+```java
+/*
+// Definition for a Node.
+class Node {
+    public int val;
+    public Node left;
+    public Node right;
+
+    public Node() {}
+
+    public Node(int _val) {
+        val = _val;
+    }
+
+    public Node(int _val,Node _left,Node _right) {
+        val = _val;
+        left = _left;
+        right = _right;
+    }
+};
+*/
+class Solution {
+
+    private Node pre; // 中序遍历上一节点的指针
+    private Node head; // 指针，指向中序遍历的第一个节点：即链表的头节点
+
+    public Node treeToDoublyList(Node root) {
+        if (root == null) return root;
+        inorder(root); // 中序遍历结束后 pre 指针指向中序遍历的最后一个元素
+        pre.right = head; // 使链表产生循环
+        head.left = pre;
+        return head;
+    }
+
+    private void inorder(Node cur) { // cur 即为当前中序遍历节点
+        if (cur == null) return; // 递归边界条件
+        inorder(cur.left);
+        if (pre != null) {
+            pre.right = cur;
+        } else head = cur; // pre 指针为null则为访问到中序遍历的第一个节点：使用head指针保存头节点
+        cur.left = pre;
+        pre = cur; // 链表拼接完当前节点后需要将 pre 指针更新为当前遍历节点
+        inorder(cur.right);
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(h)，h为二叉树的高度
+
+### 37. [序列化二叉树](https://leetcode-cn.com/problems/xu-lie-hua-er-cha-shu-lcof/)
+
+请实现两个函数，分别用来序列化和反序列化二叉树。  
+示例：  
+输入：
+
+```
+    1
+   / \
+  2   3
+     / \
+    4   5
+```
+
+输出："[1,2,3,null,null,4,5]"
+
+思路：  
+**深度优先搜索**。递归：前序遍历。使用重载方法实现序列及反序列化方法。在序列/反序列化过程中，**将中间结果存储到递归函数（方法）的参数中**。序列化二叉树过程中需要将null节点也保存在序列化字符串中，`null,null` 用于标记缺少左、右子节点（即上一节点为叶子节点）。对于序列化，遇到空子树时序列化为 null，否则继续递归序列化；对于反序列化，如果遇到元素为 null 则当前节点某一子树为空树，回溯解析当前节点的另一子树。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+public class Codec {
+
+    // Encodes a tree to a single string.
+    public String serialize(TreeNode root) {
+        return serialize(root, new StringBuilder()).toString();
+    }
+
+    // Decodes your encoded data to tree.
+    public TreeNode deserialize(String data) {
+        return deserialize(new LinkedList<String>(Arrays.asList(data.split(",")))); // 将字符串分割转换为字符串数组再将其转换为List集合
+    }
+
+    private StringBuilder serialize(TreeNode root, StringBuilder sb) { // 序列化方法的重载，使用StringBuilder加快序列化字符串的拼接：前序遍历
+        if (root == null) return sb.append("null").append(","); // 递归边界条件
+        sb.append(root.val).append(",");
+        serialize(root.left, sb);
+        serialize(root.right, sb);
+        return sb;
+    }
+
+    private TreeNode deserialize(List<String> ser) { // 反序列化方法的重载，使用List便于对序列化字符串进行访问操作：前序遍历（在回溯的过程中拼接节点）
+        String cur = ser.remove(0); // 当前节点的值
+        if (cur.equals("null")) return null; // 递归边界条件
+        TreeNode root = new TreeNode(Integer.parseInt(cur));
+        root.left = deserialize(ser);
+        root.right = deserialize(ser);
+        return root; // **返回当前已拼接好子树的根节点**
+    }
+}
+
+// Your Codec object will be instantiated and called as such:
+// Codec codec = new Codec();
+// codec.deserialize(codec.serialize(root));
+```
+
+tips：
+
+- 使用 java.util.Arrays 类中的 static <T> List<T> asList(T... a) 方法，返回一个受指定数组支持的固定大小的列表（参数a - 支持列表的数组）。 返回的为参数数组的列表视图，不能直接使用，需要传入集合（列表）实现类的构造函数中创建一个当前列表视图的集合（列表）对象；
+- 时间复杂度：O(n)，在序列化和反序列化函数中只访问每个节点一次
+- 空间复杂度：O(n)
+
+### 54. [二叉搜索树的第k大节点](https://leetcode-cn.com/problems/er-cha-sou-suo-shu-de-di-kda-jie-dian-lcof/)
+
+给定一棵二叉搜索树，请找出其中第k大的节点。1 ≤ k ≤ 二叉搜索树元素个数。  
+示例：  
+输入：root = [5,3,6,2,4,null,null,1], k = 3
+
+```
+       5
+      / \
+     3   6
+    / \
+   2   4
+  /
+ 1
+```
+
+输出：4
+
+思路：  
+**深度优先搜索**。思路与230题相同。对于二叉搜索树BST，中序遍历为升序，对于中序遍历的变形（先访问右子节点，再访问根节点，最后访问左子节点）则为降序，第k大的节点即为变形中序遍历第k个元素。定义成员变量 count 记录变形中序遍历访问节点的次数，result 保存结果（当 count 等于 k 时记录结果）。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+
+    int count = 0; // 记录中序遍历访问节点的次数
+    int result = 0;
+
+    public int kthLargest(TreeNode root, int k) {
+        if (root == null || count >= k) return result; // 剪枝（第一次回溯后 count 可能大于 k）
+        kthLargest(root.right, k);
+        if (++count == k) {
+            result = root.val;
+        } else kthLargest(root.left, k);
+        return result;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+### 55 - I. [二叉树的深度](https://leetcode-cn.com/problems/er-cha-shu-de-shen-du-lcof/)
+
+输入一棵二叉树的根节点，求该树的深度。从根节点到叶节点依次经过的节点（含根、叶节点）形成树的一条路径，最长路径的长度为树的深度。  
+示例：  
+输入：[3,9,20,null,null,15,7]
+
+```
+    3
+   / \
+  9  20
+    /  \
+   15   7
+```
+
+输出：3
+
+思路：  
+**深度优先搜索**。递归：后序遍历。每个节点都会被访问一次。将 null 节点也看作为一颗子二叉树（递归结束条件），在回溯的过程中累加二叉树的深度。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public int maxDepth(TreeNode root) {
+        if (root == null) return 0; // 递归的边界条件
+        return Math.max(maxDepth(root.left), maxDepth(root.right)) + 1;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)，每个节点在递归中只被遍历一次
+- 空间复杂度：O(h)，h 为二叉树的高度。递归函数需要栈空间，而栈空间取决于递归的深度，故空间复杂度等价于二叉树的高度
+
+### 55 - II. [平衡二叉树](https://leetcode-cn.com/problems/ping-heng-er-cha-shu-lcof/)
+
+输入一棵二叉树的根节点，判断该树是不是平衡二叉树。如果某二叉树中任意节点的左右子树的深度相差不超过1，那么它就是一棵平衡二叉树。0 <= 树的结点个数 <= 10000。  
+示例：  
+输入：[3,9,20,null,null,15,7]  
+输出：true
+
+思路：  
+**深度优先搜索**。思路与104相同，在成员变量位置定义 boolean 变量 flag 标记是否为一平衡二叉树。递归调用计算二叉树的最大深度方法，当二叉树中某一节点的左右子树高度差大于1时则将 flag 置为 false。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+
+    private boolean flag; // 是否为一高度平衡的二叉树：每个节点的左右两个子树的高度差的绝对值不超过 1
+
+    public boolean isBalanced(TreeNode root) {
+        this.flag = true; // 初始化为 true
+        countHeight(root);
+        return this.flag;
+    }
+
+    private int countHeight(TreeNode root) {
+        if (root == null) return 0; // 递归的边界条件
+        int leftHeight = countHeight(root.left);
+        int rightHeight = countHeight(root.right);
+        if (Math.abs(leftHeight - rightHeight) > 1) this.flag = false;
+        return Math.max(leftHeight, rightHeight) + 1; // 返回左右子树高度中最大的一支作为当前节点二叉树的高度
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(h)，h 为二叉树的高度
+
+### 68 - I. [二叉搜索树的最近公共祖先](https://leetcode-cn.com/problems/er-cha-sou-suo-shu-de-zui-jin-gong-gong-zu-xian-lcof/)
+
+给定一个二叉搜索树, 找到该树中两个指定节点的最近公共祖先。最近公共祖先的定义为：“对于有根树 T 的两个结点 p、q，最近公共祖先表示为一个结点 x，满足 x 是 p、q 的祖先且 x 的深度尽可能大（一个节点也可以是它自己的祖先）”。所有节点的值都是唯一的。p、q 为不同节点且均存在于给定的二叉搜索树中。  
+示例：  
+输入：root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8ㅤ|ㅤroot = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4  
+![](/images/2021-04-14-coding-interviews/68_1.png)  
+输出：6ㅤ|ㅤ2
+
+思路：  
+**常规树题目，递归，数学**。题目保证有解，当p、q两节点都小于当前节点，则递归访问左子节点；当p、q两节点都大于当前节点，则递归访问右子节点；对与第三种情况即：p、q两节点中有一节点等于当前访问（p、q两节点中有一个为公共祖先）或者p、q两节点分别大于或小于当前访问节点（当前访问节点为公共祖先）。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        if (p.val < root.val && q.val < root.val) return lowestCommonAncestor(root.left, p, q);
+        if (p.val > root.val && q.val > root.val) return lowestCommonAncestor(root.right, p, q);
+        return root;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+### 68 - II. [二叉树的最近公共祖先](https://leetcode-cn.com/problems/er-cha-shu-de-zui-jin-gong-gong-zu-xian-lcof/)
+
+给定一个二叉树, 找到该树中两个指定节点的最近公共祖先。最近公共祖先的定义为：“对于有根树 T 的两个结点 p、q，最近公共祖先表示为一个结点 x，满足 x 是 p、q 的祖先且 x 的深度尽可能大（一个节点也可以是它自己的祖先）”。所有节点的值都是唯一的。p、q 为不同节点且均存在于给定的二叉树中。  
+示例：  
+输入：root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1ㅤ|ㅤroot = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4  
+![](/images/2021-04-14-coding-interviews/68_2.png)  
+输出：3ㅤ|ㅤ5
+
+思路：  
+**深度优先搜索**。递归：前序遍历。若 root 是 p,q 的 最近公共祖先则只能为以下情况：p 和 q 在 root 的子树中，且分列 root 的 异侧（即分别在左、右子树中）；p=root ，且 q 在 root 的（左或右）子树中；q=root ，且 p 在 root 的（左或右）子树中。通过递归对二叉树进行前序遍历，当遇到节点 p 或 q 时返回，自底向上回溯，当节点 p,q 在节点 root 的异侧时，节点 root 即为最近公共祖先，则向上返回 root ；当节点 p,q 在节点 root 的同侧时，节点 root 的左/右子节点中等于 p或q 的即为最近公共祖先，则向上返回此 root 的左/右子节点。对于递归函数，四种情形如代码 1) - 5) 。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) { // 前序遍历：深度搜索递归找到p/q节点或未找到则不断回溯返回不再深度递归当前子树
+        if (root == null || root == p || root == q) return root; // 当前递归层级访问节点为null节点或者p、q节点则直接返回：无需再深度搜索访问（递归边界条件）
+        TreeNode left = lowestCommonAncestor(root.left, p, q); // 访问左子节点
+        TreeNode right = lowestCommonAncestor(root.right, p, q); // 访问右子节点
+        if (left == null || right == null) return left == null ? right : left; // 1) 当前root节点的子树（左/右都）不包含p/q节点返回null（还未搜索到p/q）；2) 在左/右子树已找到最近公共祖先（此子树中包含p和q节点，同时另一子树的返回结果只能为null）应继续返回此结果；// 3) 特定左/右子树的根节点（root.left/root.right）为特定p/q，且另一子树未搜索到另一p/q（即另一p/q在此特定左/右子树中），返回此特定p/q（即最近公共祖先为p/q中的一个，p和q为父子关系）；4) 在左/右子树中存在p/q节点，另一p/q节点还未找到
+        return root; // 5) 当前root节点的左右子树分别包括p和q节点（left != null && right != null），则此root节点即为最近公共祖先
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
 ## Ⅳ Dynamic Programming 动态规划
 
 动态规划相关的算法题目。
