@@ -98,3 +98,107 @@ tips：
 
 - 时间复杂度：O(3^4)
 - 空间复杂度：O(1)
+
+### 46. [Permutations](https://leetcode-cn.com/problems/permutations/) 全排列
+
+给定一个不含重复数字的数组 `nums` ，返回其 所有可能的全排列。你可以 按任意顺序 返回答案。1 <= nums.length <= 6。nums 中的所有整数 互不相同。  
+示例：  
+输入：nums = [1,2,3]  
+输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+
+思路：  
+思路与17题相似。将结果定义到成员变量位置，递归参数中保存中间结果，定义一与数组等长的 boolean 类型数组表示原数组某一索引位置上的数当前是否被使用。  
+![](/images/2021-06-23-backtracking/46.png)
+
+题解：
+
+```java
+class Solution {
+
+    private List<List<Integer>> result;
+    private boolean[] isUsed; // 某一索引上的数字当前是否被使用
+
+    public List<List<Integer>> permute(int[] nums) {
+        result = new ArrayList<>();
+        isUsed = new boolean[nums.length];
+        dfs(nums, 0, new ArrayList<Integer>());
+        return result;
+    }
+
+    private void dfs(int[] nums, int len, List<Integer> cur) { // len 表示当前排列已拼接数字的长度，cur 表示当前排列拼接的中间结果
+        if (len == nums.length) {
+            result.add(new ArrayList<Integer>(cur)); // 拷贝（不能使用引用的方式）
+            return;
+        }
+        for (int i = 0; i < nums.length; i++) {
+            if (!isUsed[i]) { // 拼接当前未被使用的数字
+                isUsed[i] = true;
+                cur.add(nums[i]);
+                dfs(nums, len + 1, cur);
+                isUsed[i] = false; // 回溯前需要将isUsed[i]置为false，即未使用
+                cur.remove(cur.size() - 1); // 回溯前需要将当前拼接的数字从中间结果中删除
+            }
+        }
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n * n!)
+- 空间复杂度：O(n)
+
+### 47. [Permutations II](https://leetcode-cn.com/problems/permutations-ii/) 全排列 II
+
+给定一个可包含重复数字的序列 `nums` ，按任意顺序 返回所有不重复的全排列。1 <= nums.length <= 8。  
+示例：  
+输入：nums = [1,1,2]  
+输出：
+
+```
+[[1,1,2],
+ [1,2,1],
+ [2,1,1]]
+```
+
+思路：  
+思路与46题相似。此题需要进行额外的剪枝操作。需要将数组 nums 先进性排序，以使得剪枝操作可行：当前待拼接数字 nums[i] 与上一**拼接完**的数字 nums[i-1] 相同时进行剪枝，故需要保证上一拼接完的数字为未使用（nums[i] 刚被回溯，即 isUsed[i-1] 为 false，表示一种排列结果中同一位置上不能出现同一数字；如果 isUsed[i-1] 为 true 则表示一种排列结果中有相邻的两位置上数字相同），同时 i 需要大于 0 以保证 nums[i-1] 有效。  
+![](/images/2021-06-23-backtracking/47.jpg)
+
+题解：
+
+```java
+class Solution {
+
+    private List<List<Integer>> result;
+    private boolean[] isUsed; // 某一索引上的数字当前是否被使用
+
+    public List<List<Integer>> permuteUnique(int[] nums) {
+        result = new ArrayList<>();
+        isUsed = new boolean[nums.length];
+        Arrays.sort(nums);
+        dfs(nums, 0, new ArrayList<Integer>());
+        return result;
+    }
+
+    private void dfs(int[] nums, int len, List<Integer> cur) { // len 表示当前排列已拼接数字的长度，cur 表示当前排列拼接的中间结果
+        if (len == nums.length) {
+            result.add(new ArrayList<Integer>(cur));
+            return;
+        }
+        for (int i = 0; i < nums.length; i++) {
+            if (isUsed[i] || i > 0 && nums[i] == nums[i - 1] && !isUsed[i - 1]) continue; // 剪枝：当前待拼接数字 nums[i] 与上一**拼接完**的数字 nums[i-1] 相同时进行剪枝
+            isUsed[i] = true;
+            cur.add(nums[i]);
+            dfs(nums, len + 1, cur);
+            isUsed[i] = false;
+            cur.remove(cur.size() - 1);
+        }
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n * n!)
+- 空间复杂度：O(n)
