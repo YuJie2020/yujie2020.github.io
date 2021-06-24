@@ -18,12 +18,12 @@ category: 技术
 给定一个仅包含数字 2-9 的字符串，返回所有它能表示的字母组合。答案可以按 任意顺序 返回。给出数字到字母的映射如下（与电话按键相同）。注意 1 不对应任何字母。0 <= digits.length <= 4。digits[i] 是范围 ['2', '9'] 的一个数字。  
 示例：  
 输入：digits = "23"  
-![](/images/2021-04-02-tree-algorithm/17-title.png)  
+![](/images/2021-06-23-backtracking/17-title.png)  
 输出：["ad","ae","af","bd","be","bf","cd","ce","cf"]
 
 思路：  
 使用回溯的思路。  
-![](/images/2021-04-02-tree-algorithm/17-answer.png)
+![](/images/2021-06-23-backtracking/17-answer.png)
 
 题解：
 
@@ -65,7 +65,7 @@ tips：
 
 思路：  
 思路类似17题。对剩余字符串的长度大于需要整数的最大位数或者小于需要整数的最小位数时跳出当前循环（剪枝）。  
-![](/images/2021-04-02-tree-algorithm/93.png)
+![](/images/2021-06-23-backtracking/93.png)
 
 题解：
 
