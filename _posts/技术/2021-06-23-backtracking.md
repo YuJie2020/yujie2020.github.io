@@ -11,6 +11,9 @@ category: 技术
 抽出LeetCode题库中回溯相关的算法题目，再以相似类型的题目进行分类归纳总结题解。  
 并非每道题目的解法都是它的最优写法，只是在尽量保证代码执行高效性的前提下，为了归纳总结便于记忆而给定的解法，故这里每道题的题解也都只列出了一种写法。
 
+## Ⅰ One Dimensional Problem 一维问题
+
+对于一维回溯问题：  
 **回溯算法本质上就是在一个树形问题上做深度优先遍历，因此此类问题首先需要把问题转换为树形问题**，对于树形结构的同一层级中的节点即为结果中某一特定位置（同一位置）上的可能候选节点。与此同时，也一般涉及到**剪枝**操作，以去除不必要的深度搜索。
 
 对于排列/组合问题：
@@ -415,3 +418,169 @@ tips：
 
 - 时间复杂度：O(2^n)
 - 空间复杂度：O(n)
+
+## Ⅱ 2-D Problem 二维问题
+
+对于二维回溯问题，一般为二维矩阵的深度优先搜索问题，在一条路径行不通的情况下进行回溯，寻找其他可能的路径。
+
+### 79. [Word Search](https://leetcode-cn.com/problems/word-search/) 单词搜索
+
+给定一个 m x n 二维字符网格 board 和一个字符串单词 word 。如果 word 存在于网格中，返回 true ；否则，返回 false 。单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母不允许被重复使用。m == board.length。n = board[i].length。1 <= m, n <= 6。1 <= word.length <= 15。board 和 word 仅由大小写英文字母组成。  
+示例：  
+输入：board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"  
+![](/images/2021-06-23-backtracking/79.jpg)  
+输出：true
+
+思路：  
+回溯，深度优先搜索。使用 ‘\0’ 标记当前已访问过的单元格，其不能再次被访问，但是回溯过程中需要再将其置为原来的值，递归深度优先搜索使用的 || 或的方式，当某一条路行不通时会一个一个的回溯寻找其他可能的路径，但是不会再走之前已经走过的路，因为之前走过的路已经返回 false ，只会去判断下一条路。
+
+题解：
+
+```java
+class Solution {
+    public boolean exist(char[][] board, String word) {
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                if (dfs(board, word.toCharArray(), i, j, 0)) return true; // 起点可以是矩阵中的任意位置（当前起点未找到需要继续寻找下一起点的可能性）
+            }
+        }
+        return false;
+    }
+
+    private boolean dfs(char[][] board, char[] word, int i, int j, int k) { // i 和 j 为当前递归层级访问矩阵中单元格的索引，k 为当前在单词中匹配字母的索引
+        if (i < 0 || i >= board.length || j < 0 || j >= board[0].length || board[i][j] != word[k]) return false; // 当前访问单元格越界或者与下一字母不匹配（也包括当前单元格已访问过的情况）：递归边界条件
+        if (k == word.length - 1) return true; // 整个 word 中的字母匹配完毕，不断回溯返回 true（由或运算 || 的短路特性）
+        board[i][j] = '\0'; // 将当前匹配的单元格置为空字符，表示已访问过（从开始的时候占据了这个位置，向四个方法寻找）
+        boolean isFound = dfs(board, word, i + 1, j, k + 1) || dfs(board, word, i - 1, j, k + 1) ||
+                          dfs(board, word, i, j + 1, k + 1) || dfs(board, word, i, j - 1, k + 1); // 下上右左的顺序递归深度搜索下一单元格
+        board[i][j] = word[k]; // 回溯前需要将已访过的单元格置为原来的值（虽然当前单元格的值与word匹配，但是其四个方向继续搜索下去不与word匹配，则需要回溯，不使用此单元格）
+        return isFound;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(3^K * MN)，K为字符串word的长度，M和N为矩阵的行数和列数，最差情况下，需要遍历矩阵中长度为 K 字符串的所有方案，时间复杂度为 O(3^K)，矩阵中共有 MN 个起点，时间复杂度为 O(MN)，故时间复杂度为O(3^K * MN)
+- 空间复杂度：O(K)，搜索过程中的递归深度不超过 K
+
+### 200. [Number of Islands](https://leetcode-cn.com/problems/number-of-islands/) 岛屿数量
+
+给你一个由 '1'（陆地）和 '0'（水）组成的的二维网格，请你计算网格中岛屿的数量。岛屿总是被水包围，并且每座岛屿只能由水平方向和/或竖直方向上相邻的陆地连接形成。此外，你可以假设该网格的四条边均被水包围。m == grid.length。n == grid[i].length。1 <= m, n <= 300。   
+示例：  
+输入：grid = [  
+ㅤ["1","1","1","1","0"],  
+ㅤ["1","1","0","1","0"],  
+ㅤ["1","1","0","0","0"],  
+ㅤ["0","0","0","0","0"]  
+]  
+输出：1
+
+思路：  
+思路类似79题。回溯，深度优先搜索。
+
+题解：
+
+```java
+class Solution {
+    public int numIslands(char[][] grid) {
+        int result = 0;
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[0].length; j++) {
+                if (grid[i][j] == '1') { // 未访问过的新岛屿陆地
+                    result++;
+                    dfs(grid, i, j);
+                }
+            }
+        }
+        return result;
+    }
+
+    private void dfs(char[][] grid, int i, int j) {
+        if (i < 0 || i >= grid.length || j < 0 || j >= grid[0].length || grid[i][j] == '0') return; // 当前访问单元格越界或者为水域（也包括当前陆地单元格已访问过的情况）：递归边界条件
+        grid[i][j] = '0'; // 将当前已访问的陆地单元格置为水域即 '0'，使得深度搜索的过程中不重复访问，同时对于每轮搜索的起点已访问过的岛屿陆地应跳过
+        dfs(grid, i + 1, j); // 下上右左的顺序递归深度搜索下一单元格
+        dfs(grid, i - 1, j);
+        dfs(grid, i, j + 1);
+        dfs(grid, i, j - 1);
+    }
+}
+
+/*class Solution {
+	
+	private boolean[][] isVisited; // 定义一与二维网格大小相同的二维数组：表示某单元格是否被访问过
+	private int result;
+	
+	public int numIslands(char[][] grid) {
+		this.isVisited = new boolean[grid.length][grid[0].length];
+		this.result = 0;
+		for (int i = 0; i < grid.length; i++) {
+			for (int j = 0; j < grid[0].length; j++) {
+				if (isVisited[i][j]) continue;
+				dfs(grid, i, j);
+				if (grid[i][j] == '1') result++;
+			}
+		}
+        return result;
+	}
+	
+	private void dfs(char[][] grid, int i, int j) {
+		if (i < 0 || i >= grid.length || j < 0 || j >= grid[0].length || grid[i][j] == '0' || isVisited[i][j]) return;
+		isVisited[i][j] = true;
+		dfs(grid, i + 1, j);
+		dfs(grid, i - 1, j);
+		dfs(grid, i, j + 1);
+		dfs(grid, i, j - 1);
+	}
+}*/
+```
+
+tips：
+
+- 时间复杂度：O(mn)，m 和 n 分别为二维网格的行数和列数
+- 空间复杂度：O(mn)，在最坏情况下，整个二维网格均为陆地，深度优先搜索的深度达到 mn
+
+### 130. [Surrounded Regions](https://leetcode-cn.com/problems/surrounded-regions/) 被围绕的区域
+
+给你一个 `m x n` 的矩阵 `board` ，由若干字符 `'X'` 和 `'O'` ，找到所有被 `'X'` 围绕的区域，并将这些区域里所有的 `'O'` 用 `'X'` 填充。m == board.length。n == board[i].length。1 <= m, n <= 200。  
+示例：  
+输入：board = [["X","X","X","X"],["X","O","O","X"],["X","X","O","X"],["X","O","X","X"]]  
+![](/images/2021-06-23-backtracking/130.jpg)  
+输出：[["X","X","X","X"],["X","X","X","X"],["X","X","X","X"],["X","O","X","X"]]  
+解释：被围绕的区间不会存在于边界上，换句话说，任何边界上的 'O' 都不会被填充为 'X'。 任何不在边界上，或不与边界上的 'O' 相连的 'O' 最终都会被填充为 'X'。如果两个元素在水平或垂直方向相邻，则称它们是“相连”的。
+
+思路：  
+思路与200相似。对于题目所叙述的被 'X' 围绕的区域都填充为 'O'：即不与边界上的 'O' 相连的 'O' 最终都会被填充为 'X'。以二维矩阵 board 边界上的 'O' 为起点进行深度优先搜索将与其相连的 'O' 都置为 '\0' （空字符 null）：同时也减少了重复搜索的过程（边界上相连的 'O' 下次不用再以起点进行搜索），当以边界上的 'O' 为起点进行的深度优先搜索结束后，将所有的 'O' 替换为 'X' 即为结果，同时还需将之前替换为 '/0' 的 'O' 还原。
+
+题解：
+
+```java
+class Solution {
+    public void solve(char[][] board) {
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                if ((i == 0 || i == board.length - 1 || j == 0 || j == board[0].length - 1) && board[i][j] == 'O') dfs(board, i, j);
+            }
+        }
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                board[i][j] = board[i][j] == '\0' ? 'O' : 'X';
+            }
+        }
+    }
+
+    private void dfs(char[][] board, int i, int j) {
+        if (i < 0 || i >= board.length || j < 0 || j >= board[0].length || board[i][j] != 'O') return; // 当访问单元格越界或者与 'O' 不同（包括遇到'X'及当前单元格已访问过并标记为'\0'的情况）：递归边界条件
+        board[i][j] = '\0'; // 将与二维矩阵 board 边界上的 'O' 相连的 'O' 置为空字符 '\0'
+        dfs(board, i + 1, j);
+        dfs(board, i - 1, j);
+        dfs(board, i, j + 1);
+        dfs(board, i, j - 1);
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(mn)，m 和 n 分别为矩阵的行数和列数，深度优先搜索过程中，每一个单元格至多被标记一次
+- 空间复杂度：O(mn)
