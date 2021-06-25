@@ -207,3 +207,211 @@ tips：
 
 - 时间复杂度：O(n * n!)
 - 空间复杂度：O(n)
+
+### 77. [Combinations](https://leetcode-cn.com/problems/combinations/) 组合
+
+给定两个整数 *n* 和 *k*，返回 1 ... *n* 中所有可能的 *k* 个数的组合。  
+示例：  
+输入：n = 4, k = 2  
+输出：
+
+```
+[
+  [2,4],
+  [3,4],
+  [2,3],
+  [1,2],
+  [1,3],
+  [1,4],
+]
+```
+
+思路：  
+思路与46题相似。因为是组合的情况，故每次拼接下一个数字时只能从比上一数字大的开始（为了更便于统计哪些数字已存在于排列中）。如图对于连接上的数字，相同则代表同一递归深度。  
+![](/images/2021-06-23-backtracking/77_1.png)  
+剪枝：对于当前递归层级，其已拼接好的组合中间结果为 cur ，长度为 cur.size() ，**对于下一特定（同一）位置待拼接的数字**，下一待拼接数字的有效范围为 [start, end] ，start 已确定，对于任意 i ∈ [start, end] ，为了使拼接数字 i 时，包括 i 在内整个 `1 ... n` 范围内还剩余 [i, n] 个元素，其长度为 n-i+1 ，需要大于等于当前排列还剩余的空位数 k-cur.size() ，即 n-i+1 >= k-cur.size() ，故可得 i <= n - (k - cur.size()) + 1 ，end = n - (k - cur.size()) + 1 。  
+![](/images/2021-06-23-backtracking/77_2.png)
+
+题解：
+
+```java
+class Solution {
+
+    private List<List<Integer>> result;
+
+    public List<List<Integer>> combine(int n, int k) {
+        result = new ArrayList<>();
+        dfs(n, k, 1, new ArrayList<Integer>());
+        return result;
+    }
+
+    private void dfs(int n, int k, int start, List<Integer> cur) { // start 为当前递归层级组合的中间结果下一待拼接数字的起始值
+        if (cur.size() == k) {
+            result.add(new ArrayList<Integer>(cur));
+            return;
+        }
+        for (int i = start; i <= n - (k - cur.size()) + 1; i++) { // 剪枝：对于i的范围进行了剪枝操作
+            cur.add(i);
+            dfs(n, k, i + 1, cur); // 起始值应为 i+1
+            cur.remove(cur.size() - 1);
+        }
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O( C(k, n) )
+- 空间复杂度：O(k)，由递归深度决定
+
+### 39. [Combination Sum](https://leetcode-cn.com/problems/combination-sum/) 组合总和
+
+给定一个无重复元素的数组 candidates 和一个目标数 target ，找出 candidates 中所有可以使数字和为 target 的组合。candidates 中的数字可以无限制重复被选取。所有数字（包括 target）都是正整数。解集不能包含重复的组合。1 <= candidates.length <= 30。candidate 中的每个元素都是独一无二的。   
+示例：  
+输入：candidates = [2,3,6,7], target = 7  
+输出：
+
+```
+[
+  [7],
+  [2,2,3]
+]
+```
+
+思路：  
+思路与77题相似。对于 candidates = [2, 3, 6, 7], target = 7，以 target = 7 为根节点，每创建一个分支的时做减法，每一个箭头表示：从父亲节点的数值减去边上的数值，得到孩子节点的数值。边的值就是 candidate 数组的每个元素的值，减到 0 或者负数的时候停止，即节点 0 和负数节点成为叶子节点，所有从根节点到节点 0 的路径（只能从上往下，没有回路）就是题目要找的一个结果。  
+去重：为了使路径（结果）不产生重复，每一次搜索的时候设置下一轮搜索的起点 start：从 candidates 数组中的第几个元素开始，即**对于树形结构的同一层级**，从第二个节点开始，都不能再搜索同一层节点已经使用过的 candidate 里的元素，故**对于每个节点其下一轮搜索的起点 start 都为对于当前节点其父节点拼接了 candidate 中的哪个元素**。  
+剪枝：将候选数组 candidates 先进行排序，则按顺序对候选数组中的元素进行搜索时，如果 target 减去一个数得到负数，那么减去一个更大的数依然是负数。故在当前递归层级的节点中搜索下一节点时，当得到负数就跳出循环搜索整个方法结束（对于当前节点的下一轮搜索完毕）。  
+![](/images/2021-06-23-backtracking/39.png)
+
+题解：
+
+```java
+class Solution {
+
+    private List<List<Integer>> result;
+
+    public List<List<Integer>> combinationSum(int[] candidates, int target) {
+        result = new ArrayList<>();
+        Arrays.sort(candidates);
+        dfs(candidates, target, 0, new ArrayList<Integer>());
+        return result;
+    }
+
+    private void dfs(int[] candidates, int target, int start, List<Integer> cur) { // start 表示搜索范围的起始值，cur 表示中间结果
+        if (target == 0) {
+            result.add(new ArrayList<Integer>(cur));
+            return;
+        }
+        for (int i = start; i < candidates.length; i++) { // 对于当前递归层级（某一个节点）：进行下一轮搜索
+            if (target - candidates[i] < 0) break; // 剪枝
+            cur.add(candidates[i]);
+            dfs(candidates, target - candidates[i], i, cur); // 父节点拼接了i，对于此节点的搜索起始即为i
+            cur.remove(cur.size() - 1);
+        }
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(S)，S 为所有可行解的长度之和
+- 空间复杂度：O(target)，取决于递归的栈深度，在最差情况下需要递归 target 层
+
+### 40. [Combination Sum II](https://leetcode-cn.com/problems/combination-sum-ii/) 组合总和 II
+
+给定一个数组 candidates 和一个目标数 target ，找出 candidates 中所有可以使数字和为 target 的组合。candidates 中的每个数字在每个组合中只能使用一次。所有数字（包括目标数）都是正整数。解集不能包含重复的组合。  
+示例：  
+输入：candidates = [10,1,2,7,6,1,5], target = 8  
+输出：
+
+```
+[
+  [1, 7],
+  [1, 2, 5],
+  [2, 6],
+  [1, 1, 6]
+]
+```
+
+思路：  
+思路与39题相似。虽然为组合问题，但是也使用到了 `isUsed` 数组：对于树结构同一层级的节点（即对于组合某一特定同一位置），在中间结果（父节点）确定的前提下，此位置若为上一已尝试拼接过的相同数字，则会使得组合中出现重复结果，故使用 isUsed 数组，保证上一拼接完的数字为未使用（candidates[i-1] 刚被回溯，即 isUsed[i-1] 为 false，表示一种组合结果中同一位置上不能出现同一数字；如果 isUsed[i-1] 为 true 则表示一种排列结果中有相邻的两位置上数字相同），同时 i 需要大于 0 以保证 candidates[i-1] 有效。候选数组中的每个元素不能重复使用，故对于当前递归层级中的节点下一搜索范围的起始应为 i + 1。
+
+题解：
+
+```java
+class Solution {
+
+    private List<List<Integer>> result;
+    private boolean[] isUsed;
+
+    public List<List<Integer>> combinationSum2(int[] candidates, int target) {
+        result = new ArrayList<>();
+        isUsed = new boolean[candidates.length];
+        Arrays.sort(candidates);
+        dfs(candidates, target, 0, new ArrayList<Integer>());
+        return result;
+    }
+
+    private void dfs(int[] candidates, int target, int start, List<Integer> cur) {
+        if (target == 0) {
+            result.add(new ArrayList<Integer>(cur));
+            return;
+        }
+        for (int i = start; i < candidates.length; i++) {
+            if (i > 0 && candidates[i] == candidates[i - 1] && !isUsed[i - 1]) continue;
+            if (target - candidates[i] < 0) break; // 剪枝
+            isUsed[i] = true;
+            cur.add(candidates[i]);
+            dfs(candidates, target - candidates[i], i + 1, cur);
+            isUsed[i] = false;
+            cur.remove(cur.size() - 1);
+        }
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(S)，S 为所有可行解的长度之和
+- 空间复杂度：O(target)
+
+### 78. [Subsets](https://leetcode-cn.com/problems/subsets/) 子集
+
+给你一个整数数组 `nums` ，数组中的元素 互不相同。返回该数组所有可能的子集（幂集）。解集 不能 包含重复的子集。你可以按任意顺序返回解集。1 <= nums.length <= 10。nums 中的所有元素 互不相同  
+示例：  
+输入：nums = [1,2,3]  
+输出：[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+
+思路：  
+思路与77题相似。添加组合到结果集合中无需再附加条件判断，在 start 等于候选数组 nums 的长度时代表已搜索到所有可能组合的末尾则直接返回结束方法。
+
+题解：
+
+```java
+class Solution {
+
+    private List<List<Integer>> result;
+
+    public List<List<Integer>> subsets(int[] nums) {
+        result = new ArrayList<>();
+        dfs(nums, 0, new ArrayList<Integer>());
+        return result;
+    }
+
+    private void dfs(int[] nums, int start, List<Integer> cur) { // start 为搜索范围的其实值
+        result.add(new ArrayList<Integer>(cur));
+        if (start == nums.length) return; // 递归边界条件
+        for (int i = start; i < nums.length; i++) {
+            cur.add(nums[i]);
+            dfs(nums, i + 1, cur); // 起始值应为 i+1
+            cur.remove(cur.size() - 1);
+        }
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(2^n)
+- 空间复杂度：O(n)
