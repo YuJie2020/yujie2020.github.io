@@ -207,48 +207,6 @@ tips：
 - 时间复杂度：O(logn)，当数组的元素都不相同时时间代价最优为O(logn)，所有元素都相同时时间代价最差为O(n)
 - 空间复杂度：O(1)
 
-### 12. [矩阵中的路径*](https://leetcode-cn.com/problems/ju-zhen-zhong-de-lu-jing-lcof/)
-
-给定一个 m x n 二维字符网格 board 和一个字符串单词 word 。如果 word 存在于网格中，返回 true ；否则，返回 false 。单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母不允许被重复使用。1 <= board.length <= 200，1 <= board[i].length <= 200，board 和 word 仅由大小写英文字母组成。  
-示例：  
-输入：board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"  
-![](/images/2021-04-14-coding-interviews/12.jpg)  
-输出：true
-
-思路：  
-**深度优先搜索，回溯，剪枝**。使用 '\0' 标记当前已访问过的单元格，其不能再次被访问，但是回溯过程中需要再将其置为原来的值，递归深度优先搜索使用的 || 或的方式，当某一条路行不通时会一个一个的回溯寻找其他可能的路径，但是不会再走之前已经走过的路，因为之前走过的路已经返回 false ，只会去判断下一条路（剪枝）。
-
-题解：
-
-```java
-class Solution {
-    public boolean exist(char[][] board, String word) {
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[0].length; j++) {
-                if (dfs(board, word.toCharArray(), i, j, 0)) return true; // 起点可以是矩阵中的任意位置（当前起点为找到需要继续寻找下一起点的可能性）
-            }
-        }
-        return false;
-    }
-
-    private boolean dfs(char[][] board, char[] word, int i, int j, int k) { // i 和 j 为当前递归层级访问矩阵中单元格的索引，k 为当前在单词中匹配字母的索引
-        if (i < 0 || i >= board.length || j < 0 || j >= board[0].length || board[i][j] != word[k]) return false; // 当前访问单元格越界或者与下一字母不匹配（也包括当前单元格已访问过的情况）：递归边界条件
-        if (k == word.length - 1) return true; // 整个 word 中的字母匹配完毕，不断回溯返回 true
-        board[i][j] = '\0'; // 将当前匹配的单元格置为空字符，表示已访问过
-        boolean isFound = dfs(board, word, i + 1, j, k + 1) || dfs(board, word, i - 1, j, k + 1) ||
-                          dfs(board, word, i, j + 1, k + 1) || dfs(board, word, i, j - 1, k + 1); // 下上右左的顺序递归深度搜索下一单元格
-        board[i][j] = word[k]; // 回溯前需要将已访过的单元格置为原来的值
-        return isFound;
-    }
-}
-```
-
-tips：
-
-- Java 中 '\0' 表示 char 类型的 null 字符，加了 \ 表示后面的 0 是一个转义字符，要作特殊处理，0 与原来的字符 0 的含义不再一样，当编译器遇到 \0 时会自动将 \0 转化为十进制 0 存储在字符中，十进制 0 对应的 ASCII 码中的字符即为 NULL （空字符）；
-- 时间复杂度：O(3^K * MN)，K为字符串word的长度，M和N为矩阵的行数和列数，最差情况下，需要遍历矩阵中长度为 K 字符串的所有方案，时间复杂度为 O(3^K)，矩阵中共有 MN 个起点，时间复杂度为 O(MN)，故时间复杂度为O(3^K * MN)
-- 空间复杂度：O(K)，搜索过程中的递归深度不超过 K
-
 ### 13. [机器人的运动范围*](https://leetcode-cn.com/problems/ji-qi-ren-de-yun-dong-fan-wei-lcof/)
 
 地上有一个m行n列的方格，从坐标 [0,0] 到坐标 [m-1,n-1] 。一个机器人从坐标 [0, 0] 的格子开始移动，它每次可以向左、右、上、下移动一格（不能移动到方格外），也不能进入行坐标和列坐标的数位之和大于k的格子。例如，当k为18时，机器人能够进入方格 [35, 37] ，因为3+5+3+7=18。但它不能进入方格 [35, 38]，因为3+5+3+8=19。请问该机器人能够到达多少个格子？1 <= n,m <= 100，0 <= k <= 20。  
@@ -2861,7 +2819,55 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(n)
 
-## Ⅳ Dynamic Programming 动态规划
+## Ⅳ Backtraacking 回溯
+
+回溯相关的算法题目。
+
+**回溯算法本质上就是在一个树形问题上做深度优先遍历，因此此类问题首先需要把问题转换为树形问题**，对于树形结构的同一层级中的节点即为结果中某一特定位置（同一位置）上的可能候选节点。与此同时，也一般涉及到**剪枝**操作，以去除不必要的深度搜索。
+
+### 12. [矩阵中的路径](https://leetcode-cn.com/problems/ju-zhen-zhong-de-lu-jing-lcof/)
+
+给定一个 m x n 二维字符网格 board 和一个字符串单词 word 。如果 word 存在于网格中，返回 true ；否则，返回 false 。单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母不允许被重复使用。1 <= board.length <= 200，1 <= board[i].length <= 200，board 和 word 仅由大小写英文字母组成。  
+示例：  
+输入：board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"  
+![](/images/2021-04-14-coding-interviews/12.jpg)  
+输出：true
+
+思路：  
+**回溯，深度优先搜索，剪枝**。使用 '\0' 标记当前已访问过的单元格，其不能再次被访问，但是回溯过程中需要再将其置为原来的值，递归深度优先搜索使用的 || 或的方式，当某一条路行不通时会一个一个的回溯寻找其他可能的路径，但是不会再走之前已经走过的路，因为之前走过的路已经返回 false ，只会去判断下一条路（剪枝）。
+
+题解：
+
+```java
+class Solution {
+    public boolean exist(char[][] board, String word) {
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                if (dfs(board, word.toCharArray(), i, j, 0)) return true; // 起点可以是矩阵中的任意位置（当前起点未找到需要继续寻找下一起点的可能性）
+            }
+        }
+        return false;
+    }
+
+    private boolean dfs(char[][] board, char[] word, int i, int j, int k) { // i 和 j 为当前递归层级访问矩阵中单元格的索引，k 为当前在单词中匹配字母的索引
+        if (i < 0 || i >= board.length || j < 0 || j >= board[0].length || board[i][j] != word[k]) return false; // 当前访问单元格越界或者与下一字母不匹配（也包括当前单元格已访问过的情况）：递归边界条件
+        if (k == word.length - 1) return true; // 整个 word 中的字母匹配完毕，不断回溯返回 true
+        board[i][j] = '\0'; // 将当前匹配的单元格置为空字符，表示已访问过
+        boolean isFound = dfs(board, word, i + 1, j, k + 1) || dfs(board, word, i - 1, j, k + 1) ||
+                          dfs(board, word, i, j + 1, k + 1) || dfs(board, word, i, j - 1, k + 1); // 下上右左的顺序递归深度搜索下一单元格
+        board[i][j] = word[k]; // 回溯前需要将已访过的单元格置为原来的值
+        return isFound;
+    }
+}
+```
+
+tips：
+
+- Java 中 '\0' 表示 char 类型的 null 字符，加了 \ 表示后面的 0 是一个转义字符，要作特殊处理，0 与原来的字符 0 的含义不再一样，当编译器遇到 \0 时会自动将 \0 转化为十进制 0 存储在字符中，十进制 0 对应的 ASCII 码中的字符即为 NULL （空字符）；
+- 时间复杂度：O(3^K * MN)，K为字符串word的长度，M和N为矩阵的行数和列数，最差情况下，需要遍历矩阵中长度为 K 字符串的所有方案，时间复杂度为 O(3^K)，矩阵中共有 MN 个起点，时间复杂度为 O(MN)，故时间复杂度为O(3^K * MN)
+- 空间复杂度：O(K)，搜索过程中的递归深度不超过 K
+
+## Ⅴ Dynamic Programming 动态规划
 
 动态规划相关的算法题目。
 
