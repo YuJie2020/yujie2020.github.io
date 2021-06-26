@@ -133,7 +133,7 @@ class Solution {
         return result;
     }
 
-    private void dfs(int[] nums, int len, List<Integer> cur) { // len 表示当前排列已拼接数字的长度，cur 表示当前排列拼接的中间结果
+    private void dfs(int[] nums, int len, List<Integer> cur) { // len 表示当前排列已拼接数字的长度（也表示当前递归层级的方法中在尝试拼接排列中的第几位数字），cur 表示当前排列拼接的中间结果
         if (len == nums.length) {
             result.add(new ArrayList<Integer>(cur)); // 拷贝（不能使用引用的方式）
             return;
