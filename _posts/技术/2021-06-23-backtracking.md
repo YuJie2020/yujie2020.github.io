@@ -584,3 +584,71 @@ tips：
 
 - 时间复杂度：O(mn)，m 和 n 分别为矩阵的行数和列数，深度优先搜索过程中，每一个单元格至多被标记一次
 - 空间复杂度：O(mn)
+
+### 51. [N-Queens](https://leetcode-cn.com/problems/n-queens/) N 皇后
+
+n 皇后问题 研究的是如何将 n 个皇后放置在 n×n 的棋盘上，并且使皇后彼此之间不能相互攻击。给你一个整数 n ，返回所有不同的 n 皇后问题 的解决方案。每一种解法包含一个不同的 n 皇后问题 的棋子放置方案，该方案中 'Q' 和 '.' 分别代表了皇后和空位。1 <= n <= 9。皇后彼此不能相互攻击，也就是说：任何两个皇后都不能处于同一条横行、纵行或斜线上。  
+示例：  
+输入：n = 4  
+输出：[[".Q..","...Q","Q...","..Q."],["..Q.","Q...","...Q",".Q.."]]
+
+思路：  
+回溯。对于当前递归层级的方法：放置第 index 个皇后，当n个皇后全部放置完毕或者后面待放置的皇后放置于任何位置都冲突时都会进行回溯，需要重新寻找当前要放置的皇后的同行其他列位置。故当第一个皇后放置与棋盘第一行第一列的情况罗列完之后还会继续罗列其放置于第一行其他列的情况。
+![](/images/2021-06-23-backtracking/51.png)
+
+题解：
+
+```java
+class Solution {
+
+    private List<List<String>> result;
+    private boolean[] col; // 棋盘某一纵列上是否有皇后（共有 n 条列数）：将第index个皇后放置于棋盘第index行故无需判断行（水平方向）是否冲突
+    private boolean[] dia1; // 棋盘某一斜线“ / 方向”上是否有皇后（此方向上一共有 2^n-1 条斜线）
+    private boolean[] dia2; // 棋盘某一斜线“ \ 方向”上是否有皇后（此方向上一共有 2^n-1 条斜线）
+
+    public List<List<String>> solveNQueens(int n) {
+         this.result = new ArrayList<>();
+         this.col = new boolean[n];
+         this.dia1 = new boolean[(int) Math.pow(2, n) - 1];
+         this.dia2 = new boolean[(int) Math.pow(2, n) - 1];
+         putQueen(n, 0, new int[n]); // index初始值为0：放置第0个皇后
+         return result;
+    }
+
+    private void putQueen(int n, int index, int[] cur) { // 放置第index个皇后的方法：cur数组代表放置第i个皇后到棋盘的第i行的第cur[i]列
+        if (index == n) {
+            result.add(generate(cur));
+            return;
+        }
+        for (int i = 0; i < n; i++) { // 尝试将当前第index个皇后放置于棋盘第index行的第 i 列上
+            if (!col[i] && !dia1[index + i] && !dia2[index - i + n - 1]) { // 当前位置与其他已放置皇后的位置不冲突
+                col[i] = true;
+                dia1[index + i] = true;
+                dia2[index - i + n - 1] = true;
+                cur[index] = i;
+                putQueen(n, index + 1, cur);
+                col[i] = false; // 回溯
+                dia1[index + i] = false;
+                dia2[index - i + n - 1] = false;
+            }
+        }
+    }
+
+    private List<String> generate(int[] cur) { // 将一种放置方式的数组转换为字符串集合的形式
+        List<String> ele = new ArrayList<>();
+        for (int i = 0; i < cur.length; i++) {
+            StringBuilder sb = new StringBuilder();
+            for (int j = 0; j < cur[i]; j++) sb.append(".");
+            sb.append("Q");
+            for (int j = cur[i] + 1; j < cur.length; j++) sb.append(".");
+            ele.add(sb.toString());
+        }
+        return ele;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n^n)
+- 空间复杂度：O(2^n-1)
