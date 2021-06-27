@@ -237,7 +237,7 @@ System.out.println(a &= 3); // 1
 
 ### 3. Count 2^n 计算2的n次方
 
-对于 n & (n - 1) ，其运算结果恰为把 n 的二进制中最低位的 1 变为 0 之后的结果。只要每次执行这个操作，就会消除掉 n 的二进制中最后一个出现的 1。因此执行 n & (n - 1) 使得 n 变成 0 的操作次数，就是 n 的二进制中 1 的个数。
+1 \<\< n = 2^n，对于1左移n位后的二进制数表达，只有第n位上为1其余位上都为0，故其值为2^n。
 
 应用：使用左移运算简化（加快）2的n次方计算。例如：  
 [222. Count Complete Tree Nodes](https://leetcode-cn.com/problems/count-complete-tree-nodes/)ㅤㅤ[完全二叉树的节点个数](https://yujie2020.github.io/2021-04-02-tree-algorithm.html)
