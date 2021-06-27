@@ -47,8 +47,42 @@ class Solution {
 
 tips：
 
-- 时间复杂度：O(n)；
+- 时间复杂度：O(n)
 - 空间复杂度：O(1)，输出数组不被视为额外空间
+
+### 338. [Counting Bits](https://leetcode-cn.com/problems/counting-bits/) 比特位计数
+
+给定一个非负整数 num。对于 0 ≤ i ≤ num 范围中的每个数字 i ，计算其二进制数中的 1 的数目并将它们作为数组返回。要求算法的空间复杂度为O(n)。要求在C++或任何其他语言中不使用任何内置函数（如 C++ 中的 __builtin_popcount）来执行此操作。  
+示例：  
+输入：5  
+输出：[0,1,1,2,1,2]
+
+思路：  
+动态规划+位运算。  
+n 为奇数时：奇数 n 二进制表示中 1 的个数一定比前面的偶数 n - 1 多一个 1，因为多的这个 1 就是 n 最低位的 1。  
+eg：0 <-> 0，1 <-> 1；2 <-> 10，3 <-> 11。  
+n 为偶数时：偶数 n 二进制表示中 1 的个数一定和其除以 2 之后的 n/2 一样多，因为 n 最低位为 0，除以 2 就是右移一位，即将最低位的 0 抹掉，所以 1 的个数是不变的。  
+eg：2 <-> 10，4 <-> 100，8 <-> 1000；3 <-> 11，6 <-> 110，12 <-> 1100。  
+对于 n = 0，其二进制中 1 的个数为 0，遍历数字 0~n，对于偶数 i 其 result[i] = result[i >> 1] + 0（状态转移方程）；对于奇数 i，其 result[i] = result[i - 1] + 1，而 result[i - 1] = result[(i - 1) >> 1] = result[i >> 1]，故 result[i] = result[i >> 1] + 1（状态转移方程）。将两种情况合二为一，对于奇数和偶数情况的状态转移方程仅第二部分不同，定义 i & 1，当 i 为偶数其结果为 0，为奇数其结果为 1。
+
+题解：
+
+```java
+class Solution {
+    public int[] countBits(int n) {
+        int[] result = new int[n + 1]; // 整数 i 的二进制表示中的 1 的数目为 dp[i]
+        for (int i = 0; i <= n; i++) {
+            result[i] = result[i >> 1] + (i & 1); // 状态转移方程
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
 
 ### 279. [Perfect Squares](https://leetcode-cn.com/problems/perfect-squares/) 完全平方数
 

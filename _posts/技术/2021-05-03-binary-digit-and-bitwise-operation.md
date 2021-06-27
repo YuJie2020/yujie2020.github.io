@@ -235,9 +235,19 @@ System.out.println(a &= 3); // 1
 [剑指 Offer 56 - I. 数组中数字出现的次数](https://leetcode-cn.com/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-lcof/)ㅤㅤ[数组中数字出现的次数](https://yujie2020.github.io/2021-04-14-coding-interviews.html)  
 [剑指 Offer 56 - II. 数组中数字出现的次数 II](https://leetcode-cn.com/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-ii-lcof/)ㅤㅤ[数组中数字出现的次数 II](https://yujie2020.github.io/2021-04-14-coding-interviews.html)
 
-### 3. count 2^n 计算2的n次方
+### 3. Count 2^n 计算2的n次方
 
-1 << n = 2^n，对于1左移n位后的二进制数表达，只有第n位上为1其余位上都为0，故其值为2^n。
+对于 n & (n - 1) ，其运算结果恰为把 n 的二进制中最低位的 1 变为 0 之后的结果。只要每次执行这个操作，就会消除掉 n 的二进制中最后一个出现的 1。因此执行 n & (n - 1) 使得 n 变成 0 的操作次数，就是 n 的二进制中 1 的个数。
 
 应用：使用左移运算简化（加快）2的n次方计算。例如：  
 [222. Count Complete Tree Nodes](https://leetcode-cn.com/problems/count-complete-tree-nodes/)ㅤㅤ[完全二叉树的节点个数](https://yujie2020.github.io/2021-04-02-tree-algorithm.html)
+
+### 4. Count Number of 1 Bits 计算位1的个数
+
+对于一个整数 n，计算该数二进制表示中 1 的个数。对于 n & (n - 1) ，其运算结果恰为把 n 的二进制中最低位的 1 变为 0 之后的结果。只要每次执行这个操作，就会消除掉 n 的二进制中最后一个出现的 1。因此执行 n & (n - 1) 使得 n 变成 0 的操作次数，就是 n 的二进制中 1 的个数。对于负数也适用。  
+![](/images/2021-05-03-binary-digit-and-bitwise-operation/4.png)
+
+应用：计算整数 n 二进制表示中1的个数。例如：  
+[191. Number of 1 Bits](https://leetcode-cn.com/problems/number-of-1-bits/)ㅤㅤ[位1的个数](https://yujie2020.github.io/2021-04-06-array-and-string-algorithm.html)  
+[231. Power of Two](https://leetcode-cn.com/problems/power-of-two/)ㅤㅤ[2 的幂](https://yujie2020.github.io/2021-04-06-array-and-string-algorithm.html)  
+[剑指 Offer 15. 二进制中1的个数](https://leetcode-cn.com/problems/er-jin-zhi-zhong-1de-ge-shu-lcof/)ㅤㅤ[二进制中1的个数](https://yujie2020.github.io/2021-04-14-coding-interviews.html)

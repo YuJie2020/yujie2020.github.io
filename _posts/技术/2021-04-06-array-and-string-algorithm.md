@@ -1610,7 +1610,7 @@ tips：
 
 ### 454. [4Sum II](https://leetcode-cn.com/problems/4sum-ii/) 四数相加 II
 
-给定四个包含整数的数组列表 A , B , C , D ,计算有多少个元组 (i, j, k, l) ，使得 A[i] + B[j] + C[k] + D[l] = 0。为了使问题简单化，所有的 A, B, C, D 具有相同的长度 N，且 0 ≤ N ≤ 500 。所有整数的范围在 -228 到 228 - 1 之间，最终结果不会超过 231 - 1 。  
+给定四个包含整数的数组列表 A , B , C , D ,计算有多少个元组 (i, j, k, l) ，使得 A[i] + B[j] + C[k] + D[l] = 0。为了使问题简单化，所有的 A, B, C, D 具有相同的长度 N，且 0 ≤ N ≤ 500 。所有整数的范围在 -228 到 228 - 1 之间，最终结果不会超过 2^31 - 1 。  
 示例：  
 输入：A = [ 1, 2]，B = [-2,-1]，C = [-1, 2]，D = [ 0, 2]  
 输出：2  
@@ -2524,6 +2524,155 @@ tips：
 
 - && 运算符的优先级高于 \|\|；
 - 时间复杂度：O(logn)
+- 空间复杂度：O(1)
+
+### 7. [Reverse Integer](https://leetcode-cn.com/problems/reverse-integer/) 整数反转
+
+给你一个 32 位的有符号整数 x ，返回将 x 中的数字部分反转后的结果。如果反转后整数超过 32 位的有符号整数的范围 [−2^31,  2^31 − 1] ，就返回 0。假设环境不允许存储 64 位整数（有符号或无符号）。-2^31 <= x <= 2^31 - 1。  
+示例：  
+输入：x = -123  
+输出：-321
+
+思路：  
+定义变量 result 初始值为 0 ，代表反转后的 x 的值。对 x 不断进行取模除以10的操作以取出其每位的数字 digit ，对于 result 不断进行乘以 10 加上 x 当前位数上的数字 digit 的操作以得到 x 反转的中间结果。每次转换 result 的中间结果前需要判断当前转换是否越界：result * 10 + digit 是否会超过 int 类型的范围（当会越界则直接返回 0）。  
+对于负数也适用：负数对正数取模的运算规则为商 q 与除数 n 的乘积为第一个大于被除数的整数（在数论中商 q 与除数 n 的乘积为第一个小于被除数的整数），由商则可得出模值（余数），也即负数取模正数的结果为这个负数的绝对值取模这个正数后加上一个负号。digit 变为负数 x 的最后一位加上符号，result 累加时也总是将之前的中间结果（负数）乘以 10 再加上一个负数。
+
+题解：
+
+```java
+class Solution {
+    public int reverse(int x) {
+        int result = 0;
+        while (x != 0) { // 当 x = 0 代表 x 的所有位数均已取出
+            int digit = x % 10; // 当前x的个位数
+            if (result > Integer.MAX_VALUE / 10 || result == Integer.MAX_VALUE / 10 && digit > Integer.MAX_VALUE % 10) return 0; // 转化为逆序会发生越界，则直接返回0
+            if (result < Integer.MIN_VALUE / 10 || result == Integer.MIN_VALUE / 10 && digit < Integer.MIN_VALUE % 10) return 0;
+            result = result * 10 + digit;
+            x /= 10; // 对x通过不断取模并除以10的方式求出其每位上的数字
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(logn)，翻转的次数即 x 十进制的位数
+- 空间复杂度：O(1)
+
+### 8. [String to Integer (atoi)](https://leetcode-cn.com/problems/string-to-integer-atoi/) 字符串转换整数 (atoi)
+
+请你来实现一个 myAtoi(string s) 函数，使其能将字符串转换成一个 32 位有符号整数（类似 C/C++ 中的 atoi 函数）。函数 myAtoi(string s) 的算法如下：读入字符串并丢弃无用的前导空格；检查下一个字符（假设还未到字符末尾）为正还是负号，读取该字符（如果有）。 确定最终结果是负数还是正数。 如果两者都不存在，则假定结果为正；读入下一个字符，直到到达下一个非数字字符或到达输入的结尾。字符串的其余部分将被忽略；将前面步骤读入的这些数字转换为整数（即，"123" -> 123， "0032" -> 32）。如果没有读入数字，则整数为 0 。必要时更改符号（从步骤 2 开始）；如果整数数超过 32 位有符号整数范围 [−2^31,  2^31 − 1] ，需要截断这个整数，使其保持在这个范围内。具体来说，小于 −2^31 的整数应该被固定为 −2^31 ，大于 2^31 − 1 的整数应该被固定为 2^31 − 1 ；返回整数作为最终结果。注意：本题中的空白字符只包括空格字符 ' ' ；除前导空格或数字后的其余字符串外，请勿忽略 任何其他字符。0 <= s.length <= 200。s 由英文字母（大写和小写）、数字（0-9）、' '、'+'、'-' 和 '.' 组成。  
+示例：  
+输入：s = "   -42"ㅤ|ㅤs = "words and 987"ㅤ|ㅤs = "-91283472332"  
+输出：-42ㅤ|ㅤ0ㅤ|ㅤ-2147483648
+
+题解：
+
+```java
+class Solution {
+    public int myAtoi(String s) {
+        String numStr = s.trim();
+        int result = 0;
+        int index = 0;
+        int signed = 1;
+        if (index < numStr.length() && (numStr.charAt(index) == '+' || numStr.charAt(index) == '-')) {
+            signed = numStr.charAt(index) == '-' ? -1 : 1;
+            index++;
+        }
+        if (index < numStr.length() && (numStr.charAt(index) < '0' || numStr.charAt(index) > '9')) return result;
+        while (index < numStr.length() && numStr.charAt(index) >= '0' && numStr.charAt(index) <= '9') {
+            int digit = numStr.charAt(index++) - '0';
+            if (result > Integer.MAX_VALUE / 10) return signed == 1 ? Integer.MAX_VALUE : Integer.MIN_VALUE;
+            if (result == Integer.MAX_VALUE / 10) {
+                if (signed == 1 && digit > Integer.MAX_VALUE % 10) return Integer.MAX_VALUE;
+                if (signed == -1 && -digit < Integer.MIN_VALUE % 10) return Integer.MIN_VALUE;
+            }
+            result = result * 10 + digit;
+        }
+        return signed == 1 ? result : -result;
+    }
+}
+```
+
+tips：
+
+- 判断是否越界的思路与7题相似；
+- 时间复杂度：O(n)，n 为字符串的长度
+- 空间复杂度：O(1)
+
+### 191. [Number of 1 Bits](https://leetcode-cn.com/problems/number-of-1-bits/) 位1的个数
+
+请实现一个函数，输入一个整数（以二进制串形式），输出该数二进制表示中 1 的个数。例如，把 9 表示成二进制是 1001，有 2 位是 1。因此，如果输入 9，则该函数输出 2。  
+示例：  
+输入：11111111111111111111111111111101（**有歧义，实际输入为 -3**）  
+输出：31
+
+思路：  
+[位运算](https://yujie2020.github.io/2021-05-03-binary-digit-and-bitwise-operation.html)。  
+解法一：题目输入的为带符号int范围的整数（题目有歧义，并非题目描述里的二进制串；且考虑有符号数，即不能使用遍历模2在除2的方式求每位的数），求解其补码二进制串中1的个数（当输入为负数时符号位1也需要考虑到结果中）。初始化一个用于进行位与运算的常数con=1，遍历32次（int类型的位数），每次循环体内 n & con 位与运算，每一次遍历后将con位运算左移1位（当前遍历的位为1，其他位都为0），当 n&con 不等于0则代表原数 n 当前位为1（即使原数n为负数，遍历到符号位位与运算的结果为10000000000000000000000000000000，其表示-2^31也不为0），即可求出原数二进制表示中 1 的个数。  
+解法二：对于 n & (n - 1) ，其运算结果恰为把 n 的二进制中最低位的 1 变为 0 之后的结果。只要每次执行这个操作，就会消除掉 n 的二进制中最后一个出现的 1。因此执行 n & (n - 1) 使得 n 变成 0 的操作次数，就是 n 的二进制中 1 的个数。对于负数也适用。  
+![](/images/2021-04-14-coding-interviews/191.png)
+
+题解：
+
+```java
+class Solution {
+    // you need to treat n as an unsigned value
+    public int hammingWeight(int n) {
+        int result = 0;
+        while (n != 0) {
+            n &= n - 1;
+            result++;
+        }
+        return result;
+    }
+}
+
+/*class Solution {
+    // you need to treat n as an unsigned value
+    public int hammingWeight(int n) {
+        int result = 0;
+        int con = 1;
+        for (int i = 0; i < 32; i++) {
+            if ((n & con) != 0) result++; // != 的优先级高于 &
+            con <<= 1;
+        }
+        return result;
+        // return Integer.bitCount(n); // 库函数
+    }
+}*/
+```
+
+tips：
+
+- 调用库函数 java.lang.Integer类中的static int bitCount(int i) 方法，返回指定 int 值的二进制补码表示形式的 1 位的数量。当输入为负数时也满足题意；
+- 时间复杂度：O(32)，解法一；O(k)，k为整数n二进制中1的个数，解法二
+- 空间复杂度：O(1)
+
+### 231. [Power of Two](https://leetcode-cn.com/problems/power-of-two/) 2 的幂
+
+给你一个整数 n，请你判断该整数是否是 2 的幂次方。如果是，返回 true ；否则，返回 false 。如果存在一个整数 x 使得 n == 2^x ，则认为 n 是 2 的幂次方。不使用循环/递归解决此问题。  
+示例：  
+输入：n = 16  
+输出：true
+
+思路：  
+思路与191题相似。当 n 小于等于 0 则一定不是 2 的幂，其次对于 2 的幂次方的数 n，其二进制补码表示形式的 1 位的数量一定为1个。对于 n & (n - 1) ，其运算结果恰为把 n 的二进制中最低位的 1 变为 0 之后的结果。故执行一次 n & (n - 1) 判断其结果是否等于 0，如果为 0 则代表 n 二进制补码表示形式的 1 位的数量为1个（即为 2 的幂次方）。
+
+题解：
+
+```java
+class Solution {
+    public boolean isPowerOfTwo(int n) {
+        return n > 0 && (n & n - 1) == 0;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(1)
 - 空间复杂度：O(1)
 
 ### 118. [Pascal's Triangle](https://leetcode-cn.com/problems/pascals-triangle/) 杨辉三角
