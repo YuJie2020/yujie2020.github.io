@@ -2880,6 +2880,53 @@ tips：
 - 时间复杂度：O(3^K * MN)，K为字符串word的长度，M和N为矩阵的行数和列数，最差情况下，需要遍历矩阵中长度为 K 字符串的所有方案，时间复杂度为 O(3^K)，矩阵中共有 MN 个起点，时间复杂度为 O(MN)，故时间复杂度为O(3^K * MN)
 - 空间复杂度：O(K)，搜索过程中的递归深度不超过 K
 
+### 38. [字符串的排列](https://leetcode-cn.com/problems/zi-fu-chuan-de-pai-lie-lcof/)
+
+输入一个字符串，打印出该字符串中字符的所有排列。你可以以任意顺序返回这个字符串数组，但里面不能有重复元素。1 <= s 的长度 <= 8。  
+示例：  
+输入：""aba"  
+输出：["aab","aba","baa"]
+
+思路：  
+**一维回溯问题**。回溯，深度优先搜索。思路与47题相似。进行额外的剪枝操作，需要将字符数组 str 先进性排序，以使得剪枝操作可行：当前待拼接字符 str[i] 与上一拼接完的数字 str[i-1] 相同时进行剪枝，故需要保证上一拼接完的数字为未使用（str[i-1] 刚被回溯，即 isUsed[i-1] 为 false，表示一种排列结果中同一位置上不能出现同一数字；如果 isUsed[i-1] 为 true 则表示一种排列结果中有相邻的两位置上数字相同），同时 i 需要大于 0 以保证 nums[i-1] 有效。此题结果集使用方法参数传递的方式。
+
+题解：
+
+```java
+class Solution {
+    public String[] permutation(String s) {
+        char[] str = s.toCharArray();
+        Arrays.sort(str);
+        boolean[] isUsed = new boolean[str.length];
+        List<String> result = new ArrayList<>();
+        StringBuilder cur = new StringBuilder();
+        dfs(str, isUsed, cur, result);
+        return result.toArray(new String[result.size()]);
+    }
+
+    private void dfs(char[] str, boolean[] isUsed, StringBuilder cur, List<String> result) {
+        if (cur.length() == str.length) {
+            result.add(cur.toString());
+            return; 
+        }
+        for (int i = 0; i < str.length; i++) {
+            if (isUsed[i] || i > 0 && str[i] == str[i - 1] && !isUsed[i - 1]) continue;
+            isUsed[i] = true;
+            dfs(str, isUsed, cur.append(str[i]), result);
+            isUsed[i] = false;
+            cur.deleteCharAt(cur.length() - 1);
+        }
+    }
+}
+```
+
+tips：
+
+- 使用 StringBuilder 对象来记录中间拼接结果，故在回溯前需要删除当前循环体在此固定位置上刚拼接完的字符，使用 java.lang.StringBuilder 类中的 StringBuilder deleteCharAt(int index) 方法，移除此序列指定位置上的 char。 返回值还为此 StringBuilder 对象；
+- 使用 java.util.Arrays 类中的 static void sort(char[] a) 方法，对指定的 char 型数组按数字升序进行排序；
+- 时间复杂度：O(n * n!)
+- 空间复杂度：O(n)
+
 ## Ⅴ Dynamic Programming 动态规划
 
 动态规划相关的算法题目。
