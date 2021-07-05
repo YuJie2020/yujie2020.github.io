@@ -2260,7 +2260,145 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(n)
 
-## Ⅸ General - Array & Math 常规 - 数组和数学
+## Ⅸ Union Find 并查集
+
+并查集一般用于解决深度优先搜索（回溯）问题。
+
+### 547. [Number of Provinces](https://leetcode-cn.com/problems/number-of-provinces/) 省份数量
+
+有 n 个城市，其中一些彼此相连，另一些没有相连。如果城市 a 与城市 b 直接相连，且城市 b 与城市 c 直接相连，那么城市 a 与城市 c 间接相连。省份 是一组直接或间接相连的城市，组内不含其他没有相连的城市。给你一个 n x n 的矩阵 isConnected ，其中 isConnected\[i\]\[j\] = 1 表示第 i 个城市和第 j 个城市直接相连，而 isConnected\[i\]\[j\] = 0 表示二者不直接相连。返回矩阵中 省份 的数量。1 <= n <= 200，n == isConnected.length，n == isConnected[i].length，isConnected\[i\]\[j\] 为 1 或 0，isConnected\[i\]\[i\] == 1，isConnected\[i\]\[j\] == isConnected\[j\]\[i\]。  
+示例：  
+输入：isConnected = [[1,1,0],[1,1,0],[0,0,1]]  
+![](/images/2021-04-06-array-and-string-algorithm/547_title.jpg)  
+输出：2
+
+思路：  
+并查集是一种树型的数据结构，用于处理一些不相交集合（disjoint sets）的合并及查询问题。并查集，在一些有N个元素的集合应用问题中，我们通常是在开始时让每个元素构成一个单元素的集合，然后按一定顺序将属于同一组的元素所在的集合合并，其间要反复查找一个元素在哪个集合中。并查集的典型应用是有关连通分量的问题。并查集解决单个问题（添加，合并，查找）的时间复杂度都是O(1)。  
+数据结构：并查集跟树有些类似，只不过它跟树是相反的。在树这个数据结构里面，每个节点会记录它的子节点。在并查集里，每个节点会记录它的父节点。如果节点是相互连通的（从一个节点可以到达另一个节点），那么他们在同一棵树里，或者说在同一个集合里，或者说他们的祖先是相同的。  
+![](/images/2021-04-06-array-and-string-algorithm/547_answer_1.jpg)  
+初始化：把每个点所在集合初始化为其自身，即把一个新节点添加到并查集中，它的父节点应该为空。  
+![](/images/2021-04-06-array-and-string-algorithm/547_answer_2.jpg)  
+合并：将两个元素所在的集合合并为一个集合。如果两个节点是连通的，那么就需要将它们合并，也就是它们的祖先是相同的。这里将谁当做父节点一般没有区别。  
+![](/images/2021-04-06-array-and-string-algorithm/547_answer_3.jpg)  
+两节点是否连通：判断两个节点是否处于同一个连通分量的，即判断它们的祖先是否相同。  
+查找：查找元素所在的集合，即根节点。  
+优化路径压缩：每次查找的时候，如果路径较长（树很深），则修改信息，将树的深度固定为二，以便下次查找的时候速度更快。  
+对于此题，即为求解连通分量（集合）的数目，需要在模板中额外添加一个变量去跟踪集合的数量（有多少棵树），在初始化的时候将集合数量加一，合并的时候将集合数量减一。
+
+题解：
+
+```java
+class Solution {
+    public int findCircleNum(int[][] isConnected) {
+        UnionFind unionFind = new UnionFind();
+        for (int i = 0; i < isConnected.length; i++) {
+            unionFind.add(i); // 在判断两节点是否相连之前，此两节点都已加入到并查集中
+            for (int j = 0; j < i; j++) { // 邻接矩阵为关于对角线对称，只需访问对角线外的一半三角形区域即可
+                if (isConnected[i][j] == 1) unionFind.merge(i, j);
+            }
+        }
+        return unionFind.getTreeNum();
+    }
+}
+
+class UnionFind { // 并查集类
+
+    private Map<Integer, Integer> parent; // 存储 key 的父节点 value 的散列表
+    private int treeNum; // 统计不同根节点的数量（即树的数量）
+
+    public UnionFind() { // 并查集初始化
+        this.parent = new HashMap<>();
+        this.treeNum = 0;
+    }
+
+    public void add(int x) { // 节点初始化
+        if (!parent.containsKey(x)) { // 当并查集中不存在此节点，初始化（添加）节点
+            parent.put(x, null); // 其暂时没有父节点
+            treeNum++; // 相当于一颗独立的树（一个不相交的独立集合）
+        }
+    }
+
+    public void merge(int x, int y) { // 合并（连接）两个节点
+        int rootX = find(x);
+        int rootY = find(y);
+        if (rootX != rootY) { // 父节点不相同，则表示此两节点不相连，需要合并
+            parent.put(find(x), find(y)); // 将两节点的父节点连接即可
+            treeNum--; // 独立子树的数量减一
+        }
+    }
+
+    public int find(int x) { // 查找节点的父节点
+        int root = x; // 保存节点的父节点
+        while (parent.get(root) != null) { // 迭代查找父节点（当前节点所在树的根节点）
+            root = parent.get(root);
+        }
+        while (x != root) { // 迭代将当前节点所在路径的全部节点都直接连接到父节点
+            int directRoot = parent.get(x);
+            parent.put(x, root);
+            x = directRoot;
+        }
+        return root;
+    }
+
+    public boolean isConnected(int x, int y) { // 判断两节点是否相连（间接/直接相连）
+        return find(x) == find(y);
+    }
+
+    public int getTreeNum() { // 获取私有成员变量 treeNum
+        return this.treeNum;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n^2)
+- 空间复杂度：O(n)
+
+## Ⅹ Greedy Algorithm 贪心算法
+
+贪心算法，指在对问题进行求解时，在每一步选择中都采取最好或者最优（即最有利）的选择，从而能够导致结果是最好或者最优的算法。  
+贪婪算法所得到的结果不一定是最优的结果（有时候会是最优解），但是都是相对近似（接近）最优解的结果。
+
+使用到每一步选择都采取最优或最差的情况（贪心）的思想，也为贪心算法。
+
+### 678. [Valid Parenthesis String](https://leetcode-cn.com/problems/valid-parenthesis-string/) 有效的括号字符串
+
+给定一个只包含三种字符的字符串：`（ `，`）` 和 `*`，写一个函数来检验这个字符串是否为有效字符串。有效字符串具有如下规则：任何左括号 ( 必须有相应的右括号 )；任何右括号 ) 必须有相应的左括号 ( ；左括号 ( 必须在对应的右括号之前 )； `*`可以被视为单个右括号 ) ，或单个左括号 ( ，或一个空字符串；一个空字符串也被视为有效字符串。字符串大小将在 [1，100] 范围内。  
+示例：  
+输入："(*))"  
+输出：true
+
+思路：  
+贪心算法。定义变量 low 及 high 表示字符串括号匹配过程中未配对左括号数量的上下界，遍历字符串，当遇到左括号则 low++，high++；遇到星号则 low--，high++（星号可以被视为单个右括号或左括号）；遇到右括号则 low--，high--。  
+在更新 low 的过程中其不能小于 0（当 low 小于 0 时则将其更新为 0）：未配对的左括号数量一定大于等于0，eg：`()**(` 的情况，未配对的左括号不能为-1或-2个（low），但是可以为1或2个（high）。  
+当 high 小于 0 直接返回 false：表示将星号全部看作左括号也不够和存在的右括号进行匹配。  
+字符串遍历完毕当 low 不等 0 则返回 false：代表有多余的左括号未匹配完毕。
+
+题解：
+
+```java
+class Solution {
+    public boolean checkValidString(String s) {
+        int low = 0, high = 0;
+        for (int i = 0; i < s.length(); i++) {
+            char ch = s.charAt(i);
+            low += ch == '(' ? 1 : -1;
+            high += ch == ')' ? -1 : 1;
+            if (high < 0) return false; // 满足需要继续判断，不满足则直接返回（结束方法）的思想
+            if (low < 0) low = 0;
+        }
+        return low == 0;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(N)，iterate through the string once
+- 空间复杂度：O(1)
+
+## Ⅺ General - Array & Math 常规 - 数组和数学
 
 常规数组题目，遍历，条件判断，... 。以及数学题。
 
@@ -2310,6 +2448,39 @@ tips：
 - 题目要求-2^31 <= nums[i] <= 2^31 - 1（int类型的取值范围），故第一二三大的数初始值应取long类型的最小取值；
 - 当数据类型不一样时，将会发生数据类型转换，此题比较运算及赋值运算发生了自动类型转换；
 - 为防止第一二三大的数中出现重复值，每次循环的开始都需要先判断nums[i]是否等于这三个数中的任意一个。
+
+### 165. [Compare Version Numbers](https://leetcode-cn.com/problems/compare-version-numbers/) 比较版本号
+
+给你两个版本号 version1 和 version2 ，请你比较它们。版本号由一个或多个修订号组成，各修订号由一个 '.' 连接。每个修订号由 多位数字 组成，可能包含 前导零 。每个版本号至少包含一个字符。修订号从左到右编号，下标从 0 开始，最左边的修订号下标为 0 ，下一个修订号下标为 1 ，以此类推。例如，2.5.33 和 0.1 都是有效的版本号。比较版本号时，请按从左到右的顺序依次比较它们的修订号。比较修订号时，只需比较 忽略任何前导零后的整数值 。也就是说，修订号 1 和修订号 001 相等 。如果版本号没有指定某个下标处的修订号，则该修订号视为 0 。例如，版本 1.0 小于版本 1.1 ，因为它们下标为 0 的修订号相同，而下标为 1 的修订号分别为 0 和 1 ，0 < 1 。返回规则如下：如果 version1 > version2 返回 1，如果 version1 < version2 返回 -1，除此之外返回 0。1 <= version1.length, version2.length <= 500。version1 和 version2 都是 有效版本号，version1 和 version2 的所有修订号都可以存储在 32 位整数 中。  
+示例：  
+输入：version1 = "1.01", version2 = "1.001.0"  
+输出：0  
+解释：忽略前导零，"01" 和 "001" 都表示相同的整数 "1"； 没有指定下标为 2 的修订号，即视为 "0"
+
+思路：  
+定义 index1 及 index2 为遍历版本号字符串 version1 及 version2 的索引，外层 for 循环用于判断每个修订号数字的大小（每执行一次循环体索引 +1 为跳过小数点：内层 while 循环访问到小数点结束），内层两个 while 循环用于获取相同下标的修订号数字，num1 及 num2（相同下标的修订号数字）需要在每次比较相同下标的修订号大小前重新置于 0：用于忽略前导零，且当一个修订号的下标长度小于另一修订号的下标长度时可以将较小修订号下标长度的修订号“空位”看作 0。
+
+题解：
+
+```java
+class Solution {
+    public int compareVersion(String version1, String version2) {
+        for (int index1 = 0, index2 = 0; index1 < version1.length() || index2 < version2.length(); index1++, index2++) {
+            int num1 = 0, num2 = 0;
+            while (index1 < version1.length() && version1.charAt(index1) != '.') num1 = num1 * 10 + version1.charAt(index1++) - '0';
+            while (index2 < version2.length() && version2.charAt(index2) != '.') num2 = num2 * 10 + version2.charAt(index2++) - '0';
+            if (num1 < num2) return -1;
+            if (num1 > num2) return 1;
+        }
+        return 0;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(max(m, n))，m为version1的长度，n为version2的长度
+- 空间复杂度：O(1)
 
 ### 1002. [Find Common Characters](https://leetcode-cn.com/problems/find-common-characters/) 查找常用字符
 
@@ -2674,6 +2845,49 @@ tips：
 
 - 时间复杂度：O(1)
 - 空间复杂度：O(1)
+
+### 60. [Permutation Sequence](https://leetcode-cn.com/problems/permutation-sequence/) 排列序列
+
+给出集合 `[1,2,3,...,n]`，其所有元素共有 `n!` 种排列。给定 n 和 k，返回第 k 个排列。1 <= n <= 9，1 <= k <= n! 。  
+示例：  
+输入：n = 3, k = 3  
+输出："213"  
+解释：按大小顺序列出所有排列情况，并一一标记，当 n = 3 时, 所有排列如下："123"、"132"、"213"、"231"、"312"、"321"
+
+思路：  
+数学。由n和k按位推导排列。eg：对于n=4, k=15 找到k=15排列的过程。
+![](/images/2021-04-06-array-and-string-algorithm/60.png)
+
+题解：
+
+```java
+class Solution {
+    public String getPermutation(int n, int k) {
+        StringBuilder result = new StringBuilder();
+        List<Integer> candidates = new ArrayList<>(); // 候选数字集合
+        int[] factorials = new int[n + 1]; // 阶乘数组：factorials[i] = i!
+        factorials[0] = 1; // 0的阶乘为1
+        int base = 1; // 用于计算阶乘的辅助变量
+        for (int i = 1; i <= n; i++) {
+            candidates.add(i); // 候选数字需要从小到大有序加入集合
+            base *= i;
+            factorials[i] = base;
+        }
+        k--; // 从0开始计数
+        for (int i = n - 1; i >= 0; i--) {
+            int index = k / factorials[i]; // 候选数字的索引
+            result.append(candidates.remove(index));
+            k -= index * factorials[i];
+        }
+        return result.toString();
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
 
 ### 118. [Pascal's Triangle](https://leetcode-cn.com/problems/pascals-triangle/) 杨辉三角
 

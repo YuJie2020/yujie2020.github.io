@@ -381,7 +381,7 @@ tips：
 
 ### 78. [Subsets](https://leetcode-cn.com/problems/subsets/) 子集
 
-给你一个整数数组 `nums` ，数组中的元素 互不相同。返回该数组所有可能的子集（幂集）。解集 不能 包含重复的子集。你可以按任意顺序返回解集。1 <= nums.length <= 10。nums 中的所有元素 互不相同  
+给你一个整数数组 `nums` ，数组中的元素 互不相同。返回该数组所有可能的子集（幂集）。解集 不能 包含重复的子集。你可以按任意顺序返回解集。1 <= nums.length <= 10。nums 中的所有元素 互不相同。  
 示例：  
 输入：nums = [1,2,3]  
 输出：[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
@@ -417,6 +417,91 @@ class Solution {
 tips：
 
 - 时间复杂度：O(2^n)
+- 空间复杂度：O(n)
+
+### 22. [Generate Parentheses](https://leetcode-cn.com/problems/generate-parentheses/) 括号生成
+
+数字 `n` 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 有效的 括号组合。1 <= n <= 8。  
+示例：  
+输入：n = 3  
+输出：["((()))","(()())","(())()","()(())","()()()"]
+
+思路：  
+回溯，深度优先搜索，剪枝。
+![](/images/2021-06-23-backtracking/22.png)
+
+```java
+class Solution {
+    public List<String> generateParenthesis(int n) {
+        List<String> result = new ArrayList<>();
+        dfs("", n, n, result); // 将结果对象使用参数传递的方式进行访问
+        return result;
+    }
+
+    private void dfs(String cur, int left, int right, List<String> result) { // left及right表示剩余左右括号的数量，cur表示当前路径拼接的字符串（每一递归层级内都为一新的字符串对象引用，故在回溯时无需删除当前拼接字符）
+        if (left == 0 && right == 0) { // 到达子节点添加当前路径字符串
+            result.add(cur);
+            return;
+        }
+        if (left > right) return; // 剪枝（存在多余的右括号跑到左括号前面：不符合有效括号组合）
+        if (left > 0) dfs(cur + '(', left - 1, right, result); // 还剩余有左/右括号才产生分支（子节点）
+        if (right > 0) dfs(cur + ')', left, right - 1, result);
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(4^n/sqrt(n))，时间代价即为组合数
+- 空间复杂度：O(n)，递归深度最大为 2 * n
+
+### 306. [Additive Number](https://leetcode-cn.com/problems/additive-number/) 累加数
+
+累加数是一个字符串，组成它的数字可以形成累加序列。一个有效的累加序列必须至少包含 3 个数。除了最开始的两个数以外，字符串中的其他数都等于它之前两个数相加的和。给定一个只包含数字 '0'-'9' 的字符串，编写一个算法来判断给定输入是否是累加数。 累加序列里的数不会以 0 开头，所以不会出现 1, 2, 03 或者 1, 02, 3 的情况。  
+示例：  
+输入："199100199"  
+输出：true  
+解释：累加序列为:  1, 99, 100, 199。1 + 99 = 100, 99 + 100 = 199
+
+思路：  
+仅 isAdditiveNumber 方法体现了回溯的思想（多种起点组合），dfs 方法有一处不满足要求则不断回溯返回 true / false。
+
+题解：
+
+```java
+class Solution {
+    public boolean isAdditiveNumber(String num) {
+        long first = 0;
+        for (int i = 0; i < num.length() - 2; i++) { // find first
+            if (i != 0 && first == 0) return false; // 数字不能以 0 开头
+            first = first * 10 + num.charAt(i) - '0';
+            long second = 0; // 每次寻找下一 second 需要先置零，故只能定义在此位置而不能定义在外层循环以外
+            for (int j = i + 1; j < num.length() - 1; j++) { // find second
+                if (j != i + 1 && second == 0) break;
+                second = second * 10 + num.charAt(j) - '0';
+                if (dfs(num, j + 1, first, second)) return true; // 不满足要求则继续寻找：最开始的两个数有多种组合（即有多种起点）
+            }
+        }
+        return false;
+    }
+
+    private boolean dfs(String num, int index, long first, long second) { // 判断累加序列的方法
+        if (index == num.length()) return true; // 递归边界条件
+        long third = 0;
+        for (int i = index; i < num.length(); i++) {
+            if (i != index && third == 0) return false;
+            third = third * 10 + num.charAt(i) - '0';
+            if (third == first + second && dfs(num, i + 1, second, third)) return true; // 满足累加序列则会不断回溯返回 true（对于当前递归层级已遍历完的字符串满足累加序列，但之后的字符串不满足即调用dfs方法返回false，对于当前递归层级会进入下一次循环体third一定大于first+second，则当前递归层级返回false）
+            if (third > first + second) return false;
+        } // third 小于 first + second 继续累加
+        return false;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n!)
 - 空间复杂度：O(n)
 
 ## Ⅱ 2-D Problem 二维问题
@@ -583,6 +668,56 @@ class Solution {
 tips：
 
 - 时间复杂度：O(mn)，m 和 n 分别为矩阵的行数和列数，深度优先搜索过程中，每一个单元格至多被标记一次
+- 空间复杂度：O(mn)
+
+### 695. [Max Area of Island](https://leetcode-cn.com/problems/max-area-of-island/) 岛屿的最大面积
+
+给定一个包含了一些 0 和 1 的非空二维数组 grid 。一个 岛屿 是由一些相邻的 1 (代表土地) 构成的组合，这里的「相邻」要求两个 1 必须在水平或者竖直方向上相邻。你可以假设 grid 的四个边缘都被 0（代表水）包围着。找到给定的二维数组中最大的岛屿面积。(如果没有岛屿，则返回面积为 0 。)  
+示例：  
+输入：  
+[[0,0,1,0,0,0,0,1,0,0,0,0,0],  
+ [0,0,0,0,0,0,0,1,1,1,0,0,0],  
+ [0,1,1,0,1,0,0,0,0,0,0,0,0],  
+ [0,1,0,0,1,1,0,0,**1**,0,**1**,0,0],  
+ [0,1,0,0,1,1,0,0,**1**,**1**,**1**,0,0],  
+ [0,0,0,0,0,0,0,0,0,0,**1**,0,0],  
+ [0,0,0,0,0,0,0,1,1,1,0,0,0],  
+ [0,0,0,0,0,0,0,1,1,0,0,0,0]]  
+输出：6
+
+题解：
+
+```java
+class Solution {
+    public int maxAreaOfIsland(int[][] grid) {
+        int result = 0;
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[0].length; j++) {
+                if (grid[i][j] == 1) { // 未访问过的新岛屿陆地
+                    result = Math.max(result, dfs(grid, i, j));
+                }
+            }
+        }
+        return result;
+    }
+
+    private int dfs(int[][] grid, int i, int j) {
+        if (i < 0 || i >= grid.length || j < 0 || j >= grid[0].length || grid[i][j] == 0) return 0; // 当前访问单元格越界或者为水域（也包括当前陆地单元格已访问过的情况）：递归边界条件
+        grid[i][j] = 0; // 将当前已访问的陆地单元格置为水域即 0，使得深度搜索的过程中不重复访问，同时对于每轮搜索的起点已访问过的岛屿陆地应跳过
+        int num = 1; // 当前递归层级访问节点所能到达的陆地面积
+        num += dfs(grid, i + 1, j); // 下上右左的顺序递归深度搜索下一单元格
+        num += dfs(grid, i - 1, j);
+        num += dfs(grid, i, j + 1);
+        num += dfs(grid, i, j - 1);
+        return num; // 回溯到第一层级的递归方法其返回值即为当前岛屿的面积
+    }
+}
+```
+
+tips：
+
+- 思路与200题相似。回溯，深度优先搜索。在回溯的过程中也拼接了num（岛屿面积）的值；
+- 时间复杂度：O(mn)
 - 空间复杂度：O(mn)
 
 ### 51. [N-Queens](https://leetcode-cn.com/problems/n-queens/) N 皇后
