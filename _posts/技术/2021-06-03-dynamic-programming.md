@@ -163,3 +163,39 @@ tips：
 
 - 时间复杂度：O(n * sqrt(n))，由四平方和定理：任意一个正整数都可以被表示为至多四个正整数的平方和，三层循环中最外层最多循环四次，中间层循环最多n次，最内层循环至多 sqrt(n) 次，广度优先遍历；状态转移方程的时间复杂度为 O(sqrt(n))，共需要计算 n 个状态（数值），因此总时间复杂度为 O(n * sqrt(n))，动态规划
 - 空间复杂度：O(n)
+
+### 322. [Coin Change](https://leetcode-cn.com/problems/coin-change/) 零钱兑换
+
+给你一个整数数组 coins ，表示不同面额的硬币；以及一个整数 amount ，表示总金额。计算并返回可以凑成总金额所需的 最少的硬币个数 。如果没有任何一种硬币组合能组成总金额，返回 -1 。你可以认为每种硬币的数量是无限的。1 <= coins.length <= 12。0 <= amount <= 10^4。  
+示例：  
+输入：coins = [1, 2, 5], amount = 11ㅤ|ㅤcoins = [2], amount = 3  
+输出：3ㅤ|ㅤ-1  
+解释：11 = 5 + 5 + 1ㅤ|ㅤ没有任何一种硬币组合能组成总金额
+
+思路：  
+思路与279题相似。自底向上，考虑金额为 i 的情况，之会使用到之前小于 i 的已考虑过的情况。对每一总金额，减去所有可能的硬币币值，再取凑成减去后的剩余总金额的最少硬币数的最小值即可。
+所需硬币的最少个数 curMin，对于每个金额的情况初始化值为 amount + 1（存在面值为1的硬币时，最多也只需要 amount 个）。当一种情况无效时（即没有任何一种硬币组合能组成总金额 i，则 dp[i] = amount + 1）；当考虑之后总金额大于 i 的情况，一种 coin 情况使用到之前无效的 dp[i]，其 curMin 只会还是比 amount 大，当使用另一种 coin 情况其 curMin 会比 amount 小，自然会淘汰无效的情况。
+
+题解：
+
+```java
+class Solution {
+    public int coinChange(int[] coins, int amount) {
+        int[] dp = new int[amount + 1]; // 状态表达式：凑成总金额 i 所需的最少的硬币个数为 dp[i]
+        for (int i = 1; i <= amount; i++) { // base case: dp[0] = 0
+            int curMin = amount + 1; // 所需硬币的最少个数
+            for (int coin : coins) {
+                if (i - coin < 0) continue; // 面额为负则跳过此次循环
+                curMin = Math.min(curMin, dp[i - coin]);
+            }
+            dp[i] = curMin + 1; // 状态转移方程
+        }
+        return dp[amount] > amount ? -1 : dp[amount];
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(nk)，n 为面额数，k 为总金额
+- 空间复杂度：O(k)
