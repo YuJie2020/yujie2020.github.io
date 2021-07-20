@@ -31,6 +31,112 @@ for 状态1 in 状态1的所有取值：
 ![](/images/2021-06-03-dynamic-programming/introduction.png)  
 具体可以参照120题为例。
 
+### 120. [Triangle](https://leetcode-cn.com/problems/triangle/) 三角形最小路径和
+
+给定一个三角形 triangle ，找出自顶向下的最小路径和。每一步只能移动到下一行中相邻的结点上。相邻的结点 在这里指的是 下标 与 上一层结点下标 相同或者等于 上一层结点下标 + 1 的两个结点。也就是说，如果正位于当前行的下标 i ，那么下一步可以移动到下一行的下标 i 或 i + 1 。1 <= triangle.length <= 200。triangle[0].length == 1。triangle[i].length == triangle[i - 1].length + 1。-10^4 <= triangle\[i\]\[j\] <= 10^4。  
+示例：  
+输入：triangle = [[2],[3,4],[6,5,7],[4,1,8,3]]
+
+```
+   2
+  3 4
+ 6 5 7
+4 1 8 3
+```
+
+输出：11  
+解释：自顶向下的最小路径和为 11（即，2 + 3 + 5 + 1 = 11）。
+
+思路：  
+存在重叠子问题的递归 -> 记忆化搜索（递归）-> 动态规划。先从自顶向下的角度分析问题，再使用自底向上的方式解决问题。
+
+题解：
+
+```java
+// 递归，存在重叠子问题：超时（**递归只需要关注当前递归层级要解决的问题即可**）
+/*class Solution {
+    public int minimumTotal(List<List<Integer>> triangle) {
+        return minimumTotal(triangle, 0, 0);
+    }
+
+    private int minimumTotal(List<List<Integer>> triangle, int i, int j) {
+        if (i >= triangle.size() || j > i) return 0;
+        return triangle.get(i).get(j) + Math.min(minimumTotal(triangle, i + 1, j), minimumTotal(triangle, i + 1, j + 1));
+    }
+}*/
+
+// 记忆化搜索（递归），使用数组 memo 存储已求解过的位置
+/*class Solution {
+    public int minimumTotal(List<List<Integer>> triangle) {
+        int row = triangle.size();
+        int[] memo = new int[(row + row * row) / 2 + 1];
+        Arrays.fill(memo, Integer.MAX_VALUE);
+        return minimumTotal(triangle, 0, 0, memo);
+    }
+
+    private int minimumTotal(List<List<Integer>> triangle, int i, int j, int[] memo) {
+        if (i >= triangle.size() || j > i) return 0; // 越界：返回 0（递归边界条件）
+        int index = (i + i * i) / 2 + j + 1;
+        if (memo[index] != Integer.MAX_VALUE) return memo[index];
+        memo[index] = triangle.get(i).get(j) + Math.min(minimumTotal(triangle, i + 1, j, memo), minimumTotal(triangle, i + 1, j + 1, memo));
+        return memo[index];
+    }
+}*/
+
+// 动态规划（自底向上）：分析记忆化搜索（自顶向下）的过程可得，可以从最底部开始向上来计算结果
+class Solution {
+    public int minimumTotal(List<List<Integer>> triangle) {
+        int[] dp = new int[triangle.size() + 1]; // 状态表达式（base case 即为 0）：某一行中第 i 个下标元素的最小路径和为 dp[i]
+        for (int i = triangle.size() - 1; i >= 0; i--) {
+            for (int j = 0; j <= i; j++) {
+                dp[j] = triangle.get(i).get(j) + Math.min(dp[j], dp[j + 1]); // 状态转移方程
+            }
+        }
+        return dp[0];
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n^2)
+- 空间复杂度：O(n)
+
+### 64. [Minimum Path Sum](https://leetcode-cn.com/problems/minimum-path-sum/) 最小路径和
+
+给定一个包含非负整数的 `m x n` 网格 `grid` ，请找出一条从左上角到右下角的路径，使得路径上的数字总和为最小。每次只能向下或者向右移动一步。1 <= m, n <= 200。0 <= grid\[i\]\[j\] <= 100。  
+示例：  
+输入：grid = [[1,3,1],[1,5,1],[4,2,1]]  
+![](/images/2021-06-03-dynamic-programming/64.jpg)  
+输出：7
+
+题解：
+
+```java
+class Solution {
+    public int minPathSum(int[][] grid) { // 将原矩阵作为状态表达式：grid[i][j] 处的最小路径和为 grid[i][j]
+        for (int i = grid.length - 2; i >= 0; i--) { // base case
+            grid[i][grid[0].length - 1] += grid[i + 1][grid[0].length - 1];
+        }
+        for (int i = grid[0].length -2; i >= 0; i--) { // base case
+            grid[grid.length - 1][i] += grid[grid.length - 1][i + 1];
+        }
+        for (int i = grid.length - 2; i >= 0; i--) {
+            for (int j = grid[0].length - 2; j >= 0; j--) {
+                grid[i][j] += Math.min(grid[i + 1][j], grid[i][j + 1]); // 状态转移方程
+            }
+        }
+        return grid[0][0];
+    }
+}
+```
+
+tips：
+
+- 思路与120题相似。自底向上；
+- 时间复杂度：O(mn)，每个元素会被遍历一次
+- 空间复杂度：O(1)，使用原地算法，直接修改原矩阵
+
 ### 238. [Product of Array Except Self](https://leetcode-cn.com/problems/product-of-array-except-self/) 除自身以外数组的乘积
 
 给你一个长度为 n 的整数数组 nums，其中 n > 1，返回输出数组 output ，其中 output[i] 等于 nums 中除 nums[i] 之外其余各元素的乘积。请不要使用除法，且在 O(*n*) 时间复杂度内完成此题。  
@@ -66,6 +172,37 @@ tips：
 
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)，输出数组不被视为额外空间
+
+### 70. [Climbing Stairs](https://leetcode-cn.com/problems/climbing-stairs/) 爬楼梯
+
+假设你正在爬楼梯。需要 *n* 阶你才能到达楼顶。每次你可以爬 1 或 2 个台阶。你有多少种不同的方法可以爬到楼顶呢？给定 *n* 是一个正整数。  
+示例：  
+输入：3  
+输出：3
+
+思路：  
+动态规划+数学（斐波那契数列）。设跳上 n 级台阶有 f(n) 种跳法。在所有跳法中，青蛙的最后一步只有两种情况：跳上 1 级或 2 级台阶。当为 1 级台阶： 剩 n−1 个台阶，此情况共有 f(n−1) 种跳法；当为 2 级台阶： 剩 n−2 个台阶，此情况共有 f(n−2) 种跳法。f(n) 为以上两种情况之和，即 f(n)=f(n−1)+f(n−2) ，以上递推性质为斐波那契数列。故本题可转化为 求斐波那契数列第 n+1 项的值（青蛙跳台阶问题：f(0)=1 , f(1)=1 , f(2)=2；斐波那契数列问题： f(0)=0 , f(1)=1 , f(2)=1，前者序列为后者序列后移一位，故应求解斐波那契数列第 n+1 项的值）。
+
+题解：
+
+```java
+class Solution {
+    public int climbStairs(int n) {
+        int preOne = 1, preTwo = 1;
+        for (int i = 2; i <= n; i++) {
+            int sum = preOne + preTwo;
+            preOne = preTwo;
+            preTwo = sum;
+        }
+        return preTwo;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
 
 ### 338. [Counting Bits](https://leetcode-cn.com/problems/counting-bits/) 比特位计数
 
