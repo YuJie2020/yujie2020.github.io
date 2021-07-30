@@ -341,3 +341,35 @@ tips：
 
 - 时间复杂度：O(nk)，n 为面额数，k 为总金额
 - 空间复杂度：O(k)
+
+### 343. [Integer Break](https://leetcode-cn.com/problems/integer-break/) 整数拆分
+
+给定一个正整数 *n*，将其拆分为至少两个正整数的和，并使这些整数的乘积最大化。 返回你可以获得的最大乘积。  
+示例：  
+输入：3ㅤ|ㅤ6  
+输出：2ㅤ|ㅤ9  
+解释：2 = 1 * 2ㅤ|ㅤ9 = 3 * 3
+
+思路：  
+思路与279题相似。dp[i - j] 小于 dp[i]，故 dp[i - j] 一定已经计算过了。对于一个整数i，其最大乘积可能为被减数与剩余数两数直接相乘 (i - j) * j，也可能为剩余数的拆分最大乘积与被减数相乘 dp[i - j] * j，即 dp[i - j] 有可能小于 (i-j)，eg：n = 6。
+
+题解：
+
+```java
+class Solution {
+    public int integerBreak(int n) {
+        int[] dp = new int[n + 1]; // 状态表达式：整数i拆分可获得的最大乘积为dp[i]
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j < i; j++) {
+                dp[i] = Math.max(dp[i] > (i - j) * j ? dp[i] : (i - j) * j, dp[i - j] * j); // 状态转移方程
+            }
+        }
+        return dp[n];
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n^2)
+- 空间复杂度：O(n)
