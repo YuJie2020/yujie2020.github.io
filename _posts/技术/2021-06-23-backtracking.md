@@ -402,7 +402,7 @@ class Solution {
         return result;
     }
 
-    private void dfs(int[] nums, int start, List<Integer> cur) { // start 为搜索范围的其实值
+    private void dfs(int[] nums, int start, List<Integer> cur) { // start 为搜索范围的起始值
         result.add(new ArrayList<Integer>(cur));
         if (start == nums.length) return; // 递归边界条件
         for (int i = start; i < nums.length; i++) {
