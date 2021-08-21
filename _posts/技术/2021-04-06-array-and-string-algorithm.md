@@ -2447,6 +2447,46 @@ tips：
 - 当数据类型不一样时，将会发生数据类型转换，此题比较运算及赋值运算发生了自动类型转换；
 - 为防止第一二三大的数中出现重复值，每次循环的开始都需要先判断nums[i]是否等于这三个数中的任意一个。
 
+### 135. [Candy](https://leetcode-cn.com/problems/candy/) 分发糖果
+
+老师想给孩子们分发糖果，有 *N* 个孩子站成了一条直线，老师会根据每个孩子的表现，预先给他们评分。你需要按照以下要求，帮助老师给这些孩子分发糖果：每个孩子至少分配到 1 个糖果；评分更高的孩子必须比他两侧的邻位孩子获得更多的糖果。那么这样下来，老师至少需要准备多少颗糖果。  
+示例：  
+输入：[1,0,2]ㅤ|ㅤ[1,2,2]  
+输出：5ㅤ|ㅤ4  
+解释：给这三个孩子分发 2、1、2 颗糖果ㅤ|ㅤ给这三个孩子分发 1、2、1 颗糖果
+
+思路：  
+模拟。A与B相邻，先从左至右遍历，当A<B时，使B的糖果数比A多一，使用数组left记录；再从右至左遍历，当A>B时，使A的糖果数比B多一，使用数组right记录。  
+结果：取left数组与right数组中的最大值即结果。  
+原因：对于A>B时，先从左至右遍历后，A的糖果数一定大于等于B，且等于情况也只能是A和B糖果数都为1；再从右至左遍历后，A的糖果数一定大于等于B；则取最大值满足要求。
+
+题解：
+
+```java
+class Solution {
+    public int candy(int[] ratings) {
+        int[] left = new int[ratings.length];
+        int[] right = new int[ratings.length];
+        Arrays.fill(left, 1); // 先都分发1颗糖
+        Arrays.fill(right, 1); // 先都分发1颗糖
+        for (int i = 1; i < ratings.length; i++) {
+            if (ratings[i] > ratings[i - 1]) left[i] = left[i - 1] + 1;
+        }
+        int result = left[ratings.length - 1];
+        for (int i = ratings.length - 2; i >= 0; i--) {
+            if (ratings[i] > ratings[i + 1]) right[i] = right[i + 1] + 1;
+            result += Math.max(left[i], right[i]);
+        }
+        return result;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
 ### 165. [Compare Version Numbers](https://leetcode-cn.com/problems/compare-version-numbers/) 比较版本号
 
 给你两个版本号 version1 和 version2 ，请你比较它们。版本号由一个或多个修订号组成，各修订号由一个 '.' 连接。每个修订号由 多位数字 组成，可能包含 前导零 。每个版本号至少包含一个字符。修订号从左到右编号，下标从 0 开始，最左边的修订号下标为 0 ，下一个修订号下标为 1 ，以此类推。例如，2.5.33 和 0.1 都是有效的版本号。比较版本号时，请按从左到右的顺序依次比较它们的修订号。比较修订号时，只需比较 忽略任何前导零后的整数值 。也就是说，修订号 1 和修订号 001 相等 。如果版本号没有指定某个下标处的修订号，则该修订号视为 0 。例如，版本 1.0 小于版本 1.1 ，因为它们下标为 0 的修订号相同，而下标为 1 的修订号分别为 0 和 1 ，0 < 1 。返回规则如下：如果 version1 > version2 返回 1，如果 version1 < version2 返回 -1，除此之外返回 0。1 <= version1.length, version2.length <= 500。version1 和 version2 都是 有效版本号，version1 和 version2 的所有修订号都可以存储在 32 位整数 中。  
