@@ -2396,7 +2396,104 @@ tips：
 - 时间复杂度：O(N)，iterate through the string once
 - 空间复杂度：O(1)
 
-## Ⅺ General - Array & Math 常规 - 数组和数学
+### 45. [Jump Game II](https://leetcode-cn.com/problems/jump-game-ii/) 跳跃游戏 II
+
+给你一个非负整数数组 nums ，你最初位于数组的第一个位置。数组中的每个元素代表你在该位置可以跳跃的最大长度。你的目标是使用最少的跳跃次数到达数组的最后一个位置。假设你总是可以到达数组的最后一个位置。1 <= nums.length <= 10^4。0 <= nums[i] <= 1000。  
+示例：  
+输入：nums = [2,3,1,1,4]  
+输出：2  
+解释：跳到最后一个位置的最小跳跃数是 2。从下标为 0 跳到下标为 1 的位置，跳 1 步，然后跳 3 步到达数组的最后一个位置。
+
+思路：  
+记忆化BFS：一个位置可能多次访问。  
+贪心：维护上一次跳跃可以到达的最远距离及当前可以到达的最远距离。
+
+题解：
+
+```java
+// 贪心
+class Solution {
+    public int jump(int[] nums) {
+        int end = 0; // 上一次跳跃可以到达的右边界（最远位置）
+        int max = 0; // 当前最远可以到达的位置
+        int result = 0; // 当前跳跃次数+1
+        for (int i = 0; i < nums.length - 1; i++) { // 最后一个位置不需要访问，跳跃次数之前就已经+1（如果end=最后一个位置时，会导致结果多一步）
+            max = Math.max(max, i + nums[i]);
+            if (i == end) { // 当前位置为上一次跳跃可以到达的最远位置，需要将步数加一
+                end = max; // 下一次跳跃可以到达的右边界为前一次跳跃可以到达位置中能跳跃的最远位置
+                result++;
+            }
+        }
+        return result;
+    }
+}
+
+// 记忆化BFS：一个位置可能多次访问
+/*class Solution {
+    public int jump(int[] nums) {
+        Queue<Integer> queue = new LinkedList<>();
+        boolean[] isVisited = new boolean[nums.length];
+        queue.add(0);
+        isVisited[0] = true;
+        int result = 0;
+        while (!queue.isEmpty()) {
+            int count = queue.size();
+            while (count != 0) {
+                int cur = queue.poll();
+                if (cur == nums.length - 1) return result;
+                for (int i = 1; i <= nums[cur]; i++) {
+                    if (cur + i >= nums.length || isVisited[cur + i]) continue;
+                    queue.offer(cur + i);
+                    isVisited[cur + i] = true;
+                }
+                count--;
+            }
+            result++;
+        }
+        return -1;
+    }
+}*/
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
+## Ⅺ Depth First Search 深度优先搜索
+
+使用深度优先搜索的数组题目。
+
+### 1306. [Jump Game III](https://leetcode-cn.com/problems/jump-game-iii/) 跳跃游戏 III
+
+这里有一个非负整数数组 arr，你最开始位于该数组的起始下标 start 处。当你位于下标 i 处时，你可以跳到 i + arr[i] 或者 i - arr[i]。请你判断自己是否能够跳到对应元素值为 0 的 任一 下标处。注意，不管是什么情况下，你都无法跳到数组之外。0 <= arr[i] < arr.length。  
+示例：  
+输入：arr = [4,2,3,0,3,1,2], start = 5  
+输出：true  
+解释：到达值为 0 的下标 3 有以下可能方案：下标 5 -> 下标 4 -> 下标 1 -> 下标 3；下标 5 -> 下标 6 -> 下标 4 -> 下标 1 -> 下标 3 
+
+思路：  
+深度优先搜索，将访问过的位置置为-1（标记）。
+
+题解：
+
+```java
+class Solution {
+    public boolean canReach(int[] arr, int start) { // 深度优先搜索
+        if (start < 0 || start >= arr.length || arr[start] == -1) return false;
+        int step = arr[start];
+        arr[start] = -1; // 代表已访问过当前位置
+        return step == 0 || canReach(arr, start + step) || canReach(arr, start - step); // 由短路特性，到达0则不断回溯，只有当无法到达（可以到达的位置都置为-1）返回false
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+## Ⅻ General - Array & Math 常规 - 数组和数学
 
 常规数组题目，遍历，条件判断，... 。以及数学题。
 

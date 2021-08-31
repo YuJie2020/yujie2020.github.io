@@ -342,6 +342,80 @@ tips：
 - 时间复杂度：O(nk)，n 为面额数，k 为总金额
 - 空间复杂度：O(k)
 
+### 198. [House Robber](https://leetcode-cn.com/problems/house-robber/) 打家劫舍
+
+你是一个专业的小偷，计划偷窃沿街的房屋。每间房内都藏有一定的现金，影响你偷窃的唯一制约因素就是相邻的房屋装有相互连通的防盗系统，如果两间相邻的房屋在同一晚上被小偷闯入，系统会自动报警。给定一个代表每个房屋存放金额的非负整数数组，计算你 不触动警报装置的情况下 ，一夜之内能够偷窃到的最高金额。1 <= nums.length <= 100。0 <= nums[i] <= 400。  
+示例：  
+输入：[1,2,3,1]  
+输出：4
+
+思路：  
+动态规划。状态转移方程为从第3号房屋开始判断，对于打劫到第 i 间房屋，其最大可获得金额为两种情况：  
+1) 打劫当前房屋的金额 + 打劫前一号房屋可获得的最大金额  
+2) 不打劫当前房屋，即打劫上一号房屋可获得的最大金额
+
+题解：
+
+```java
+class Solution { // 求解数组中不相邻元素的最大和
+    public int rob(int[] nums) {
+        if (nums.length == 1) return nums[0];
+        if (nums.length == 2) return Math.max(nums[0], nums[1]); // 动态规划条件判断前提
+        int[] dp = new int[nums.length]; // 状态表达式：打劫到第i号房屋可以获得的最高金额为dp[i]
+        dp[0] = nums[0];
+        dp[1] = Math.max(nums[0], nums[1]); // base case
+        for (int i = 2; i < nums.length; i++) dp[i] = Math.max(nums[i] + dp[i - 2], dp[i - 1]); // 状态转移方程
+        return dp[nums.length - 1];
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+### 213. [House Robber II](https://leetcode-cn.com/problems/house-robber-ii/) 打家劫舍 II
+
+你是一个专业的小偷，计划偷窃沿街的房屋，每间房内都藏有一定的现金。这个地方所有的房屋都 围成一圈 ，这意味着第一个房屋和最后一个房屋是紧挨着的。同时，相邻的房屋装有相互连通的防盗系统，如果两间相邻的房屋在同一晚上被小偷闯入，系统会自动报警。给定一个代表每个房屋存放金额的非负整数数组，计算你 在不触动警报装置的情况下 ，今晚能够偷窃到的最高金额。1 <= nums.length <= 100。0 <= nums[i] <= 1000。  
+示例：  
+输入：nums = [2,3,2]  
+输出：3  
+解释：不能先偷窃 1 号房屋（金额 = 2），然后偷窃 3 号房屋（金额 = 2）, 因为他们是相邻的。
+
+题解：
+
+```java
+class Solution { // 对于 0 ~ n 号房屋，考虑 0 ~ n - 1 和 1 ~ n 的情况
+    public int rob(int[] nums) {
+        if (nums.length == 1) return nums[0];
+        if (nums.length == 2) return Math.max(nums[0], nums[1]);
+        if (nums.length == 3) return Math.max(nums[0] > nums[1] ? nums[0] : nums[1], nums[2]);
+        return Math.max(solve(nums, 2), solve(nums, 3));
+    }
+
+    private int solve(int[] nums, int start) {
+        int[] dp = new int[nums.length]; // 状态表达式：打劫到第i号房屋可以获得的最高金额为dp[i]
+        if (start == 2) {
+            dp[0] = nums[0];
+            dp[1] = Math.max(nums[0], nums[1]); // base case
+        } else {
+            dp[1] = nums[1];
+            dp[2] = Math.max(nums[1], nums[2]); // base case
+        }
+        int end = start == 2 ? nums.length -1 : nums.length;
+        for (int i = start; i < end; i++) dp[i] = Math.max(nums[i] + dp[i - 2], dp[i - 1]); // 状态转移方程
+        return dp[end - 1];
+    }
+}
+```
+
+tips：
+
+- 思路与198题相似。
+- 时间复杂度：O(n)
+- 空间复杂度：O(k)
+
 ### 343. [Integer Break](https://leetcode-cn.com/problems/integer-break/) 整数拆分
 
 给定一个正整数 *n*，将其拆分为至少两个正整数的和，并使这些整数的乘积最大化。 返回你可以获得的最大乘积。  
