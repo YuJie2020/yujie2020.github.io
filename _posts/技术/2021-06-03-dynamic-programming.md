@@ -414,7 +414,7 @@ tips：
 
 - 思路与198题相似。
 - 时间复杂度：O(n)
-- 空间复杂度：O(k)
+- 空间复杂度：O(n)
 
 ### 343. [Integer Break](https://leetcode-cn.com/problems/integer-break/) 整数拆分
 
