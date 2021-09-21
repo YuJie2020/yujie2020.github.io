@@ -403,7 +403,7 @@ class Solution { // 对于 0 ~ n 号房屋，考虑 0 ~ n - 1 和 1 ~ n 的情�
             dp[1] = nums[1];
             dp[2] = Math.max(nums[1], nums[2]); // base case
         }
-        int end = start == 2 ? nums.length -1 : nums.length;
+        int end = start == 2 ? nums.length - 1 : nums.length;
         for (int i = start; i < end; i++) dp[i] = Math.max(nums[i] + dp[i - 2], dp[i - 1]); // 状态转移方程
         return dp[end - 1];
     }
