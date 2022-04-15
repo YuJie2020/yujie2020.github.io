@@ -102,6 +102,106 @@ tips：
 - 时间复杂度：O(n^2)
 - 空间复杂度：O(n)
 
+### 91. [Decode Ways](https://leetcode-cn.com/problems/decode-ways/) 解码方法
+
+一条包含字母 A-Z 的消息通过以下映射进行了编码：  
+'A' -> "1"  
+'B' -> "2"  
+...  
+'Z' -> "26"  
+要解码已编码的消息，所有数字必须基于上述映射的方法，反向映射回字母（可能有多种方法）。例如，"11106" 可以映射为：  
+"AAJF" ，将消息分组为 (1 1 10 6)  
+"KJF" ，将消息分组为 (11 10 6)  
+注意，消息不能分组为  (1 11 06) ，因为 "06" 不能映射为 "F" ，这是由于 "6" 和 "06" 在映射中并不等价。  
+给你一个只含数字的 非空 字符串 s ，请计算并返回解码方法的总数 。  
+题目数据保证答案肯定是一个32 位的整数。  
+示例：  
+输入：s = "12"ㅤ|ㅤs = "226"  
+输出：3
+
+思路：  
+思路与120题相似。树形结构问题，并且存在重叠子问题，使用记忆化搜索（递归）的方法，子串都为从某位置到原字符串末尾的形式，某一子串的解码方法总数 = 除去第一个字符的子串解码方法总数 + 除去前两个字符的子串解码方法总数。
+
+```
+       1212
+      /    \
+    212    12
+   /   \
+  12    2
+...
+```
+
+动态规划：自底向上。观察后，总为两数相加（类似斐波纳契数列），故可以使用两个变量来记录这两个数，降低时间复杂度。
+
+题解：
+
+```java
+// 记忆化递归 tc: O(n^2) sc: O(n)
+/*class Solution {
+
+    public int numDecodings(String s) {
+        return numDecodings(s, 0, new int[s.length()]);
+    }
+
+    private int numDecodings(String s, int index, int[] memo) { // 子串都为从 index 到原始字符串末尾的形式
+        if (index == memo.length) return 1; // s 为空，到达末尾，也算一种编码方式
+        if (memo[index] != 0) return memo[index];
+        if (s.charAt(0) == '0') return 0; // 0 开头的子串 s 无效
+        if (index == memo.length - 1) return 1; // 只有一种编码方式
+        int result = numDecodings(s.substring(1), index + 1, memo);
+        if ((s.charAt(0) - '0') * 10 + s.charAt(1) - '0' < 27) result += numDecodings(s.substring(2), index + 2, memo); // 两位数编码有效
+        memo[index] = result;
+        return result;
+    }
+}*/
+
+// 动态规划 tc: O(n) sc: O(n)
+/*class Solution {
+    public int numDecodings(String s) {
+        if (s.charAt(0) == '0') return 0;
+        int[] dp = new int[s.length() + 1]; // 状态表达式：dp[i] 表示子串 s[i, end] 的编码方式总数
+        dp[dp.length - 1] = 1; // base case，全取也算一种有效编码
+        dp[dp.length - 2] = s.charAt(dp.length - 2) == '0' ? 0 : 1;
+        for (int i = dp.length - 3; i >= 0; i--) {
+            if (s.charAt(i) == '0') {
+                dp[i] = 0;
+                continue;
+            }
+            dp[i] = dp[i + 1];
+            if ((s.charAt(i) - '0') * 10 + s.charAt(i + 1) - '0' < 27) dp[i] += dp[i + 2]; // 状态转移方程
+        }
+        return dp[0];
+    }
+}*/
+
+// 动态规划（优化，降维） tc: O(n) sc: O(1)
+class Solution {
+    public int numDecodings(String s) {
+        int pre = s.charAt(s.length() - 1) == '0' ? 0 : 1;
+        int next = 1;
+        int sum = pre; // 初始化为 pre：当 s 为一位数时算法执行有效
+        for (int i = s.length() - 2; i >= 0; i--) {
+            if (s.charAt(i) == '0') {
+                sum = 0;
+                next = pre;
+                pre = sum;
+                continue;
+            }
+            sum = pre;
+            if ((s.charAt(i) - '0') * 10 + s.charAt(i + 1) - '0' < 27) sum += next;
+            next = pre;
+            pre = sum;
+        }
+        return sum;
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
 ### 64. [Minimum Path Sum](https://leetcode-cn.com/problems/minimum-path-sum/) 最小路径和
 
 给定一个包含非负整数的 `m x n` 网格 `grid` ，请找出一条从左上角到右下角的路径，使得路径上的数字总和为最小。每次只能向下或者向右移动一步。1 <= m, n <= 200。0 <= grid\[i\]\[j\] <= 100。  
