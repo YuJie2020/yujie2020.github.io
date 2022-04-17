@@ -568,6 +568,62 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(n)
 
+### 337. [House Robber III](https://leetcode-cn.com/problems/house-robber-iii/) 打家劫舍 III
+
+小偷又发现了一个新的可行窃的地区。这个地区只有一个入口，我们称之为 root 。除了 root 之外，每栋房子有且只有一个“父“房子与之相连。一番侦察之后，聪明的小偷意识到“这个地方的所有房屋的排列类似于一棵二叉树”。 如果 两个直接相连的房子在同一天晚上被打劫 ，房屋将自动报警。给定二叉树的 root 。返回 在不触动警报的情况下 ，小偷能够盗取的最高金额。0 <= Node.val <= 10^4。  
+示例：  
+输入：root = [3,4,5,1,3,null,1]  
+![](/images/2021-06-03-dynamic-programming/337.jpg)  
+输出：9
+
+思路：  
+动态规划。二叉树上的每个节点都有选中和不选中两种状态，在不同时选中有父子关系的节点下，二叉树的最大节点值和。  
+当前节点被选中时，其左/右子节点都不能被选中，故当前子树的最大节点值和 = 左/右子节点都不被选中的最大节点值和相加；  
+当前节点不被选中时，其左/右子节点都可以选中或者不选中，故当前子树的最大节点值和 = 左节点选中/不选中下最大节点值和的较大值 + 右节点选中/不选中下最大节点值和的较大值。  
+后序遍历二叉树，对每个节点定义长度为2的数组存储上述的选中 & 不选中当前节点子树的最大节点值和。
+
+题解：
+
+```java
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public int rob(TreeNode root) {
+        int[] result = postorderTraversal(root);
+        return Math.max(result[0], result[1]);
+    }
+
+    private int[] postorderTraversal(TreeNode node) {
+        if (node == null) return new int[] {0, 0}; // 递归边界条件
+        int[] left = postorderTraversal(node.left);
+        int[] right = postorderTraversal(node.right);
+        int[] root = new int[2]; // root[0] 代表打劫当前节点下该子树的最高盗取金额；root[1] 代表不打劫当前节点下该子树的最高盗取金额
+        root[0] = node.val + left[1] + right[1];
+        root[1] = Math.max(left[0], left[1]) + Math.max(right[0], right[1]);
+        return root;
+    }
+}
+```
+
+tips：
+
+- 自底向上的动态规划类似二叉树的后序遍历；
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)，递归调用时栈的最大深度。
+
 ### 343. [Integer Break](https://leetcode-cn.com/problems/integer-break/) 整数拆分
 
 给定一个正整数 *n*，将其拆分为至少两个正整数的和，并使这些整数的乘积最大化。 返回你可以获得的最大乘积。  
