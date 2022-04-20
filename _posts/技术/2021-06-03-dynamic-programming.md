@@ -624,6 +624,45 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(n)，递归调用时栈的最大深度。
 
+### 309. [Best Time to Buy and Sell Stock with Cooldown](https://leetcode-cn.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/) 最佳买卖股票时机含冷冻期
+
+给定一个整数数组prices，其中第  prices[i] 表示第 i 天的股票价格 。设计一个算法计算出最大利润。在满足以下约束条件下，你可以尽可能地完成更多的交易（多次买卖一支股票）：卖出股票后，你无法在第二天买入股票 (即冷冻期为 1 天)。注意：你不能同时参与多笔交易（你必须在再次购买前出售掉之前的股票）。  
+示例：  
+输入：prices = [1,2,3,0,2]  
+输出：3  
+解释：对应的交易状态为 [买入, 卖出, 冷冻期, 买入, 卖出]
+
+思路：  
+动态规划【三种状态转移】，思路类似337题；也使用了定义状态机的思路：  
+![](/images/2021-06-03-dynamic-programming/309.png)  
+hold：成为hold状态，有两条路线，hold下rest继续hold & rest下buy成为hold。其最大收益为 Math.max(上一hold, 上一rest减去当前买入价)；  
+sold：成为sold状态，只能从hold状态售出一条路线。其最大收益为 上一hold加上当前售出价；  
+rest：成为rest状态，有两条路线，rest下继续rest & sold后rest成为rest。其最大收益为 Math.max(上一rest, 上一sold)。  
+hold的base case初始化为-∞：为了使第一天可以买入、第一天不能卖出（使状态格无效）。
+
+题解：
+
+```java
+class Solution {
+    public int maxProfit(int[] prices) {
+        int hold = Integer.MIN_VALUE, sold = 0, rest = 0;
+        for (int price : prices) {
+            int preSold = sold;
+            sold = hold + price;
+            hold = Math.max(hold, rest - price);
+            rest = Math.max(preSold, rest);
+        }
+        return Math.max(rest, sold);
+    }
+}
+```
+
+tips：
+
+- 类似91题，在空间复杂度上也进行了降维；
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
 ### 343. [Integer Break](https://leetcode-cn.com/problems/integer-break/) 整数拆分
 
 给定一个正整数 *n*，将其拆分为至少两个正整数的和，并使这些整数的乘积最大化。 返回你可以获得的最大乘积。  
