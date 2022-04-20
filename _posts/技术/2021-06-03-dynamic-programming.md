@@ -636,7 +636,7 @@ tips：
 动态规划【三种状态转移】，思路类似337题；也使用了定义状态机的思路：  
 ![](/images/2021-06-03-dynamic-programming/309.png)  
 hold：成为hold状态，有两条路线，hold下rest继续hold & rest下buy成为hold。其最大收益为 Math.max(上一hold, 上一rest减去当前买入价)；  
-sold：成为sold状态，只能从hold状态售出一条路线。其最大收益为 上一hold加上当前售出价；  
+sold：成为sold状态，只有从hold状态售出一条路线。其最大收益为 上一hold加上当前售出价；  
 rest：成为rest状态，有两条路线，rest下继续rest & sold后rest成为rest。其最大收益为 Math.max(上一rest, 上一sold)。  
 hold的base case初始化为-∞：为了使第一天可以买入、第一天不能卖出（使状态格无效）。
 
