@@ -734,13 +734,58 @@ tips：
 - 时间复杂度：O(nk)
 - 空间复杂度：O(1)
 
+### 补充题2. 01-knapsack 01-背包
 
+经典 0-1 背包问题。
 
+题解：
 
+```java
+class Solution {
+	// tc: O(nc) sc: O(nc)
+    /*public static int knapsack01(int[] w, int v[], int c) {
+        int[][] dp = new int[w.length][c + 1];
+        for (int i = 0; i <= c; i++) dp[0][i] = i >= w[0] ? v[0] : 0;
+        for (int i = 1; i < w.length; i++) {
+            for (int j = 0; j <= c; j++) {
+                dp[i][j] = dp[i - 1][j];
+                if (j >= w[i]) dp[i][j] = Math.max(dp[i][j], v[i] + dp[i - 1][j - w[i]]);
+            }
+        }
+        return dp[w.length - 1][c];
+    }*/
 
+    // 降维 tc: O(nc) sc: O(2c) 使用两行的dp数组，dp[0]行只处理偶数i/dp[1]行只处理奇数i
+    /*public static int knapsack01(int[] w, int v[], int c) {
+        int[][] dp = new int[2][c + 1];
+        for (int i = 0; i <= c; i++) dp[0][i] = i >= w[0] ? v[0] : 0;
+        for (int i = 1; i < w.length; i++) {
+            for (int j = 0; j <= c; j++) {
+                dp[i % 2][j] = dp[(i - 1) % 2][j];
+                if (j >= w[i]) dp[i % 2][j] = Math.max(dp[i % 2][j], v[i] + dp[(i - 1) % 2][j - w[i]]);
+            }
+        }
+        return dp[(w.length - 1) % 2][c];
+    }*/
 
+    // 降维 tc: O(nc) sc: O(c) 使用一行的dp数组，对于每行从右边开始向左计算（只使用上一行上面及左边的元素）
+    public static int knapsack01(int[] w, int v[], int c) {
+        int[] dp = new int[c + 1];
+        for (int i = 0; i <= c; i++) dp[i] = i >= w[0] ? v[0] : 0;
+        for (int i = 1; i < w.length; i++) {
+            for (int j = c; j >= w[i]; j--) {
+                dp[j] = Math.max(dp[j], v[i] + dp[j - w[i]]);
+            } // 优化：容量容不下当前物品i无需再向前计算，行更新时直接等于上面的值
+        }
+        return dp[c];
+    }
+}
+```
 
+tips：
 
+- 时间复杂度：O(nc)
+- 空间复杂度：O(c)
 
 
 
