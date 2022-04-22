@@ -494,6 +494,38 @@ tips：
 - 时间复杂度：O(nk)，n 为面额数，k 为总金额
 - 空间复杂度：O(k)
 
+### 343. [Integer Break](https://leetcode-cn.com/problems/integer-break/) 整数拆分
+
+给定一个正整数 *n*，将其拆分为至少两个正整数的和，并使这些整数的乘积最大化。 返回你可以获得的最大乘积。  
+示例：  
+输入：3ㅤ|ㅤ6  
+输出：2ㅤ|ㅤ9  
+解释：2 = 1 * 2ㅤ|ㅤ9 = 3 * 3
+
+思路：  
+思路与279题相似。dp[i - j] 小于 dp[i]，故 dp[i - j] 一定已经计算过了。对于一个整数i，其最大乘积可能为被减数与剩余数两数直接相乘 (i - j) * j，也可能为剩余数的拆分最大乘积与被减数相乘 dp[i - j] * j，即 dp[i - j] 有可能小于 (i-j)，eg：n = 6。
+
+题解：
+
+```java
+class Solution {
+    public int integerBreak(int n) {
+        int[] dp = new int[n + 1]; // 状态表达式：整数i拆分可获得的最大乘积为dp[i]
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j < i; j++) {
+                dp[i] = Math.max(dp[i] > (i - j) * j ? dp[i] : (i - j) * j, dp[i - j] * j); // 状态转移方程
+            }
+        }
+        return dp[n];
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n^2)
+- 空间复杂度：O(n)
+
 ### 198. [House Robber](https://leetcode-cn.com/problems/house-robber/) 打家劫舍
 
 你是一个专业的小偷，计划偷窃沿街的房屋。每间房内都藏有一定的现金，影响你偷窃的唯一制约因素就是相邻的房屋装有相互连通的防盗系统，如果两间相邻的房屋在同一晚上被小偷闯入，系统会自动报警。给定一个代表每个房屋存放金额的非负整数数组，计算你 不触动警报装置的情况下 ，一夜之内能够偷窃到的最高金额。1 <= nums.length <= 100。0 <= nums[i] <= 400。  
@@ -663,37 +695,41 @@ tips：
 - 时间复杂度：O(n)
 - 空间复杂度：O(1)
 
-### 343. [Integer Break](https://leetcode-cn.com/problems/integer-break/) 整数拆分
+### 416. [Partition Equal Subset Sum](https://leetcode-cn.com/problems/partition-equal-subset-sum/) 分割等和子集
 
-给定一个正整数 *n*，将其拆分为至少两个正整数的和，并使这些整数的乘积最大化。 返回你可以获得的最大乘积。  
+给你一个 只包含正整数 的 非空 数组 nums 。请你判断是否可以将这个数组分割成两个子集，使得两个子集的元素和相等。  
 示例：  
-输入：3ㅤ|ㅤ6  
-输出：2ㅤ|ㅤ9  
-解释：2 = 1 * 2ㅤ|ㅤ9 = 3 * 3
+输入：nums = [1,5,11,5]ㅤ|ㅤnums = [1,2,3,5]  
+输出：trueㅤ|ㅤfalse  
+解释：数组可以分割成 [1, 5, 5] 和 [11]ㅤ|ㅤ数组不能分割成两个元素和相等的子集
 
 思路：  
-思路与279题相似。dp[i - j] 小于 dp[i]，故 dp[i - j] 一定已经计算过了。对于一个整数i，其最大乘积可能为被减数与剩余数两数直接相乘 (i - j) * j，也可能为剩余数的拆分最大乘积与被减数相乘 dp[i - j] * j，即 dp[i - j] 有可能小于 (i-j)，eg：n = 6。
+01背包问题。在 n 个物品中选出一定物品，（完全）填满 sum/2 的背包。降维类似补充题2。  
+状态转移：F(i, j) = F(i - 1, j) || F(i - 1, j - nums[i])
 
 题解：
 
 ```java
 class Solution {
-    public int integerBreak(int n) {
-        int[] dp = new int[n + 1]; // 状态表达式：整数i拆分可获得的最大乘积为dp[i]
-        for (int i = 1; i <= n; i++) {
-            for (int j = 1; j < i; j++) {
-                dp[i] = Math.max(dp[i] > (i - j) * j ? dp[i] : (i - j) * j, dp[i - j] * j); // 状态转移方程
-            }
+    public boolean canPartition(int[] nums) {
+        int sum = 0;
+        for (int num : nums) sum += num;
+        if ((sum & 1) == 1) return false; // 奇数
+        sum >>= 1;
+        boolean[] dp = new boolean[sum + 1];
+        for (int i = 0; i <= sum; i++) dp[i] = nums[0] == i;
+        for (int i = 1; i < nums.length; i++) {
+            for (int j = sum; j >= nums[i]; j--) dp[j] = dp[j] || dp[j - nums[i]];
         }
-        return dp[n];
+        return dp[sum];
     }
 }
 ```
 
 tips：
 
-- 时间复杂度：O(n^2)
-- 空间复杂度：O(n)
+- 时间复杂度：O(n * sum)
+- 空间复杂度：O(sum)
 
 ### 补充题1. Division of numbers 数的划分
 
