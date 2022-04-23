@@ -289,6 +289,60 @@ tips：
 - 时间复杂度：O(mn)
 - 空间复杂度：O(mn)
 
+### 377. [Combination Sum IV](https://leetcode-cn.com/problems/combination-sum-iv/) 组合总和 Ⅳ
+
+给你一个由 不同 整数组成的数组 nums ，和一个目标整数 target 。请你从 nums 中找出并返回总和为 target 的元素组合的个数。题目数据保证答案符合 32 位整数范围。nums 中的所有元素 互不相同。  
+示例：  
+输入：nums = [1,2,3], target = 4  
+输出：7  
+解释：所有可能的组合为：(1, 1, 1, 1) (1, 1, 2) (1, 2, 1) (1, 3) (2, 1, 1) (2, 2) (3, 1)，顺序不同的序列被视作不同的组合。
+
+思路：  
+![](/images/2021-06-03-dynamic-programming/377.png)
+
+题解：
+
+```java
+// 记忆化递归 tc：O(sum(target/nums[i])) sc：O(target)
+/*class Solution {
+    public int combinationSum4(int[] nums, int target) {
+        int[] memo = new int[target + 1]; // 使用数组nums组成数字i的组合数为memo[i]
+        Arrays.fill(memo, -1);
+        memo[0] = 1;
+        return combinationSum4(nums, target, memo);
+    }
+
+    private int combinationSum4(int[] nums, int target, int[] memo) {
+        if (target < 0) return 0;
+        if (memo[target] != -1) return memo[target];
+        int sum = 0;
+        for (int num : nums) sum += combinationSum4(nums, target - num, memo);
+        memo[target] = sum;
+        return sum;
+    }
+}*/
+
+// 动态规划 tc：O(n * target) sc：O(target)
+class Solution {
+    public int combinationSum4(int[] nums, int target) {
+        int[] dp = new int[target + 1]; // 使用数组nums组成数字i的组合数为dp[i]
+        dp[0] = 1; // base case
+        for (int i = 1; i <= target; i++) {
+            for (int num : nums) {
+                if (i < num) continue;
+                dp[i] += dp[i - num];
+            }
+        }
+        return dp[target];
+    }
+}
+```
+
+tips：
+
+- 时间复杂度：O(n * target)
+- 空间复杂度：O(target)
+
 ### 238. [Product of Array Except Self](https://leetcode-cn.com/problems/product-of-array-except-self/) 除自身以外数组的乘积
 
 给你一个长度为 n 的整数数组 nums，其中 n > 1，返回输出数组 output ，其中 output[i] 等于 nums 中除 nums[i] 之外其余各元素的乘积。请不要使用除法，且在 O(*n*) 时间复杂度内完成此题。  
